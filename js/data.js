@@ -1,4 +1,11 @@
 window.PEELVERSE_DATA = {
+  contact: {
+    zalo: '0355415501',
+    zaloUrl: 'https://zalo.me/0355415501',
+    email: 'peelverse.official@gmail.com',
+    mailto: 'mailto:peelverse.official@gmail.com'
+  },
+
   ingredients: [
     {
       id: 'citrus-peel',

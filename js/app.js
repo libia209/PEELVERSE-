@@ -220,22 +220,29 @@
     document.getElementById('cartOverlay').classList.remove('open');
   }
 
+  const CONTACT = (DATA && DATA.contact) || {
+    zalo: '0355415501',
+    zaloUrl: 'https://zalo.me/0355415501',
+    email: 'peelverse.official@gmail.com',
+    mailto: 'mailto:peelverse.official@gmail.com'
+  };
+
   function renderCartSupportBoxHtml() {
     return `
       <div class="cart-support-box">
         <div class="cart-support-title inline-icon-heading">${PVIcon('sprout', 16)} <span>Cần tư vấn chọn sản phẩm làm sạch sinh học hoặc hỗ trợ đơn hàng?</span></div>
         <div class="cart-support-links">
           <div class="contact-chip-group">
-            <a href="https://zalo.me/0355415501" target="_blank" rel="noopener noreferrer" class="contact-link-pill">
-              ${PVIcon('message-circle', 15)}<span>Zalo: <strong>0355415501</strong></span>
+            <a href="${CONTACT.zaloUrl}" target="_blank" rel="noopener noreferrer" class="contact-link-pill">
+              ${PVIcon('message-circle', 15)}<span>Zalo: <strong>${CONTACT.zalo}</strong></span>
             </a>
-            <button type="button" class="copy-btn" data-copy="0355415501" data-copy-label="số Zalo" aria-label="Sao chép số Zalo">${PVIcon('copy', 15)}</button>
+            <button type="button" class="copy-btn" data-copy="${CONTACT.zalo}" data-copy-label="số Zalo" aria-label="Sao chép số Zalo">${PVIcon('copy', 15)}</button>
           </div>
           <div class="contact-chip-group">
-            <a href="mailto:anhfsd01109@fpt.edu.vn" class="contact-link-pill">
-              ${PVIcon('mail', 15)}<span><strong>anhfsd01109@fpt.edu.vn</strong></span>
+            <a href="${CONTACT.mailto}" class="contact-link-pill">
+              ${PVIcon('mail', 15)}<span><strong>${CONTACT.email}</strong></span>
             </a>
-            <button type="button" class="copy-btn" data-copy="anhfsd01109@fpt.edu.vn" data-copy-label="Email" aria-label="Sao chép Email">${PVIcon('copy', 15)}</button>
+            <button type="button" class="copy-btn" data-copy="${CONTACT.email}" data-copy-label="Email" aria-label="Sao chép Email">${PVIcon('copy', 15)}</button>
           </div>
         </div>
       </div>
@@ -1679,17 +1686,17 @@
         }
       })),
       {
-        title: '💬 Liên hệ Zalo: 0355415501',
+        title: `💬 Liên hệ Zalo: ${CONTACT.zalo}`,
         desc: 'Mở hộp thoại liên hệ nhanh hoặc nhắn Zalo hỗ trợ PEELVERSE',
         group: 'Liên hệ',
-        searchBlob: normalizeVi('lien he contact zalo 0355415501 ho tro tu van'),
+        searchBlob: normalizeVi(`lien he contact zalo ${CONTACT.zalo} ho tro tu van`),
         action: () => openContactModal()
       },
       {
-        title: '✉️ Email: anhfsd01109@fpt.edu.vn',
+        title: `✉️ Email: ${CONTACT.email}`,
         desc: 'Gửi email hoặc sao chép địa chỉ liên hệ dự án PEELVERSE',
         group: 'Liên hệ',
-        searchBlob: normalizeVi('lien he contact email anhfsd01109@fpt.edu.vn fpt'),
+        searchBlob: normalizeVi(`lien he contact email ${CONTACT.email} gmail`),
         action: () => openContactModal()
       }
     ];

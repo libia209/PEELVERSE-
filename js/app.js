@@ -117,7 +117,8 @@
     const total = getCartTotalQty();
     const sideBadge = document.getElementById('sidebarCartBadge');
     const headBadge = document.getElementById('headerCartCount');
-    [sideBadge, headBadge].forEach((el) => {
+    const bottomBadge = document.getElementById('bottomCartBadge');
+    [sideBadge, headBadge, bottomBadge].forEach((el) => {
       if (!el) return;
       el.textContent = String(total);
       el.classList.toggle('hidden', total === 0);
@@ -367,8 +368,14 @@
       btn.classList.toggle('active', btn.dataset.route === navKey);
     });
 
+    document.querySelectorAll('.bottom-nav-item[data-route]').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.route === navKey);
+    });
+
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('sidebarOverlay').classList.remove('open');
+    const topbarEl = document.getElementById('topbar');
+    if (topbarEl) topbarEl.classList.remove('mobile-search-open');
 
     render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1395,16 +1402,23 @@
     localStorage.setItem(SIDEBAR_STORAGE_KEY, JSON.stringify(sidebarPrefs));
   }
 
+  let sidebarManualOverride = false;
+
   function applySidebarLayout() {
-    const isMobile = window.innerWidth <= 768;
+    const w = window.innerWidth;
+    const isMobile = w <= 767;
+    const isTabletPortrait = w >= 768 && w <= 1023 && window.innerHeight > w;
     const btn = document.getElementById('sidebarCollapseBtn');
+
     if (isMobile) {
       document.body.classList.remove('sidebar-collapsed');
       document.documentElement.style.setProperty('--current-sidebar-width', `${SIDEBAR_DEFAULT_WIDTH}px`);
       return;
     }
 
-    if (sidebarPrefs.collapsed) {
+    const shouldCollapse = sidebarManualOverride ? sidebarPrefs.collapsed : (sidebarPrefs.collapsed || isTabletPortrait);
+
+    if (shouldCollapse) {
       document.body.classList.add('sidebar-collapsed');
       document.documentElement.style.setProperty('--current-sidebar-width', `${SIDEBAR_COLLAPSED_WIDTH}px`);
       if (btn) btn.title = 'Mở rộng thanh bên (⌘B / Ctrl+B)';
@@ -1416,8 +1430,9 @@
   }
 
   function toggleSidebarCollapse() {
-    if (window.innerWidth <= 768) return;
-    sidebarPrefs.collapsed = !sidebarPrefs.collapsed;
+    if (window.innerWidth <= 767) return;
+    sidebarManualOverride = true;
+    sidebarPrefs.collapsed = !document.body.classList.contains('sidebar-collapsed');
     saveSidebarPrefs();
     applySidebarLayout();
     hideSidebarTooltip();
@@ -1535,17 +1550,35 @@
       }
     });
 
-    // Mobile drawer
+    // Mobile drawer & Bottom Nav menu button
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
-    document.getElementById('menuToggleBtn').addEventListener('click', () => {
+    const toggleMobileMenu = () => {
       sidebar.classList.toggle('open');
       overlay.classList.toggle('open');
-    });
+    };
+    document.getElementById('menuToggleBtn').addEventListener('click', toggleMobileMenu);
+    const bottomMenuBtn = document.getElementById('bottomMenuBtn');
+    if (bottomMenuBtn) {
+      bottomMenuBtn.addEventListener('click', toggleMobileMenu);
+    }
     overlay.addEventListener('click', () => {
       sidebar.classList.remove('open');
       overlay.classList.remove('open');
     });
+
+    // Mobile expandable search bar
+    const mobileSearchToggle = document.getElementById('mobileSearchToggle');
+    const topbarEl = document.getElementById('topbar');
+    if (mobileSearchToggle && topbarEl) {
+      mobileSearchToggle.addEventListener('click', () => {
+        const opened = topbarEl.classList.toggle('mobile-search-open');
+        if (opened) {
+          const searchInput = document.getElementById('globalSearch');
+          if (searchInput) setTimeout(() => searchInput.focus(), 60);
+        }
+      });
+    }
 
     // Cart Drawer
     document.getElementById('cartToggleBtn').addEventListener('click', openCartDrawer);

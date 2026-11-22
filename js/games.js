@@ -220,8 +220,19 @@ window.PEELVERSE_GAMES = {
 
     let pointerDown = false;
     const basin = board.querySelector('#washBasin');
-    basin.addEventListener('pointerdown', () => { pointerDown = true; });
+    basin.style.touchAction = 'none';
+    basin.addEventListener('pointerdown', (e) => {
+      pointerDown = true;
+      const target = document.elementFromPoint(e.clientX, e.clientY);
+      if (target && target.classList.contains('dirt-spot')) cleanSpot(target);
+    });
+    basin.addEventListener('pointermove', (e) => {
+      if (!pointerDown) return;
+      const target = document.elementFromPoint(e.clientX, e.clientY);
+      if (target && target.classList.contains('dirt-spot')) cleanSpot(target);
+    });
     window.addEventListener('pointerup', () => { pointerDown = false; });
+    window.addEventListener('pointercancel', () => { pointerDown = false; });
 
     const cleanSpot = (el) => {
       if (el.classList.contains('cleaned')) return;

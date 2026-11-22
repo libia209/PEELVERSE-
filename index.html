@@ -2,13 +2,21 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>PEELVERSE — From Peel to Purpose | Khám Phá Giá Trị Mới Từ Vỏ Trái Cây</title>
   <meta name="description" content="PEELVERSE — Dự án nghiên cứu và sáng tạo biến vỏ trái cây thành dung dịch làm sạch thân thiện môi trường, chậu cây tái sinh xanh và trò chơi tương tác." />
+  <meta name="theme-color" content="#FBF8F1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="PEELVERSE" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg" />
+  <link rel="apple-touch-icon" href="assets/images/ing-citrus.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Quicksand:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=4" />
+  <link rel="stylesheet" href="css/styles.css?v=5" />
 </head>
 <body>
   <div class="app-shell">
@@ -101,7 +109,7 @@
     <!-- Main Content Area -->
     <div class="main-wrapper">
       <!-- Top Header -->
-      <header class="topbar">
+      <header id="topbar" class="topbar">
         <div class="topbar-left">
           <button id="menuToggleBtn" class="icon-btn mobile-only" aria-label="Mở menu">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
@@ -111,17 +119,26 @@
             </svg>
           </button>
 
-          <div class="search-box">
+          <span class="topbar-mobile-brand mobile-only" data-route="home">🍊 PEELVERSE</span>
+
+          <div class="search-box" id="searchBox">
             <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            <input type="text" id="globalSearch" placeholder="Tìm kiếm trong PEELVERSE (nguyên liệu, chậu xanh, limonene...)" autocomplete="off" />
+            <input type="text" id="globalSearch" placeholder="Tìm nguyên liệu, khoa học, chậu xanh..." autocomplete="off" />
             <div id="searchDropdown" class="search-dropdown hidden"></div>
           </div>
         </div>
 
         <div class="topbar-right">
+          <button id="mobileSearchToggle" class="icon-btn mobile-only" aria-label="Mở tìm kiếm" title="Tìm kiếm">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+
           <button id="cartToggleBtn" class="icon-btn cart-icon-btn" aria-label="Mở giỏ hàng" title="Giỏ hàng">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="9" cy="21" r="1" />
@@ -160,9 +177,35 @@
     </div>
   </div>
 
-  <!-- Slide-over Cart Drawer -->
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav id="bottomNav" class="bottom-nav" aria-label="Điều hướng nhanh di động">
+    <button class="bottom-nav-item active" data-route="home">
+      <span class="bottom-nav-icon">🏠</span>
+      <span>Trang chủ</span>
+    </button>
+    <button class="bottom-nav-item" data-route="ingredients">
+      <span class="bottom-nav-icon">🍊</span>
+      <span>Nguyên liệu</span>
+    </button>
+    <button class="bottom-nav-item" data-route="game">
+      <span class="bottom-nav-icon">🎮</span>
+      <span>Trò chơi</span>
+    </button>
+    <button class="bottom-nav-item" data-route="shop">
+      <span class="bottom-nav-icon">🛒</span>
+      <span>Giỏ hàng</span>
+      <span id="bottomCartBadge" class="bottom-cart-badge hidden">0</span>
+    </button>
+    <button id="bottomMenuBtn" class="bottom-nav-item" aria-label="Mở toàn bộ menu">
+      <span class="bottom-nav-icon">☰</span>
+      <span>Menu</span>
+    </button>
+  </nav>
+
+  <!-- Slide-over Cart Drawer / Mobile Bottom Sheet -->
   <div id="cartOverlay" class="cart-overlay" aria-hidden="true"></div>
   <aside id="cartDrawer" class="cart-drawer" aria-label="Giỏ hàng">
+    <div class="cart-sheet-handle" aria-hidden="true"></div>
     <div class="cart-drawer-header">
       <div>
         <h3>🛒 Giỏ hàng</h3>
@@ -179,8 +222,8 @@
   <!-- Toast Container -->
   <div id="toastContainer" class="toast-container" aria-live="polite"></div>
 
-  <script src="js/data.js?v=4"></script>
-  <script src="js/games.js?v=4"></script>
-  <script src="js/app.js?v=4"></script>
+  <script src="js/data.js?v=5"></script>
+  <script src="js/games.js?v=5"></script>
+  <script src="js/app.js?v=5"></script>
 </body>
 </html>

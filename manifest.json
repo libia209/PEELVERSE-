@@ -1,0 +1,19 @@
+{
+  "name": "PEELVERSE — From Peel to Purpose",
+  "short_name": "PEELVERSE",
+  "description": "Khám phá vỏ trái cây, khoa học tự nhiên, quy trình 6 bước, mini game tương tác và chậu cây tái sinh xanh.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FBF8F1",
+  "theme_color": "#FBF8F1",
+  "orientation": "any",
+  "lang": "vi",
+  "icons": [
+    {
+      "src": "assets/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

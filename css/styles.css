@@ -2619,3 +2619,330 @@ body.sidebar-collapsed .nav-pill-green {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ===== MULTI-DEVICE, SAFE AREA, BOTTOM NAV, BOTTOM SHEET & ULTRA-COMPACT ===== */
+html, body, .app-shell, .main-wrapper {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+.app-shell, .main-wrapper {
+  min-height: 100dvh;
+}
+
+.app-view {
+  max-width: 1380px;
+  padding: clamp(16px, 2.2vw, 28px) clamp(14px, 2.8vw, 36px) clamp(48px, 6vw, 72px);
+}
+
+.topbar {
+  padding-top: env(safe-area-inset-top);
+  padding-left: max(clamp(12px, 2.5vw, 32px), env(safe-area-inset-left));
+  padding-right: max(clamp(12px, 2.5vw, 32px), env(safe-area-inset-right));
+  min-height: calc(var(--topbar-height) + env(safe-area-inset-top));
+  height: auto;
+}
+
+.sidebar {
+  padding-top: max(18px, env(safe-area-inset-top));
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: max(14px, env(safe-area-inset-left));
+}
+
+.topbar-mobile-brand {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--green-dark);
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Mobile Bottom Navigation Bar (hidden on desktop/tablet >= 768px) */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 55;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border-soft);
+  padding: 6px max(8px, env(safe-area-inset-left)) calc(6px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-right));
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -6px 22px rgba(44, 64, 38, 0.08);
+}
+
+.bottom-nav-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 54px;
+  min-height: 46px;
+  padding: 4px 6px;
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  transition: color 180ms ease, background 180ms ease;
+}
+
+.bottom-nav-item.active {
+  color: var(--green-dark);
+  background: var(--bg-sage-soft);
+}
+
+.bottom-nav-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.bottom-cart-badge {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background: var(--orange-primary);
+  color: #FFFFFF;
+  font-size: 0.62rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-sheet-handle {
+  display: none;
+  width: 42px;
+  height: 5px;
+  border-radius: 999px;
+  background: #D6CEBE;
+  margin: 10px auto 2px;
+  flex-shrink: 0;
+}
+
+/* Tablet breakpoint (768px – 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .stats-grid,
+  .explore-grid,
+  .ingredients-grid,
+  .shop-grid,
+  .science-grid,
+  .game-stages-grid,
+  .badges-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .btn, .nav-item, .filter-pill, .icon-btn {
+    min-height: 44px;
+  }
+}
+
+/* Smartphone breakpoint (<= 767px) */
+@media (max-width: 767px) {
+  .topbar {
+    flex-wrap: wrap;
+    padding-top: max(10px, env(safe-area-inset-top));
+    padding-bottom: 10px;
+    gap: 8px;
+  }
+  .topbar-left {
+    max-width: none;
+    flex: 1;
+    min-width: 0;
+  }
+  .topbar .search-box {
+    display: none;
+    order: 3;
+    flex: 0 0 100%;
+    width: 100%;
+    margin-top: 6px;
+  }
+  .topbar.mobile-search-open .search-box {
+    display: block;
+  }
+  .topbar-right {
+    gap: 8px;
+  }
+  .avatar-pill {
+    padding: 4px 10px 4px 4px;
+  }
+  .bottom-nav {
+    display: flex;
+  }
+  .app-view {
+    padding-bottom: calc(92px + env(safe-area-inset-bottom));
+  }
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .hero-actions .btn {
+    width: 100%;
+  }
+  .hero-visual img {
+    max-width: 240px;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .explore-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .explore-card-media {
+    height: 118px;
+  }
+  /* Cart Drawer becomes Bottom Sheet on Mobile */
+  .cart-drawer {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 85dvh;
+    border-left: none;
+    border-top: 1px solid var(--border-soft);
+    border-radius: 24px 24px 0 0;
+    transform: translateY(100%);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .cart-drawer.open {
+    transform: translateY(0);
+  }
+  .cart-sheet-handle {
+    display: block;
+  }
+  .toast-container {
+    bottom: calc(78px + env(safe-area-inset-bottom));
+    left: 14px;
+    right: 14px;
+  }
+  .notif-popover {
+    right: 12px;
+    left: 12px;
+    width: auto;
+  }
+  /* Touch-friendly Mini Game */
+  .collect-item,
+  .match-card,
+  .tool-btn,
+  .quiz-option {
+    min-height: 48px;
+    touch-action: manipulation;
+  }
+  .dirt-spot,
+  .table-stain {
+    touch-action: manipulation;
+  }
+}
+
+/* Smartwatch & Ultra-Small Screens (< 320px) — Ultra-Compact Mode */
+@media (max-width: 319px) {
+  .topbar {
+    padding: max(6px, env(safe-area-inset-top)) 8px 6px;
+    min-height: 48px;
+  }
+  .topbar-mobile-brand {
+    font-size: 0.85rem;
+  }
+  #mobileSearchToggle,
+  #notifBtn,
+  .hero-visual,
+  .hero-badge,
+  .about-story-visual,
+  .explore-card-media,
+  .sidebar-botanical,
+  .story-highlights {
+    display: none !important;
+  }
+  .app-view {
+    padding: 8px 8px calc(76px + env(safe-area-inset-bottom));
+  }
+  .hero-banner,
+  .about-story-card,
+  .story-strip,
+  .shop-hero,
+  .game-hub-banner,
+  .progress-overview,
+  .info-box {
+    padding: 12px;
+    border-radius: 16px;
+  }
+  .hero-title, .page-title {
+    font-size: 1.2rem !important;
+  }
+  .hero-slogan {
+    font-size: 0.9rem;
+  }
+  .hero-desc, p {
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+  .stats-grid,
+  .explore-grid,
+  .ingredients-grid,
+  .shop-grid,
+  .science-grid,
+  .game-stages-grid,
+  .badges-grid,
+  .collect-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+  }
+  .btn, .filter-pill, .nav-item, .bottom-nav-item {
+    min-height: 44px;
+    font-size: 0.8rem;
+  }
+  .bottom-nav-item span:not(.bottom-nav-icon):not(.bottom-cart-badge) {
+    display: none;
+  }
+  .cart-drawer {
+    height: 94dvh;
+    border-radius: 18px 18px 0 0;
+  }
+}
+
+/* Touch vs Mouse Precision */
+@media (hover: none), (pointer: coarse) {
+  .stat-card:hover,
+  .explore-card:hover,
+  .ingredient-card:hover,
+  .product-card:hover,
+  .science-card:hover,
+  .stage-card:hover,
+  .btn-primary:hover,
+  .btn-orange:hover,
+  .icon-btn:hover {
+    transform: none;
+  }
+  .btn,
+  .icon-btn,
+  .filter-pill,
+  .qty-btn,
+  .step-check-btn,
+  .tool-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Reduced Motion Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

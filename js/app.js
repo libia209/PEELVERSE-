@@ -1529,8 +1529,8 @@
             return `
             <article class="badge-card ${isUnlocked ? 'unlocked' : ''}">
               <div class="badge-emblem ${themeClass}">
-                ${PVIcon(b.icon || 'award', 30)}
-                ${isUnlocked ? '' : `<span class="badge-lock-pin" aria-hidden="true">${PVIcon('lock', 12)}</span>`}
+                ${PVIcon(b.icon || 'award', 36)}
+                ${isUnlocked ? '' : `<span class="badge-lock-pin" aria-hidden="true">${PVIcon('lock', 13)}</span>`}
               </div>
               <h4 style="margin-bottom:6px;">${b.title}</h4>
               <p style="font-size:0.82rem;color:var(--text-muted);">${b.desc}</p>

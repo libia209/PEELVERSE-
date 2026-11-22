@@ -442,7 +442,7 @@ window.PEELVERSE_DATA = {
     },
     {
       id: 'peelverse-legend',
-      icon: 'sparkles',
+      icon: 'crown',
       theme: 'emerald',
       emoji: '✨',
       title: 'Huyền thoại PEELVERSE',

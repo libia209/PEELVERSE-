@@ -3937,3 +3937,103 @@ body.in-game-play .back-to-top {
     transform: translateY(-2px) scale(1.04);
   }
 }
+
+
+/* ===== PHOSPHOR ICONS V2 DUOTONE SYSTEM & COLOR PALETTE ===== */
+.pv-duotone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  vertical-align: middle;
+  flex-shrink: 0;
+  transition: transform 180ms var(--ease-out-expo), filter 180ms ease;
+}
+
+/* Semantic Duotone Sidebar Icon Containers (35x35, icon 21px) */
+.nav-icon {
+  width: 35px;
+  height: 35px;
+  border-radius: 10px;
+  font-size: 21px;
+}
+
+.nav-icon.icon-nature {
+  background: rgba(45, 106, 79, 0.11);
+  color: #2D6A4F;
+}
+
+.nav-icon.icon-citrus {
+  background: rgba(234, 88, 12, 0.11);
+  color: #EA580C;
+}
+
+.nav-icon.icon-science {
+  background: rgba(15, 118, 110, 0.11);
+  color: #0F766E;
+}
+
+.nav-icon.icon-science-sky {
+  background: rgba(2, 132, 199, 0.11);
+  color: #0284C7;
+}
+
+.nav-icon.icon-amber {
+  background: rgba(217, 119, 6, 0.12);
+  color: #D97706;
+}
+
+/* Keep semantic Duotone color crisp even when nav-item is active */
+.nav-item.active .nav-icon.icon-nature { background: #FFFFFF; color: #15803D; }
+.nav-item.active .nav-icon.icon-citrus { background: #FFFFFF; color: #EA580C; }
+.nav-item.active .nav-icon.icon-science { background: #FFFFFF; color: #0F766E; }
+.nav-item.active .nav-icon.icon-science-sky { background: #FFFFFF; color: #0284C7; }
+.nav-item.active .nav-icon.icon-amber { background: #FFFFFF; color: #D97706; }
+
+/* Stat Cards Duotone Palette */
+.stat-icon {
+  font-size: 23px;
+}
+.stat-icon.sage { color: #EA580C; }
+.stat-icon.peach { color: #0284C7; }
+.stat-icon.apricot { color: #D97706; }
+.stat-icon.olive { color: #2D6A4F; }
+
+/* Badge Emblems (74x74 squircle, Duotone 36px) */
+.badge-emblem {
+  width: 74px;
+  height: 74px;
+  border-radius: 22px;
+}
+
+.badge-card:not(.unlocked) .badge-emblem {
+  background: #F5F3EF;
+  border: 1.5px dashed #D6D3CD;
+  color: #9CA3AF;
+}
+
+.badge-card.unlocked .badge-emblem.theme-amber {
+  background: linear-gradient(145deg, #FFF5E4 0%, #FDE2B8 100%);
+  color: #D97706;
+}
+
+.badge-card.unlocked .badge-emblem.theme-emerald {
+  background: linear-gradient(145deg, #ECF7E8 0%, #CEE9C5 100%);
+  color: #2D6A4F;
+}
+
+/* Collapsed sidebar caret rotation for Phosphor <i> */
+body.sidebar-collapsed .sidebar-collapse-btn .pv-duotone {
+  transform: rotate(180deg);
+}
+
+/* Hover micro-interactions for Duotone icons */
+@media (hover: hover) and (pointer: fine) {
+  .nav-item:hover .nav-icon .pv-duotone {
+    transform: scale(1.09);
+  }
+  .badge-card.unlocked:hover .badge-emblem .pv-duotone {
+    transform: scale(1.08);
+    filter: saturate(1.18);
+  }
+}

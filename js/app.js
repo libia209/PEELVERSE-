@@ -1366,8 +1366,167 @@
     });
   }
 
+  // ===== SIDEBAR COLLAPSE, RESIZE & TOOLTIP =====
+  const SIDEBAR_STORAGE_KEY = 'peelverse_sidebar_v1';
+  const SIDEBAR_DEFAULT_WIDTH = 260;
+  const SIDEBAR_COLLAPSED_WIDTH = 76;
+  const SIDEBAR_MIN_WIDTH = 220;
+  const SIDEBAR_MAX_WIDTH = 340;
+  const SIDEBAR_SNAP_COLLAPSE = 160;
+
+  function loadSidebarPrefs() {
+    try {
+      const raw = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+      if (!raw) return { collapsed: false, width: SIDEBAR_DEFAULT_WIDTH };
+      const p = JSON.parse(raw);
+      const w = Number(p.width);
+      return {
+        collapsed: Boolean(p.collapsed),
+        width: Number.isFinite(w) ? Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, w)) : SIDEBAR_DEFAULT_WIDTH
+      };
+    } catch {
+      return { collapsed: false, width: SIDEBAR_DEFAULT_WIDTH };
+    }
+  }
+
+  let sidebarPrefs = loadSidebarPrefs();
+
+  function saveSidebarPrefs() {
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, JSON.stringify(sidebarPrefs));
+  }
+
+  function applySidebarLayout() {
+    const isMobile = window.innerWidth <= 768;
+    const btn = document.getElementById('sidebarCollapseBtn');
+    if (isMobile) {
+      document.body.classList.remove('sidebar-collapsed');
+      document.documentElement.style.setProperty('--current-sidebar-width', `${SIDEBAR_DEFAULT_WIDTH}px`);
+      return;
+    }
+
+    if (sidebarPrefs.collapsed) {
+      document.body.classList.add('sidebar-collapsed');
+      document.documentElement.style.setProperty('--current-sidebar-width', `${SIDEBAR_COLLAPSED_WIDTH}px`);
+      if (btn) btn.title = 'Mở rộng thanh bên (⌘B / Ctrl+B)';
+    } else {
+      document.body.classList.remove('sidebar-collapsed');
+      document.documentElement.style.setProperty('--current-sidebar-width', `${sidebarPrefs.width}px`);
+      if (btn) btn.title = 'Thu gọn thanh bên (⌘B / Ctrl+B)';
+    }
+  }
+
+  function toggleSidebarCollapse() {
+    if (window.innerWidth <= 768) return;
+    sidebarPrefs.collapsed = !sidebarPrefs.collapsed;
+    saveSidebarPrefs();
+    applySidebarLayout();
+    hideSidebarTooltip();
+  }
+
+  function hideSidebarTooltip() {
+    const tip = document.getElementById('sidebarTooltip');
+    if (tip) {
+      tip.classList.remove('visible');
+      tip.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  function setupSidebarEnhancements() {
+    applySidebarLayout();
+
+    const collapseBtn = document.getElementById('sidebarCollapseBtn');
+    const resizeHandle = document.getElementById('sidebarResizeHandle');
+    const tooltip = document.getElementById('sidebarTooltip');
+
+    if (collapseBtn) {
+      collapseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleSidebarCollapse();
+      });
+    }
+
+    // Keyboard shortcut: Ctrl + B or Cmd + B
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+        const tag = (e.target && e.target.tagName) || '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable) return;
+        e.preventDefault();
+        toggleSidebarCollapse();
+      }
+    });
+
+    // Hover tooltips when collapsed
+    if (tooltip) {
+      document.querySelectorAll('#sidebar .nav-item[data-tooltip]').forEach((item) => {
+        item.addEventListener('mouseenter', () => {
+          if (!document.body.classList.contains('sidebar-collapsed') || window.innerWidth <= 768) return;
+          const rect = item.getBoundingClientRect();
+          tooltip.textContent = item.dataset.tooltip;
+          tooltip.style.left = `${rect.right + 12}px`;
+          tooltip.style.top = `${rect.top + rect.height / 2}px`;
+          tooltip.style.transform = 'translateY(-50%)';
+          tooltip.classList.add('visible');
+          tooltip.setAttribute('aria-hidden', 'false');
+        });
+        item.addEventListener('mouseleave', hideSidebarTooltip);
+        item.addEventListener('click', hideSidebarTooltip);
+      });
+    }
+
+    // Drag to resize on desktop
+    if (resizeHandle) {
+      let isDragging = false;
+
+      resizeHandle.addEventListener('pointerdown', (e) => {
+        if (window.innerWidth <= 768) return;
+        isDragging = true;
+        document.body.classList.add('sidebar-resizing');
+        hideSidebarTooltip();
+        e.preventDefault();
+      });
+
+      window.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const x = e.clientX;
+        if (x < SIDEBAR_SNAP_COLLAPSE) {
+          sidebarPrefs.collapsed = true;
+          document.body.classList.add('sidebar-collapsed');
+          document.documentElement.style.setProperty('--current-sidebar-width', `${SIDEBAR_COLLAPSED_WIDTH}px`);
+        } else {
+          const clamped = Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, x));
+          sidebarPrefs.collapsed = false;
+          sidebarPrefs.width = Math.round(clamped);
+          document.body.classList.remove('sidebar-collapsed');
+          document.documentElement.style.setProperty('--current-sidebar-width', `${sidebarPrefs.width}px`);
+        }
+      });
+
+      window.addEventListener('pointerup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        document.body.classList.remove('sidebar-resizing');
+        saveSidebarPrefs();
+        applySidebarLayout();
+      });
+
+      // Double-click handle to reset default width
+      resizeHandle.addEventListener('dblclick', () => {
+        if (window.innerWidth <= 768) return;
+        sidebarPrefs.collapsed = false;
+        sidebarPrefs.width = SIDEBAR_DEFAULT_WIDTH;
+        saveSidebarPrefs();
+        applySidebarLayout();
+        showToast('↔️ Đã đặt lại độ rộng thanh điều hướng mặc định (260px)');
+      });
+    }
+
+    window.addEventListener('resize', applySidebarLayout);
+  }
+
   // ===== INIT =====
   document.addEventListener('DOMContentLoaded', () => {
+    setupSidebarEnhancements();
+
     document.addEventListener('click', (e) => {
       const routeEl = e.target.closest('[data-route]');
       if (routeEl) {

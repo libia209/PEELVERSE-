@@ -391,18 +391,23 @@
     saveState();
   }
 
-  function showToast(msg) {
+  function showToast(msg, type = 'success') {
     const container = document.getElementById('toastContainer');
+    if (!container) return;
     const toast = document.createElement('div');
-    toast.className = 'toast';
+    toast.className = `toast toast-${type}`;
     toast.textContent = msg;
     container.appendChild(toast);
+    // Keep max 3 stacked toasts
+    while (container.children.length > 3) {
+      container.firstElementChild.remove();
+    }
     setTimeout(() => {
       toast.style.opacity = '0';
       toast.style.transform = 'translateY(8px)';
-      toast.style.transition = '0.25s ease';
-      setTimeout(() => toast.remove(), 260);
-    }, 3000);
+      toast.style.transition = '0.22s ease';
+      setTimeout(() => toast.remove(), 230);
+    }, 2500);
   }
 
   function getUnlockedBadges() {
@@ -448,12 +453,97 @@
     }
   }
 
+  function focusElementWithPulse(selector) {
+    setTimeout(() => {
+      const el = document.querySelector(selector);
+      if (!el) return;
+      el.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center' });
+      el.classList.remove('search-highlight-pulse');
+      void el.offsetWidth;
+      el.classList.add('search-highlight-pulse');
+      setTimeout(() => el.classList.remove('search-highlight-pulse'), 1350);
+    }, 120);
+  }
+
+  function renderBreadcrumb(items) {
+    // items: [{ label, route }] — last item is current
+    const prev = items.length > 1 ? items[items.length - 2] : { label: 'Trang chủ', route: 'home' };
+    return `
+      <div class="breadcrumb-bar">
+        <nav class="breadcrumb-nav" aria-label="Đường dẫn trang">
+          ${items
+            .map((it, idx) => {
+              const isLast = idx === items.length - 1;
+              if (isLast) return `<span class="breadcrumb-current">${it.label}</span>`;
+              return `<button type="button" class="breadcrumb-link" data-nav="${it.route}">${it.label}</button><span class="breadcrumb-sep">/</span>`;
+            })
+            .join('')}
+        </nav>
+        <button type="button" class="btn-back" style="margin-bottom:0;" data-nav="${prev.route}">← Quay lại</button>
+      </div>
+    `;
+  }
+
+  function getSmartNextStep() {
+    const nextIng = DATA.ingredients.find((i) => !state.exploredIngredients.includes(i.id));
+    if (nextIng) {
+      return {
+        emoji: nextIng.emoji,
+        kicker: 'Tiếp tục hành trình • Nguyên liệu',
+        title: `Khám phá "${nextIng.name}" (${state.exploredIngredients.length}/${DATA.ingredients.length})`,
+        cta: 'Khám phá ngay →',
+        action: () => navigate('ingredient-detail', nextIng.id)
+      };
+    }
+    const nextStep = DATA.processSteps.find((s) => !state.completedSteps.includes(s.step));
+    if (nextStep) {
+      return {
+        emoji: nextStep.emoji,
+        kicker: 'Tiếp tục hành trình • Quy trình 6 bước',
+        title: `Theo dõi Bước ${nextStep.step}: ${nextStep.title}`,
+        cta: 'Xem quy trình →',
+        action: () => {
+          navigate('process');
+          focusElementWithPulse(`[data-step-card="${nextStep.step}"]`);
+        }
+      };
+    }
+    const nextSci = DATA.scienceTopics.find((t) => !state.completedScience.includes(t.id));
+    if (nextSci) {
+      return {
+        emoji: nextSci.emoji,
+        kicker: 'Tiếp tục hành trình • Kiến thức khoa học',
+        title: `Học bài "${nextSci.title}" & làm quiz nhanh`,
+        cta: 'Học ngay →',
+        action: () => navigate('science-detail', nextSci.id)
+      };
+    }
+    const nextStage = GAMES.stages.find((g) => !state.clearedGames[g.id]);
+    if (nextStage) {
+      return {
+        emoji: nextStage.emoji,
+        kicker: 'Tiếp tục hành trình • Mini Game',
+        title: `Chinh phục Màn ${nextStage.id}: ${nextStage.title}`,
+        cta: 'Chơi ngay →',
+        action: () => navigate('game-play', nextStage.id)
+      };
+    }
+    return {
+      emoji: '🏆',
+      kicker: 'Xuất sắc • Đã hoàn thành 100%',
+      title: 'Bạn đã chinh phục trọn bộ hành trình PEELVERSE! Ghé xem huy hiệu hoặc chậu tái sinh nhé.',
+      cta: 'Xem huy hiệu →',
+      action: () => navigate('progress')
+    };
+  }
+
   function navigate(route, param = null) {
     GAMES.cleanup();
     currentRoute = route;
     activeIngredientId = route === 'ingredient-detail' ? param : null;
     activeScienceId = route === 'science-detail' ? param : null;
     activeGameStageId = route === 'game-play' ? param : null;
+    document.body.classList.toggle('in-game-play', route === 'game-play');
 
     const navKey =
       route === 'ingredient-detail'
@@ -502,6 +592,7 @@
     else if (currentRoute === 'game-play') renderGamePlay(view, activeGameStageId);
     else if (currentRoute === 'shop') renderShop(view);
     else if (currentRoute === 'progress') renderProgress(view);
+    bindNavTriggers(view);
     triggerViewTransition(view);
   }
 
@@ -599,6 +690,21 @@
         <button class="section-pill-link" data-nav="process">Xem quy trình 6 bước →</button>
       </div>
 
+      ${(() => {
+        const next = getSmartNextStep();
+        return `
+        <section class="next-step-card">
+          <div class="next-step-left">
+            <div class="next-step-badge">${next.emoji}</div>
+            <div>
+              <div class="next-step-kicker">${next.kicker}</div>
+              <div class="next-step-title">${next.title}</div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary btn-sm" id="smartNextStepBtn">${next.cta}</button>
+        </section>`;
+      })()}
+
       <section class="explore-grid">
         <article class="explore-card" data-nav="ingredients">
           <div class="explore-card-media peach-bg">
@@ -677,13 +783,19 @@
       </section>
     `;
 
+    const smartBtn = view.querySelector('#smartNextStepBtn');
+    if (smartBtn) {
+      const next = getSmartNextStep();
+      smartBtn.addEventListener('click', next.action);
+    }
+
     bindNavTriggers(view);
   }
 
   // ===== 02. ABOUT PROJECT VIEW =====
   function renderAbout(view) {
     view.innerHTML = `
-      <button class="btn-back" data-nav="home">← Quay lại Trang chủ</button>
+      ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Về dự án' }])}
       <div class="page-hero-header">
         <h1 class="page-title">🌿 About Project <span style="font-size:0.95rem;font-weight:600;color:var(--text-muted);">• Ý tưởng • Sứ mệnh • Tầm nhìn</span></h1>
       </div>
@@ -782,6 +894,7 @@
     }
 
     view.innerHTML = `
+      ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Khám phá nguyên liệu' }])}
       <div class="page-hero-header">
         <div>
           <h1 class="page-title">🍊 Khám phá nguyên liệu</h1>
@@ -865,7 +978,11 @@
     }
 
     view.innerHTML = `
-      <button class="btn-back" data-nav="ingredients">← Quay lại danh sách nguyên liệu</button>
+      ${renderBreadcrumb([
+        { label: 'Trang chủ', route: 'home' },
+        { label: 'Nguyên liệu', route: 'ingredients' },
+        { label: item.name }
+      ])}
 
       <section class="detail-hero">
         <img src="${item.image}" alt="${item.name}" />
@@ -910,6 +1027,7 @@
     const pct = Math.round((doneCount / DATA.processSteps.length) * 100);
 
     view.innerHTML = `
+      ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Quy trình thực hiện' }])}
       <div class="page-hero-header">
         <div>
           <h1 class="page-title">🔬 Quy trình thực hiện</h1>
@@ -935,7 +1053,7 @@
           .map((s) => {
             const checked = state.completedSteps.includes(s.step);
             return `
-            <article class="process-card ${checked ? 'completed' : ''}">
+            <article class="process-card ${checked ? 'completed' : ''}" data-step-card="${s.step}">
               <div class="process-card-top">
                 <span class="step-badge">Bước ${s.step}</span>
                 <span class="step-emoji">${s.emoji}</span>
@@ -979,6 +1097,7 @@
   // ===== 05. SCIENCE KNOWLEDGE VIEW =====
   function renderScience(view) {
     view.innerHTML = `
+      ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Kiến thức khoa học' }])}
       <div class="page-hero-header">
         <div>
           <h1 class="page-title">📖 Kiến thức khoa học</h1>
@@ -1028,7 +1147,11 @@
     const alreadyDone = state.completedScience.includes(topic.id);
 
     view.innerHTML = `
-      <button class="btn-back" data-nav="science">← Quay lại Thư viện kiến thức</button>
+      ${renderBreadcrumb([
+        { label: 'Trang chủ', route: 'home' },
+        { label: 'Kiến thức khoa học', route: 'science' },
+        { label: topic.title }
+      ])}
 
       <article class="info-box" style="padding:30px;border-radius:var(--radius-lg);">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
@@ -1142,6 +1265,7 @@
     const totalScore = Object.values(state.clearedGames).reduce((a, b) => a + b, 0);
 
     view.innerHTML = `
+      ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Trò chơi' }])}
       <section class="game-hub-banner">
         <div>
           <span class="hero-badge" style="background:rgba(242,140,40,0.16);color:var(--orange-deep);">KHU VỰC MINI GAME TƯƠNG TÁC</span>
@@ -1234,6 +1358,7 @@
     const totalAmount = getCartTotalAmount();
 
     view.innerHTML = `
+      ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Giỏ hàng' }])}
       <section class="shop-hero">
         <div>
           <span class="hero-badge">CHẬU CÂY TÁI SINH XANH LÀM SẴN</span>
@@ -1286,7 +1411,7 @@
           .map((p) => {
             const inCart = cart.find((c) => c.id === p.id);
             return `
-            <article class="product-card">
+            <article class="product-card" data-product-id="${p.id}">
               <div class="product-media">
                 <img src="${p.image}" alt="${p.name}" />
                 <span class="core-badge">${p.badge}</span>
@@ -1352,6 +1477,7 @@
     const unlocked = getUnlockedBadges();
 
     view.innerHTML = `
+      ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Tiến trình khám phá' }])}
       <div class="page-hero-header">
         <h1 class="page-title">📊 Tiến trình khám phá & Huy hiệu</h1>
       </div>
@@ -1405,77 +1531,300 @@
     });
   }
 
-  // ===== GLOBAL SEARCH =====
+  // ===== SMART LIVE SEARCH / COMMAND PALETTE =====
+  const RECENT_SEARCH_KEY = 'peelverse_recent_search_v1';
+
+  function normalizeVi(str) {
+    return String(str || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'd');
+  }
+
+  function highlightMatch(text, query) {
+    if (!query) return text;
+    const normText = normalizeVi(text);
+    const normQuery = normalizeVi(query).trim();
+    if (!normQuery) return text;
+    const idx = normText.indexOf(normQuery);
+    if (idx === -1) return text;
+    const before = text.slice(0, idx);
+    const hit = text.slice(idx, idx + normQuery.length);
+    const after = text.slice(idx + normQuery.length);
+    return `${before}<mark class="search-mark">${hit}</mark>${after}`;
+  }
+
+  function loadRecentSearches() {
+    try {
+      const raw = localStorage.getItem(RECENT_SEARCH_KEY);
+      const arr = JSON.parse(raw || '[]');
+      return Array.isArray(arr) ? arr.slice(0, 4) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveRecentSearch(q) {
+    const clean = q.trim();
+    if (!clean || clean.length < 2) return;
+    const prev = loadRecentSearches().filter((x) => normalizeVi(x) !== normalizeVi(clean));
+    prev.unshift(clean);
+    localStorage.setItem(RECENT_SEARCH_KEY, JSON.stringify(prev.slice(0, 4)));
+  }
+
   function setupSearch() {
     const input = document.getElementById('globalSearch');
     const dropdown = document.getElementById('searchDropdown');
+    const kbdEl = document.getElementById('searchShortcutKbd');
+
+    if (kbdEl) {
+      const isMac = /Mac|iPhone|iPad|iPod/i.test(navigator.platform || navigator.userAgent);
+      kbdEl.textContent = isMac ? '⌘K' : 'Ctrl K';
+    }
+
+    const navEntries = [
+      { title: '🏠 Trang chủ', desc: 'Tổng quan dự án PEELVERSE, tiến độ và lối tắt nhanh', group: 'Điều hướng', action: () => navigate('home') },
+      { title: '🌱 Về dự án', desc: 'Câu chuyện PEELSERVE từ cuộc sống nội trú, Sứ mệnh & Tầm nhìn', group: 'Điều hướng', action: () => navigate('about') },
+      { title: '🍊 Khám phá nguyên liệu', desc: 'Danh sách 6 nguyên liệu nghiên cứu và đặc tính', group: 'Điều hướng', action: () => navigate('ingredients') },
+      { title: '🔬 Quy trình thực hiện', desc: '6 bước thu gom, làm sạch, sơ chế, chiết xuất, lọc & đánh giá', group: 'Điều hướng', action: () => navigate('process') },
+      { title: '📖 Kiến thức khoa học', desc: '7 bài học về tinh dầu, limonene, độ pH, chiết xuất, kinh tế tuần hoàn', group: 'Điều hướng', action: () => navigate('science') },
+      { title: '🎮 Trò chơi (Mini Game)', desc: '6 màn chơi mô phỏng tạo dung dịch lau bàn', group: 'Điều hướng', action: () => navigate('game') },
+      { title: '🛒 Giỏ hàng & Chậu tái sinh', desc: 'Chậu cây tái sinh xanh làm sẵn từ vỏ cam, xơ dừa, bã cà phê', group: 'Điều hướng', action: () => navigate('shop') },
+      { title: '📊 Tiến trình khám phá', desc: 'Xem phần trăm hoàn thành và 8 huy hiệu xanh', group: 'Điều hướng', action: () => navigate('progress') }
+    ];
 
     const index = [
+      ...navEntries.map((n) => ({
+        ...n,
+        searchBlob: normalizeVi(`${n.title} ${n.desc} ${n.group}`)
+      })),
       ...DATA.ingredients.map((i) => ({
         title: `${i.emoji} ${i.name}`,
-        text: `${i.name} ${i.shortRole} ${i.description}`.toLowerCase(),
-        type: 'Nguyên liệu',
-        action: () => navigate('ingredient-detail', i.id)
+        desc: i.shortRole,
+        group: 'Nguyên liệu',
+        searchBlob: normalizeVi(`${i.name} ${i.category} ${i.shortRole} ${i.description}`),
+        action: () => {
+          navigate('ingredient-detail', i.id);
+          focusElementWithPulse('.detail-hero');
+        }
       })),
       ...DATA.scienceTopics.map((s) => ({
         title: `${s.emoji} ${s.title}`,
-        text: `${s.title} ${s.subtitle} ${s.summary}`.toLowerCase(),
-        type: 'Khoa học',
-        action: () => navigate('science-detail', s.id)
+        desc: s.subtitle,
+        group: 'Kiến thức khoa học',
+        searchBlob: normalizeVi(`${s.title} ${s.subtitle} ${s.summary}`),
+        action: () => {
+          navigate('science-detail', s.id);
+          focusElementWithPulse('.info-box');
+        }
       })),
       ...DATA.processSteps.map((p) => ({
         title: `${p.emoji} Bước ${p.step}: ${p.title}`,
-        text: `${p.title} ${p.summary}`.toLowerCase(),
-        type: 'Quy trình',
-        action: () => navigate('process')
+        desc: p.summary,
+        group: 'Quy trình thực hiện',
+        searchBlob: normalizeVi(`buoc ${p.step} ${p.title} ${p.summary} ${p.details}`),
+        action: () => {
+          navigate('process');
+          focusElementWithPulse(`[data-step-card="${p.step}"]`);
+        }
       })),
       ...GAMES.stages.map((g) => ({
         title: `${g.emoji} Màn ${g.id}: ${g.title}`,
-        text: `${g.title} ${g.desc}`.toLowerCase(),
-        type: 'Mini Game',
+        desc: g.desc,
+        group: 'Mini Game',
+        searchBlob: normalizeVi(`man ${g.id} mini game tro choi ${g.title} ${g.desc}`),
         action: () => navigate('game-play', g.id)
       })),
       ...SHOP_PRODUCTS.map((sp) => ({
         title: `🪴 ${sp.name}`,
-        text: `${sp.name} ${sp.category} ${sp.desc}`.toLowerCase(),
-        type: 'Giỏ hàng',
-        action: () => navigate('shop')
-      }))
+        desc: `${formatVND(sp.price)} • ${sp.category}`,
+        group: 'Chậu tái sinh',
+        searchBlob: normalizeVi(`chau cay chau tai sinh gio hang ${sp.name} ${sp.category} ${sp.desc}`),
+        action: () => {
+          shopCategory = 'Tất cả';
+          shopPriceRange = 'all';
+          navigate('shop');
+          focusElementWithPulse(`[data-product-id="${sp.id}"]`);
+        }
+      })),
+      {
+        title: '💬 Liên hệ Zalo: 0355415501',
+        desc: 'Mở hộp thoại liên hệ nhanh hoặc nhắn Zalo hỗ trợ PEELVERSE',
+        group: 'Liên hệ',
+        searchBlob: normalizeVi('lien he contact zalo 0355415501 ho tro tu van'),
+        action: () => openContactModal()
+      },
+      {
+        title: '✉️ Email: anhfsd01109@fpt.edu.vn',
+        desc: 'Gửi email hoặc sao chép địa chỉ liên hệ dự án PEELVERSE',
+        group: 'Liên hệ',
+        searchBlob: normalizeVi('lien he contact email anhfsd01109@fpt.edu.vn fpt'),
+        action: () => openContactModal()
+      }
     ];
 
-    input.addEventListener('input', () => {
-      const q = input.value.trim().toLowerCase();
-      if (!q) {
-        dropdown.classList.add('hidden');
-        return;
-      }
-      const matches = index.filter((item) => item.text.includes(q)).slice(0, 7);
-      if (matches.length === 0) {
-        dropdown.innerHTML = `<div style="padding:12px;font-size:0.86rem;color:var(--text-muted);">Không tìm thấy kết quả cho "${input.value}"</div>`;
-      } else {
-        dropdown.innerHTML = matches
-          .map(
-            (m, idx) => `
-          <button class="search-item" data-midx="${idx}">
-            <span style="font-weight:600;font-size:0.88rem;">${m.title}</span>
-            <span class="search-item-type">${m.type}</span>
-          </button>
-        `
-          )
-          .join('');
-        dropdown.querySelectorAll('.search-item').forEach((btn) => {
-          btn.addEventListener('click', () => {
-            matches[Number(btn.dataset.midx)].action();
-            input.value = '';
-            dropdown.classList.add('hidden');
+    const quickChips = ['Vỏ cam', 'Limonene', 'Độ pH', 'Mini Game', 'Chậu tái sinh', 'Liên hệ'];
+    let flatMatches = [];
+    let activeIdx = -1;
+
+    function openItem(item, queryUsed) {
+      if (queryUsed) saveRecentSearch(queryUsed);
+      item.action();
+      input.value = '';
+      dropdown.classList.add('hidden');
+      input.blur();
+    }
+
+    function updateActiveHighlight() {
+      const buttons = dropdown.querySelectorAll('.search-item');
+      buttons.forEach((b, i) => {
+        b.classList.toggle('active-result', i === activeIdx);
+        if (i === activeIdx) b.scrollIntoView({ block: 'nearest' });
+      });
+    }
+
+    function renderDropdown() {
+      const rawQ = input.value.trim();
+      const normQ = normalizeVi(rawQ);
+      activeIdx = -1;
+
+      if (!normQ) {
+        flatMatches = [];
+        const recents = loadRecentSearches();
+        dropdown.innerHTML = `
+          <div class="search-section-label"><span>Truy cập nhanh</span></div>
+          <div class="search-chips-wrap">
+            ${quickChips.map((c) => `<button type="button" class="search-quick-chip" data-chip="${c}">${c}</button>`).join('')}
+          </div>
+          ${
+            recents.length > 0
+              ? `
+            <div class="search-section-label">
+              <span>Tìm kiếm gần đây</span>
+              <button type="button" class="text-btn" id="clearRecentSearchBtn">Xóa</button>
+            </div>
+            <div class="search-chips-wrap">
+              ${recents.map((r) => `<button type="button" class="search-quick-chip" data-chip="${r}">🕘 ${r}</button>`).join('')}
+            </div>`
+              : ''
+          }
+          <div class="search-kbd-hint">
+            <span>Gõ có dấu hoặc không dấu (VD: "vo cam", "chau cay")</span>
+            <span>Esc để đóng</span>
+          </div>
+        `;
+
+        dropdown.querySelectorAll('[data-chip]').forEach((chip) => {
+          chip.addEventListener('click', () => {
+            input.value = chip.dataset.chip;
+            renderDropdown();
+            input.focus();
           });
         });
+        const clearBtn = dropdown.querySelector('#clearRecentSearchBtn');
+        if (clearBtn) {
+          clearBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            localStorage.removeItem(RECENT_SEARCH_KEY);
+            renderDropdown();
+          });
+        }
+        dropdown.classList.remove('hidden');
+        return;
+      }
+
+      flatMatches = index.filter((item) => item.searchBlob.includes(normQ)).slice(0, 12);
+
+      if (flatMatches.length === 0) {
+        dropdown.innerHTML = `
+          <div style="padding:14px 12px;font-size:0.86rem;color:var(--text-muted);text-align:center;">
+            Không tìm thấy kết quả cho "<strong>${rawQ}</strong>". Hãy thử từ khóa khác như <em>vỏ cam, limonene, độ pH, chậu cây</em>.
+          </div>
+        `;
+      } else {
+        // Group matches by category
+        const grouped = new Map();
+        flatMatches.forEach((m, idx) => {
+          if (!grouped.has(m.group)) grouped.set(m.group, []);
+          grouped.get(m.group).push({ item: m, flatIdx: idx });
+        });
+
+        let html = '';
+        grouped.forEach((entries, groupName) => {
+          html += `<div class="search-section-label"><span>${groupName}</span><span>${entries.length}</span></div>`;
+          entries.forEach(({ item, flatIdx }) => {
+            html += `
+              <button type="button" class="search-item" role="option" data-midx="${flatIdx}">
+                <div class="search-item-row">
+                  <span style="font-weight:700;font-size:0.88rem;color:var(--green-dark);">${highlightMatch(item.title, rawQ)}</span>
+                </div>
+                <div class="search-item-desc">${highlightMatch(item.desc, rawQ)}</div>
+              </button>
+            `;
+          });
+        });
+        html += `
+          <div class="search-kbd-hint">
+            <span>↑↓ Di chuyển • Enter để mở</span>
+            <span>Esc để đóng</span>
+          </div>
+        `;
+        dropdown.innerHTML = html;
+
+        dropdown.querySelectorAll('.search-item').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const idx = Number(btn.dataset.midx);
+            openItem(flatMatches[idx], rawQ);
+          });
+        });
+        activeIdx = 0;
+        updateActiveHighlight();
       }
       dropdown.classList.remove('hidden');
+    }
+
+    input.addEventListener('focus', renderDropdown);
+    input.addEventListener('input', renderDropdown);
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        dropdown.classList.add('hidden');
+        input.blur();
+        return;
+      }
+      if (flatMatches.length === 0) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIdx = (activeIdx + 1) % flatMatches.length;
+        updateActiveHighlight();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIdx = (activeIdx - 1 + flatMatches.length) % flatMatches.length;
+        updateActiveHighlight();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const chosen = flatMatches[activeIdx >= 0 ? activeIdx : 0];
+        if (chosen) openItem(chosen, input.value.trim());
+      }
+    });
+
+    // Global shortcut: Ctrl+K / Cmd+K
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const topbarEl = document.getElementById('topbar');
+        if (topbarEl && window.innerWidth <= 767) {
+          topbarEl.classList.add('mobile-search-open');
+        }
+        input.focus();
+        renderDropdown();
+      }
     });
 
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.search-box')) {
+      if (!e.target.closest('.search-box') && !e.target.closest('#mobileSearchToggle')) {
         dropdown.classList.add('hidden');
       }
     });
@@ -1716,14 +2065,21 @@
   document.addEventListener('DOMContentLoaded', () => {
     setupSidebarEnhancements();
 
-    // Sticky Glassmorphism Topbar scroll elevation
+    // Sticky Glassmorphism Topbar & Back to Top scroll listener
     const topbarHeader = document.getElementById('topbar');
-    if (topbarHeader) {
-      const onScroll = () => {
-        topbarHeader.classList.toggle('scrolled', window.scrollY > 8);
-      };
-      window.addEventListener('scroll', onScroll, { passive: true });
-      onScroll();
+    const backToTopBtn = document.getElementById('backToTopBtn');
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (topbarHeader) topbarHeader.classList.toggle('scrolled', y > 8);
+      if (backToTopBtn) backToTopBtn.classList.toggle('visible', y > 320);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    if (backToTopBtn) {
+      backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+      });
     }
 
     // Contact Modal triggers

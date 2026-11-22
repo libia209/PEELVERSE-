@@ -426,5 +426,92 @@ window.PEELVERSE_DATA = {
       title: 'Huyền thoại PEELVERSE',
       desc: 'Đạt 100% tiến trình khám phá trên toàn website.'
     }
+  ],
+
+  shopProducts: [
+    {
+      id: 'pot-citrus-succulent',
+      name: 'Chậu Vỏ Cam & Bưởi Sấy Trồng Sen Đá',
+      category: 'Chậu vỏ quả',
+      price: 75000,
+      badge: 'Bán chạy',
+      image: 'assets/images/pot-citrus-succulent.jpg',
+      desc: 'Chậu phân hủy sinh học ép từ vỏ cam, bưởi sấy khô xử lý chống mốc tự nhiên, trồng sẵn sen đá khỏe mạnh cho bàn học.',
+      care: {
+        light: '☀️ Nắng nhẹ 2–3h/ngày',
+        water: '💧 1–2 lần/tuần',
+        drainage: '🪴 Thoát nước tốt, có lớp sỏi đáy'
+      }
+    },
+    {
+      id: 'pot-coir-herb',
+      name: 'Chậu Tái Chế Bọc Xơ Dừa & Vỏ Quế Trồng Bạc Hà',
+      category: 'Chậu tái chế',
+      price: 89000,
+      badge: 'Thơm dịu',
+      image: 'assets/images/pot-coir-herb.jpg',
+      desc: 'Tái sinh từ hộp/chai nhựa sạch bọc dây xơ dừa thủ công và điểm xuyết thanh quế thơm, trồng sẵn lá bạc hà tươi mát.',
+      care: {
+        light: '☀️ Ánh sáng gián tiếp sáng',
+        water: '💧 Giữ ẩm nhẹ mỗi ngày',
+        drainage: '🪴 Có lỗ thoát nước & đĩa hứng'
+      }
+    },
+    {
+      id: 'pot-combo-peelserve',
+      name: 'Combo Xanh: Chậu Hương Thảo + Xịt PEELSERVE',
+      category: 'Combo xanh',
+      price: 169000,
+      badge: 'Tiết kiệm',
+      image: 'assets/images/pot-combo-peelserve.jpg',
+      desc: 'Bộ quà tặng bền vững gồm 1 chậu hương thảo tái chế thơm dịu và 1 chai xịt dung dịch lau bàn tự nhiên PEELSERVE 250ml.',
+      care: {
+        light: '☀️ Ưa sáng 4h/ngày',
+        water: '💧 2–3 lần/tuần',
+        drainage: '🪴 Đất tơi xốp, thoát nước nhanh'
+      }
+    },
+    {
+      id: 'pot-recycled-cactus',
+      name: 'Chậu Chai Tái Chế Dây Đay Trồng Xương Rồng',
+      category: 'Chậu tái chế',
+      price: 65000,
+      badge: 'Dễ chăm',
+      image: 'assets/images/pot-recycled-cactus.jpg',
+      desc: 'Chậu mini làm từ chai tái chế quấn dây đay mộc mạc, kèm sỏi trắng trang trí và xương rồng mini cực kỳ dễ chăm sóc.',
+      care: {
+        light: '☀️ Ưa nắng cửa sổ',
+        water: '💧 1 lần/tuần',
+        drainage: '🪴 Lớp sỏi thoáng rễ chống úng'
+      }
+    },
+    {
+      id: 'pot-coffee-fern',
+      name: 'Chậu Bã Cà Phê & Xơ Vỏ Cam Trồng Dương Xỉ',
+      category: 'Chậu vỏ quả',
+      price: 95000,
+      badge: 'Tuần hoàn 100%',
+      image: 'assets/images/pot-coffee-fern.jpg',
+      desc: 'Chậu ép từ bã cà phê kết hợp bã vỏ cam sau quá trình chiết xuất tinh dầu PEELSERVE, trồng sẵn dương xỉ mini lọc không khí.',
+      care: {
+        light: '☀️ Bóng râm / ánh sáng đèn',
+        water: '💧 Phun sương 3 lần/tuần',
+        drainage: '🪴 Chậu thoáng khí, thoát ẩm đều'
+      }
+    },
+    {
+      id: 'pot-combo-desk',
+      name: 'Combo Bàn Học Xanh: 2 Chậu Mini + Phân Vỏ Chuối',
+      category: 'Combo xanh',
+      price: 145000,
+      badge: 'Gợi ý nội trú',
+      image: 'assets/images/pot-citrus-succulent.jpg',
+      desc: 'Gồm 1 chậu vỏ cam trồng sen đá + 1 chậu xơ dừa trồng thảo mộc, tặng kèm gói dinh dưỡng hữu cơ ủ từ vỏ chuối tự nhiên.',
+      care: {
+        light: '☀️ Đặt gần cửa sổ thoáng',
+        water: '💧 Tưới 2 lần/tuần',
+        drainage: '🪴 Đầy đủ lớp sỏi & lỗ thoát nước'
+      }
+    }
   ]
 };

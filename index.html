@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PEELVERSE — From Peel to Purpose | Khám Phá Giá Trị Mới Từ Vỏ Trái Cây</title>
-  <meta name="description" content="PEELVERSE (PEELSERVE) — Dự án nghiên cứu và sáng tạo biến vỏ trái cây thành dung dịch làm sạch thân thiện môi trường, kết hợp kiến thức khoa học và trò chơi tương tác." />
+  <meta name="description" content="PEELVERSE — Dự án nghiên cứu và sáng tạo biến vỏ trái cây thành dung dịch làm sạch thân thiện môi trường, chậu cây tái sinh xanh và trò chơi tương tác." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Quicksand:wght@600;700&display=swap" rel="stylesheet" />
@@ -65,6 +65,11 @@
 
         <div class="sidebar-divider">Không gian cá nhân</div>
         <nav class="nav-menu nav-menu-secondary">
+          <button class="nav-item" data-route="shop">
+            <span class="nav-icon">🪴</span>
+            <span>Giỏ hàng chậu xanh</span>
+            <span id="sidebarCartBadge" class="nav-pill nav-pill-green hidden">0</span>
+          </button>
           <button class="nav-item" data-route="progress">
             <span class="nav-icon">📊</span>
             <span>Tiến trình khám phá</span>
@@ -76,7 +81,7 @@
       <div class="sidebar-botanical" aria-hidden="true">
         <div class="botanical-blob"></div>
         <div class="botanical-card">
-          <span class="botanical-tag">PEELSERVE Lab</span>
+          <span class="botanical-tag">PEELVERSE Lab</span>
           <p>From Peel to Purpose</p>
         </div>
         <img src="assets/images/ing-citrus.jpg" alt="" class="sidebar-orange-img" onerror="this.style.display='none'" />
@@ -101,12 +106,21 @@
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            <input type="text" id="globalSearch" placeholder="Tìm kiếm trong PEELVERSE (nguyên liệu, limonene, độ pH...)" autocomplete="off" />
+            <input type="text" id="globalSearch" placeholder="Tìm kiếm trong PEELVERSE (nguyên liệu, chậu xanh, limonene...)" autocomplete="off" />
             <div id="searchDropdown" class="search-dropdown hidden"></div>
           </div>
         </div>
 
         <div class="topbar-right">
+          <button id="cartToggleBtn" class="icon-btn cart-icon-btn" aria-label="Mở giỏ hàng chậu xanh" title="Giỏ hàng chậu xanh">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1" />
+              <circle cx="20" cy="21" r="1" />
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+            </svg>
+            <span id="headerCartCount" class="cart-count-badge hidden">0</span>
+          </button>
+
           <button id="notifBtn" class="icon-btn notif-btn" aria-label="Thông báo">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -135,6 +149,19 @@
       <main id="appView" class="app-view" tabindex="-1"></main>
     </div>
   </div>
+
+  <!-- Slide-over Cart Drawer -->
+  <div id="cartOverlay" class="cart-overlay" aria-hidden="true"></div>
+  <aside id="cartDrawer" class="cart-drawer" aria-label="Giỏ hàng chậu xanh">
+    <div class="cart-drawer-header">
+      <div>
+        <h3>🪴 Giỏ hàng chậu xanh</h3>
+        <span id="cartDrawerSub" class="cart-drawer-sub">0 sản phẩm đã chọn</span>
+      </div>
+      <button id="closeCartBtn" class="icon-btn" aria-label="Đóng giỏ hàng">✕</button>
+    </div>
+    <div id="cartDrawerBody" class="cart-drawer-body"></div>
+  </aside>
 
   <!-- Toast Container -->
   <div id="toastContainer" class="toast-container" aria-live="polite"></div>

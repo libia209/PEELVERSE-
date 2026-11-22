@@ -2,6 +2,7 @@
   const DATA = window.PEELVERSE_DATA;
   const GAMES = window.PEELVERSE_GAMES;
   const STORAGE_KEY = 'peelverse_progress_v1';
+  const CART_STORAGE_KEY = 'peelverse_cart_v1';
 
   const defaultState = {
     exploredIngredients: [],
@@ -10,7 +11,7 @@
     clearedGames: {}, // { stageId: bestScore }
     notifications: [
       '🍊 Chào mừng bạn đến với PEELVERSE — From Peel to Purpose!',
-      '💡 Mẹo: Khám phá nguyên liệu và làm quiz khoa học để mở khóa huy hiệu.'
+      '🪴 Mới: Ghé mục Giỏ hàng chậu xanh để khám phá các chậu cây tái sinh làm sẵn!'
     ]
   };
 
@@ -24,17 +25,257 @@
     }
   }
 
+  function loadCart() {
+    try {
+      const raw = localStorage.getItem(CART_STORAGE_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
   let state = loadState();
+  let cart = loadCart(); // [{ id, qty }]
+  let lastOrderSummary = null;
+
   let currentRoute = 'home';
   let activeIngredientId = null;
   let activeScienceId = null;
   let activeGameStageId = null;
   let ingredientFilter = 'Tất cả';
   let ingredientSort = 'default';
+  let shopCategory = 'Tất cả';
+  let shopPriceRange = 'all';
+  let shopSort = 'default';
+
+  function formatVND(amount) {
+    return `${amount.toLocaleString('vi-VN')}đ`;
+  }
 
   function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     updateHeaderStats();
+  }
+
+  function saveCart() {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    updateCartBadges();
+  }
+
+  function getCartTotalQty() {
+    return cart.reduce((sum, item) => sum + item.qty, 0);
+  }
+
+  function getCartTotalAmount() {
+    return cart.reduce((sum, entry) => {
+      const prod = DATA.shopProducts.find((p) => p.id === entry.id);
+      return sum + (prod ? prod.price * entry.qty : 0);
+    }, 0);
+  }
+
+  function addToCart(productId) {
+    const prod = DATA.shopProducts.find((p) => p.id === productId);
+    if (!prod) return;
+    lastOrderSummary = null;
+    const existing = cart.find((c) => c.id === productId);
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({ id: productId, qty: 1 });
+    }
+    saveCart();
+    renderCartDrawer();
+    showToast(`🪴 Đã thêm "${prod.name}" vào giỏ!`);
+  }
+
+  function updateCartQty(productId, delta) {
+    const idx = cart.findIndex((c) => c.id === productId);
+    if (idx === -1) return;
+    cart[idx].qty += delta;
+    if (cart[idx].qty <= 0) {
+      cart.splice(idx, 1);
+    }
+    saveCart();
+    renderCartDrawer();
+  }
+
+  function removeCartItem(productId) {
+    cart = cart.filter((c) => c.id !== productId);
+    saveCart();
+    renderCartDrawer();
+  }
+
+  function updateCartBadges() {
+    const total = getCartTotalQty();
+    const sideBadge = document.getElementById('sidebarCartBadge');
+    const headBadge = document.getElementById('headerCartCount');
+    [sideBadge, headBadge].forEach((el) => {
+      if (!el) return;
+      el.textContent = String(total);
+      el.classList.toggle('hidden', total === 0);
+    });
+  }
+
+  function openCartDrawer() {
+    renderCartDrawer();
+    document.getElementById('cartDrawer').classList.add('open');
+    document.getElementById('cartOverlay').classList.add('open');
+  }
+
+  function closeCartDrawer() {
+    document.getElementById('cartDrawer').classList.remove('open');
+    document.getElementById('cartOverlay').classList.remove('open');
+  }
+
+  function renderCartDrawer() {
+    const body = document.getElementById('cartDrawerBody');
+    const sub = document.getElementById('cartDrawerSub');
+    if (!body || !sub) return;
+
+    const totalQty = getCartTotalQty();
+    sub.textContent = `${totalQty} sản phẩm đã chọn`;
+
+    if (lastOrderSummary) {
+      body.innerHTML = `
+        <div class="cart-summary-box" style="background:linear-gradient(145deg,#F3F8E9,#FFFFFF);border-color:#C7DC9F;text-align:center;padding:24px 18px;">
+          <div style="font-size:3rem;margin-bottom:6px;">🌿</div>
+          <h3 style="margin-bottom:6px;">Đã ghi nhận yêu cầu đặt chậu xanh!</h3>
+          <p style="font-size:0.86rem;color:var(--text-muted);margin-bottom:12px;">
+            Cảm ơn <strong>${lastOrderSummary.name}</strong> đã ủng hộ dự án tái sinh xanh PEELVERSE. Nhóm sẽ liên hệ qua <strong>${lastOrderSummary.contact}</strong> trong thời gian sớm nhất.
+          </p>
+          <div style="background:#FFFFFF;border:1px solid var(--border-soft);border-radius:12px;padding:12px;text-align:left;font-size:0.83rem;margin-bottom:14px;">
+            <div><strong>Mã đơn:</strong> #${lastOrderSummary.code}</div>
+            <div><strong>Số lượng:</strong> ${lastOrderSummary.qty} sản phẩm</div>
+            <div><strong>Tổng dự kiến:</strong> ${formatVND(lastOrderSummary.total)}</div>
+            <div><strong>Địa chỉ:</strong> ${lastOrderSummary.address}</div>
+          </div>
+          <button class="btn btn-primary" id="continueShoppingBtn" style="width:100%;">Tiếp tục khám phá chậu xanh</button>
+        </div>
+      `;
+      body.querySelector('#continueShoppingBtn').addEventListener('click', () => {
+        lastOrderSummary = null;
+        closeCartDrawer();
+        navigate('shop');
+      });
+      return;
+    }
+
+    if (cart.length === 0) {
+      body.innerHTML = `
+        <div style="text-align:center;padding:42px 16px;color:var(--text-muted);">
+          <div style="font-size:3.2rem;margin-bottom:10px;">🪴</div>
+          <h4 style="margin-bottom:6px;">Giỏ hàng chậu xanh đang trống</h4>
+          <p style="font-size:0.86rem;margin-bottom:18px;">Hãy chọn cho góc học tập một chậu cây tái sinh từ vỏ cam, xơ dừa hoặc bã cà phê nhé!</p>
+          <button class="btn btn-primary" id="goShopFromEmpty">Xem các mẫu chậu xanh →</button>
+        </div>
+      `;
+      body.querySelector('#goShopFromEmpty').addEventListener('click', () => {
+        closeCartDrawer();
+        navigate('shop');
+      });
+      return;
+    }
+
+    const totalAmount = getCartTotalAmount();
+
+    body.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        ${cart
+          .map((entry) => {
+            const p = DATA.shopProducts.find((item) => item.id === entry.id);
+            if (!p) return '';
+            return `
+            <div class="cart-item-row">
+              <img src="${p.image}" alt="${p.name}" class="cart-item-thumb" />
+              <div class="cart-item-info">
+                <div class="cart-item-name">${p.name}</div>
+                <div class="cart-item-price">${formatVND(p.price)}</div>
+                <div class="qty-controls">
+                  <button class="qty-btn" data-qty-dec="${p.id}" aria-label="Giảm số lượng">−</button>
+                  <span style="font-size:0.84rem;font-weight:700;min-width:18px;text-align:center;">${entry.qty}</span>
+                  <button class="qty-btn" data-qty-inc="${p.id}" aria-label="Tăng số lượng">+</button>
+                </div>
+              </div>
+              <button class="remove-item-btn" data-remove="${p.id}" title="Xóa sản phẩm" aria-label="Xóa">✕</button>
+            </div>
+          `;
+          })
+          .join('')}
+      </div>
+
+      <div class="cart-summary-box">
+        <div class="cart-summary-line">
+          <span>Tạm tính (${totalQty} món)</span>
+          <strong>${formatVND(totalAmount)}</strong>
+        </div>
+        <div class="cart-summary-line">
+          <span>Đóng gói giấy tái chế thân thiện</span>
+          <strong style="color:var(--green-mid);">Miễn phí</strong>
+        </div>
+        <div class="cart-summary-total">
+          <span>Tổng cộng</span>
+          <span style="color:var(--orange-deep);">${formatVND(totalAmount)}</span>
+        </div>
+      </div>
+
+      <form id="ecoOrderForm" class="order-form">
+        <h4>📦 Gửi yêu cầu đặt chậu xanh</h4>
+        <div class="form-field">
+          <label for="orderName">Họ và tên *</label>
+          <input id="orderName" type="text" required placeholder="VD: Nguyễn Minh Anh" />
+        </div>
+        <div class="form-field">
+          <label for="orderContact">Số điện thoại hoặc Email *</label>
+          <input id="orderContact" type="text" required placeholder="VD: 0912 345 678 hoặc email@..." />
+        </div>
+        <div class="form-field">
+          <label for="orderAddress">Địa chỉ giao / Khu nội trú *</label>
+          <input id="orderAddress" type="text" required placeholder="VD: Phòng 302, Ký túc xá..." />
+        </div>
+        <div class="form-field">
+          <label for="orderNote">Ghi chú thêm</label>
+          <textarea id="orderNote" rows="2" placeholder="VD: Giao buổi chiều, kèm thiệp chúc mừng..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-orange" style="width:100%;margin-top:4px;">
+          Xác nhận gửi yêu cầu (${formatVND(totalAmount)})
+        </button>
+      </form>
+    `;
+
+    body.querySelectorAll('[data-qty-dec]').forEach((btn) => {
+      btn.addEventListener('click', () => updateCartQty(btn.dataset.qtyDec, -1));
+    });
+    body.querySelectorAll('[data-qty-inc]').forEach((btn) => {
+      btn.addEventListener('click', () => updateCartQty(btn.dataset.qtyInc, 1));
+    });
+    body.querySelectorAll('[data-remove]').forEach((btn) => {
+      btn.addEventListener('click', () => removeCartItem(btn.dataset.remove));
+    });
+
+    const form = body.querySelector('#ecoOrderForm');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = form.querySelector('#orderName').value.trim();
+      const contact = form.querySelector('#orderContact').value.trim();
+      const address = form.querySelector('#orderAddress').value.trim();
+      if (!name || !contact || !address) return;
+
+      lastOrderSummary = {
+        code: `PV${Math.floor(1000 + Math.random() * 9000)}`,
+        name,
+        contact,
+        address,
+        qty: getCartTotalQty(),
+        total: getCartTotalAmount()
+      };
+      cart = [];
+      saveCart();
+      addNotification(`🪴 Đã gửi yêu cầu đặt đơn #${lastOrderSummary.code} (${formatVND(lastOrderSummary.total)})!`);
+      showToast(`🎉 Đã gửi yêu cầu đặt chậu xanh #${lastOrderSummary.code}!`);
+      renderCartDrawer();
+    });
   }
 
   function addNotification(msg) {
@@ -107,7 +348,6 @@
     activeScienceId = route === 'science-detail' ? param : null;
     activeGameStageId = route === 'game-play' ? param : null;
 
-    // Update sidebar active state
     const navKey =
       route === 'ingredient-detail'
         ? 'ingredients'
@@ -121,12 +361,17 @@
       btn.classList.toggle('active', btn.dataset.route === navKey);
     });
 
-    // Close mobile sidebar
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('sidebarOverlay').classList.remove('open');
 
     render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function triggerViewTransition(view) {
+    view.classList.remove('view-enter');
+    void view.offsetWidth; // restart CSS keyframe smoothly
+    view.classList.add('view-enter');
   }
 
   function render() {
@@ -140,13 +385,20 @@
     else if (currentRoute === 'science-detail') renderScienceDetail(view, activeScienceId);
     else if (currentRoute === 'game') renderGameHub(view);
     else if (currentRoute === 'game-play') renderGamePlay(view, activeGameStageId);
+    else if (currentRoute === 'shop') renderShop(view);
     else if (currentRoute === 'progress') renderProgress(view);
+    triggerViewTransition(view);
   }
 
   // ===== 01. HOME VIEW =====
   function renderHome(view) {
     const badgesCount = getUnlockedBadges().size;
     const gamesCount = Object.keys(state.clearedGames).length;
+
+    const ingPct = Math.round((state.exploredIngredients.length / DATA.ingredients.length) * 100);
+    const sciPct = Math.round((state.completedScience.length / DATA.scienceTopics.length) * 100);
+    const gamePct = Math.round((gamesCount / GAMES.stages.length) * 100);
+    const badgePct = Math.round((badgesCount / DATA.badges.length) * 100);
 
     view.innerHTML = `
       <section class="hero-banner">
@@ -171,34 +423,57 @@
 
       <section class="stats-grid">
         <div class="stat-card" data-nav="ingredients">
-          <div class="stat-icon sage">🌿</div>
-          <div>
-            <div class="stat-value">${state.exploredIngredients.length}/${DATA.ingredients.length}</div>
-            <div class="stat-label">Nguyên liệu đã khám phá</div>
+          <div class="stat-card-main">
+            <div class="stat-icon sage">🌿</div>
+            <div>
+              <div class="stat-value">${state.exploredIngredients.length}/${DATA.ingredients.length}</div>
+              <div class="stat-label">Nguyên liệu đã khám phá</div>
+            </div>
+          </div>
+          <div class="stat-progress-track">
+            <div class="stat-progress-fill sage" style="width:${Math.max(ingPct, 6)}%;"></div>
           </div>
           <span class="stat-arrow">↗</span>
         </div>
+
         <div class="stat-card" data-nav="science">
-          <div class="stat-icon peach">📖</div>
-          <div>
-            <div class="stat-value">${state.completedScience.length}/${DATA.scienceTopics.length}</div>
-            <div class="stat-label">Bài học đã hoàn thành</div>
+          <div class="stat-card-main">
+            <div class="stat-icon peach">📖</div>
+            <div>
+              <div class="stat-value">${state.completedScience.length}/${DATA.scienceTopics.length}</div>
+              <div class="stat-label">Bài học đã hoàn thành</div>
+            </div>
+          </div>
+          <div class="stat-progress-track">
+            <div class="stat-progress-fill peach" style="width:${Math.max(sciPct, 6)}%;"></div>
           </div>
           <span class="stat-arrow">↗</span>
         </div>
+
         <div class="stat-card" data-nav="game">
-          <div class="stat-icon apricot">🎮</div>
-          <div>
-            <div class="stat-value">${gamesCount}/${GAMES.stages.length}</div>
-            <div class="stat-label">Thử thách đã vượt qua</div>
+          <div class="stat-card-main">
+            <div class="stat-icon apricot">🎮</div>
+            <div>
+              <div class="stat-value">${gamesCount}/${GAMES.stages.length}</div>
+              <div class="stat-label">Thử thách đã vượt qua</div>
+            </div>
+          </div>
+          <div class="stat-progress-track">
+            <div class="stat-progress-fill apricot" style="width:${Math.max(gamePct, 6)}%;"></div>
           </div>
           <span class="stat-arrow">↗</span>
         </div>
+
         <div class="stat-card" data-nav="progress">
-          <div class="stat-icon olive">⭐</div>
-          <div>
-            <div class="stat-value">${badgesCount}/${DATA.badges.length}</div>
-            <div class="stat-label">Huy hiệu đã đạt được</div>
+          <div class="stat-card-main">
+            <div class="stat-icon olive">⭐</div>
+            <div>
+              <div class="stat-value">${badgesCount}/${DATA.badges.length}</div>
+              <div class="stat-label">Huy hiệu đã đạt được</div>
+            </div>
+          </div>
+          <div class="stat-progress-track">
+            <div class="stat-progress-fill olive" style="width:${Math.max(badgePct, 6)}%;"></div>
           </div>
           <span class="stat-arrow">↗</span>
         </div>
@@ -212,7 +487,8 @@
       <section class="explore-grid">
         <article class="explore-card" data-nav="ingredients">
           <div class="explore-card-media peach-bg">
-            <img src="assets/images/ing-citrus.jpg" alt="Khám phá nguyên liệu" />
+            <span class="explore-media-badge">6 nguyên liệu</span>
+            <img src="assets/images/ing-citrus.jpg" alt="Khám phá nguyên liệu vỏ cam chanh quýt" />
           </div>
           <div class="explore-card-body">
             <div class="explore-card-top">
@@ -225,7 +501,8 @@
 
         <article class="explore-card" data-nav="science">
           <div class="explore-card-media sage-bg">
-            <span class="explore-emoji-hero">💡</span>
+            <span class="explore-media-badge">7 chủ đề & pH</span>
+            <img src="assets/images/explore-science.jpg" alt="Chiết xuất tinh dầu limonene và kiến thức khoa học" />
           </div>
           <div class="explore-card-body">
             <div class="explore-card-top">
@@ -238,7 +515,8 @@
 
         <article class="explore-card" data-nav="game">
           <div class="explore-card-media apricot-bg">
-            <span class="explore-emoji-hero">🎮</span>
+            <span class="explore-media-badge orange">6 màn mô phỏng</span>
+            <img src="assets/images/explore-game.jpg" alt="Mini game mô phỏng quy trình tạo sản phẩm PEELVERSE" />
           </div>
           <div class="explore-card-body">
             <div class="explore-card-top">
@@ -251,7 +529,8 @@
 
         <article class="explore-card" data-nav="progress">
           <div class="explore-card-media olive-bg">
-            <span class="explore-emoji-hero">🏆</span>
+            <span class="explore-media-badge">8 huy hiệu xanh</span>
+            <img src="assets/images/explore-achievements.jpg" alt="Bảng thành tích và huy hiệu xanh PEELVERSE" />
           </div>
           <div class="explore-card-body">
             <div class="explore-card-top">
@@ -270,14 +549,15 @@
           <p>
             Mỗi ngày, vỏ trái cây được bỏ đi sau khi sử dụng. Nhưng bên trong những phần tưởng chừng vô giá trị ấy vẫn tồn tại các hợp chất tự nhiên, đặc tính thú vị và tiềm năng để khám phá.
           </p>
-          <p style="margin-bottom:0;">
+          <p style="margin-bottom:14px;">
             Chúng tôi bắt đầu từ mong muốn nhìn nhận rác thải theo một cách khác — không chỉ là thứ cần loại bỏ, mà còn là nguồn nguyên liệu cho nghiên cứu, thử nghiệm và sáng tạo.
           </p>
+          <button class="btn btn-secondary btn-sm" data-nav="shop">🪴 Ghé góc Chậu tái sinh xanh →</button>
         </div>
         <div class="story-highlights">
           <div class="story-chip">🍊 <span>Hợp chất tự nhiên & tinh dầu Limonene</span></div>
           <div class="story-chip">🔬 <span>Quy trình 6 bước khoa học, dễ theo dõi</span></div>
-          <div class="story-chip">♻️ <span>Tư duy tái sử dụng & lối sống bền vững</span></div>
+          <div class="story-chip">♻️ <span>Tư duy tái sử dụng & chậu cây tái sinh bền vững</span></div>
         </div>
       </section>
     `;
@@ -812,7 +1092,140 @@
     );
   }
 
-  // ===== 07. PROGRESS & ACHIEVEMENTS VIEW =====
+  // ===== 07. ECO PLANTER SHOP VIEW =====
+  function renderShop(view) {
+    const categories = [
+      { key: 'Tất cả', icon: '⊞' },
+      { key: 'Chậu vỏ quả', icon: '🍊' },
+      { key: 'Chậu tái chế', icon: '♻️' },
+      { key: 'Combo xanh', icon: '🎁' }
+    ];
+
+    let list = DATA.shopProducts.filter((p) => {
+      const matchCat = shopCategory === 'Tất cả' ? true : p.category === shopCategory;
+      let matchPrice = true;
+      if (shopPriceRange === 'under90') matchPrice = p.price < 90000;
+      else if (shopPriceRange === '90to150') matchPrice = p.price >= 90000 && p.price <= 150000;
+      else if (shopPriceRange === 'over150') matchPrice = p.price > 150000;
+      return matchCat && matchPrice;
+    });
+
+    if (shopSort === 'price-asc') list = [...list].sort((a, b) => a.price - b.price);
+    else if (shopSort === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
+
+    const totalQty = getCartTotalQty();
+    const totalAmount = getCartTotalAmount();
+
+    view.innerHTML = `
+      <section class="shop-hero">
+        <div>
+          <span class="hero-badge">CHẬU CÂY TÁI SINH XANH LÀM SẴN</span>
+          <h1 style="font-size:2rem;margin-bottom:6px;">🪴 Giỏ hàng chậu xanh PEELVERSE</h1>
+          <p style="color:var(--text-muted);max-width:600px;font-size:0.94rem;">
+            Những chậu cây nhỏ xinh được chế tác thủ công từ vỏ cam bưởi sấy, bã cà phê, xơ dừa và vật liệu tái chế — mang mảng xanh tuần hoàn đến bàn học của bạn.
+          </p>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+          <div class="hud-pill">🛒 Giỏ hiện tại: ${totalQty} món • ${formatVND(totalAmount)}</div>
+          <button class="btn btn-primary" id="openCartFromShop">Mở giỏ hàng & đặt mua →</button>
+        </div>
+      </section>
+
+      <div class="filter-bar">
+        <div class="filter-pills">
+          ${categories
+            .map(
+              (cat) => `
+            <button class="filter-pill ${shopCategory === cat.key ? 'active' : ''}" data-shop-cat="${cat.key}">
+              <span>${cat.icon}</span> ${cat.key}
+            </button>
+          `
+            )
+            .join('')}
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <select id="shopPriceFilter" class="sort-select" aria-label="Lọc theo mức giá">
+            <option value="all" ${shopPriceRange === 'all' ? 'selected' : ''}>Giá: Tất cả</option>
+            <option value="under90" ${shopPriceRange === 'under90' ? 'selected' : ''}>Dưới 90.000đ</option>
+            <option value="90to150" ${shopPriceRange === '90to150' ? 'selected' : ''}>90.000đ – 150.000đ</option>
+            <option value="over150" ${shopPriceRange === 'over150' ? 'selected' : ''}>Trên 150.000đ</option>
+          </select>
+
+          <select id="shopSortSelect" class="sort-select" aria-label="Sắp xếp sản phẩm">
+            <option value="default" ${shopSort === 'default' ? 'selected' : ''}>Sắp xếp: Gợi ý</option>
+            <option value="price-asc" ${shopSort === 'price-asc' ? 'selected' : ''}>Giá thấp → cao</option>
+            <option value="price-desc" ${shopSort === 'price-desc' ? 'selected' : ''}>Giá cao → thấp</option>
+          </select>
+        </div>
+      </div>
+
+      ${
+        list.length === 0
+          ? `<div class="info-box" style="text-align:center;padding:36px;">Không có chậu cây nào khớp bộ lọc hiện tại. Hãy thử chọn mức giá hoặc danh mục khác nhé!</div>`
+          : `
+      <section class="shop-grid">
+        ${list
+          .map((p) => {
+            const inCart = cart.find((c) => c.id === p.id);
+            return `
+            <article class="product-card">
+              <div class="product-media">
+                <img src="${p.image}" alt="${p.name}" />
+                <span class="core-badge">${p.badge}</span>
+                <span class="progress-badge">${p.category}</span>
+              </div>
+              <div class="product-body">
+                <h3 class="product-title">${p.name}</h3>
+                <p class="product-desc">${p.desc}</p>
+                <div class="care-pills">
+                  <span class="care-pill">${p.care.light}</span>
+                  <span class="care-pill">${p.care.water}</span>
+                  <span class="care-pill">${p.care.drainage}</span>
+                </div>
+                <div class="product-foot">
+                  <span class="product-price">${formatVND(p.price)}</span>
+                  <button class="btn ${inCart ? 'btn-primary' : 'btn-orange'} btn-sm" data-add-cart="${p.id}">
+                    ${inCart ? `+ Thêm (${inCart.qty})` : '+ Thêm vào giỏ'}
+                  </button>
+                </div>
+              </div>
+            </article>
+          `;
+          })
+          .join('')}
+      </section>`
+      }
+    `;
+
+    view.querySelector('#openCartFromShop').addEventListener('click', openCartDrawer);
+
+    view.querySelectorAll('[data-shop-cat]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        shopCategory = btn.dataset.shopCat;
+        renderShop(view);
+      });
+    });
+
+    view.querySelector('#shopPriceFilter').addEventListener('change', (e) => {
+      shopPriceRange = e.target.value;
+      renderShop(view);
+    });
+
+    view.querySelector('#shopSortSelect').addEventListener('change', (e) => {
+      shopSort = e.target.value;
+      renderShop(view);
+    });
+
+    view.querySelectorAll('[data-add-cart]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        addToCart(btn.dataset.addCart);
+        renderShop(view);
+      });
+    });
+  }
+
+  // ===== 08. PROGRESS & ACHIEVEMENTS VIEW =====
   function renderProgress(view) {
     const pct = getOverallProgress();
     const unlocked = getUnlockedBadges();
@@ -900,6 +1313,12 @@
         text: `${g.title} ${g.desc}`.toLowerCase(),
         type: 'Mini Game',
         action: () => navigate('game-play', g.id)
+      })),
+      ...DATA.shopProducts.map((sp) => ({
+        title: `🪴 ${sp.name}`,
+        text: `${sp.name} ${sp.category} ${sp.desc}`.toLowerCase(),
+        type: 'Chậu xanh',
+        action: () => navigate('shop')
       }))
     ];
 
@@ -962,6 +1381,11 @@
       overlay.classList.remove('open');
     });
 
+    // Cart Drawer
+    document.getElementById('cartToggleBtn').addEventListener('click', openCartDrawer);
+    document.getElementById('closeCartBtn').addEventListener('click', closeCartDrawer);
+    document.getElementById('cartOverlay').addEventListener('click', closeCartDrawer);
+
     // Notification popover
     const notifBtn = document.getElementById('notifBtn');
     const notifPopover = document.getElementById('notifPopover');
@@ -985,6 +1409,7 @@
 
     setupSearch();
     updateHeaderStats();
+    updateCartBadges();
     render();
   });
 })();

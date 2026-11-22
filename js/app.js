@@ -15,13 +15,19 @@
     ]
   };
 
+  const SHOP_PRODUCTS = (DATA && Array.isArray(DATA.shopProducts)) ? DATA.shopProducts : [];
+
+  function cloneObj(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return structuredClone(defaultState);
-      return { ...structuredClone(defaultState), ...JSON.parse(raw) };
+      if (!raw) return cloneObj(defaultState);
+      return { ...cloneObj(defaultState), ...JSON.parse(raw) };
     } catch {
-      return structuredClone(defaultState);
+      return cloneObj(defaultState);
     }
   }
 
@@ -70,13 +76,13 @@
 
   function getCartTotalAmount() {
     return cart.reduce((sum, entry) => {
-      const prod = DATA.shopProducts.find((p) => p.id === entry.id);
+      const prod = SHOP_PRODUCTS.find((p) => p.id === entry.id);
       return sum + (prod ? prod.price * entry.qty : 0);
     }, 0);
   }
 
   function addToCart(productId) {
-    const prod = DATA.shopProducts.find((p) => p.id === productId);
+    const prod = SHOP_PRODUCTS.find((p) => p.id === productId);
     if (!prod) return;
     lastOrderSummary = null;
     const existing = cart.find((c) => c.id === productId);
@@ -184,7 +190,7 @@
       <div style="display:flex;flex-direction:column;gap:10px;">
         ${cart
           .map((entry) => {
-            const p = DATA.shopProducts.find((item) => item.id === entry.id);
+            const p = SHOP_PRODUCTS.find((item) => item.id === entry.id);
             if (!p) return '';
             return `
             <div class="cart-item-row">
@@ -1101,7 +1107,7 @@
       { key: 'Combo xanh', icon: '🎁' }
     ];
 
-    let list = DATA.shopProducts.filter((p) => {
+    let list = SHOP_PRODUCTS.filter((p) => {
       const matchCat = shopCategory === 'Tất cả' ? true : p.category === shopCategory;
       let matchPrice = true;
       if (shopPriceRange === 'under90') matchPrice = p.price < 90000;
@@ -1314,10 +1320,10 @@
         type: 'Mini Game',
         action: () => navigate('game-play', g.id)
       })),
-      ...DATA.shopProducts.map((sp) => ({
+      ...SHOP_PRODUCTS.map((sp) => ({
         title: `🪴 ${sp.name}`,
         text: `${sp.name} ${sp.category} ${sp.desc}`.toLowerCase(),
-        type: 'Chậu xanh',
+        type: 'Giỏ hàng',
         action: () => navigate('shop')
       }))
     ];
@@ -1362,11 +1368,12 @@
 
   // ===== INIT =====
   document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('[data-route]').forEach((el) => {
-      el.addEventListener('click', (e) => {
+    document.addEventListener('click', (e) => {
+      const routeEl = e.target.closest('[data-route]');
+      if (routeEl) {
         e.preventDefault();
-        navigate(el.dataset.route);
-      });
+        navigate(routeEl.dataset.route);
+      }
     });
 
     // Mobile drawer
@@ -1400,8 +1407,9 @@
       }
     });
 
+    // Reset progress
     document.getElementById('resetProgressBtn').addEventListener('click', () => {
-      state = structuredClone(defaultState);
+      state = cloneObj(defaultState);
       saveState();
       render();
       showToast('🔄 Đã đặt lại toàn bộ tiến trình khám phá!');

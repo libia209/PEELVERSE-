@@ -3216,3 +3216,199 @@ html, body, .app-shell, .main-wrapper {
     font-size: 0.75rem;
   }
 }
+
+
+/* ===== MODERN VISUAL POLISH & 60FPS MOTION SYSTEM ===== */
+:root {
+  --text-muted: #566250;
+  --surface-border: rgba(226, 217, 199, 0.85);
+  --shadow-card: 0 1px 2px rgba(44, 64, 38, 0.04), 0 6px 18px rgba(44, 64, 38, 0.045);
+  --shadow-card-hover: 0 4px 10px rgba(44, 64, 38, 0.06), 0 16px 32px rgba(44, 64, 38, 0.1);
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Slim Top Route Loading Progress Bar */
+.route-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  z-index: 120;
+  background: linear-gradient(90deg, var(--green-accent), var(--orange-primary), var(--green-dark));
+  transform-origin: left center;
+  transform: scaleX(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.route-progress-bar.running {
+  animation: routeLoadBar 360ms var(--ease-out-expo) forwards;
+}
+
+@keyframes routeLoadBar {
+  0% { transform: scaleX(0); opacity: 1; }
+  72% { transform: scaleX(0.86); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+
+/* Sticky Glassmorphism Topbar (border + shadow appear cleanly on scroll) */
+.topbar {
+  background: rgba(251, 248, 241, 0.78);
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  border-bottom: 1px solid transparent;
+  box-shadow: none;
+  transition: background 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.topbar.scrolled {
+  background: rgba(251, 248, 241, 0.88);
+  border-bottom-color: var(--surface-border);
+  box-shadow: 0 4px 20px rgba(44, 64, 38, 0.06);
+}
+
+/* Unified Pastel SVG Icon Frames in Sidebar */
+.nav-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  color: var(--green-dark);
+}
+
+.nav-icon.icon-sage { background: #E6EED7; color: #2F4F25; }
+.nav-icon.icon-olive { background: #E9F0DA; color: #43612D; }
+.nav-icon.icon-peach { background: #FDE9D8; color: #C96514; }
+.nav-icon.icon-sky { background: #E3F0FA; color: #1E648F; }
+.nav-icon.icon-butter { background: #FCF2D4; color: #A67212; }
+.nav-icon.icon-apricot { background: #FCE2D5; color: #C45328; }
+
+.nav-item.active .nav-icon {
+  background: #FFFFFF;
+  color: var(--green-dark);
+  box-shadow: 0 2px 8px rgba(44, 64, 38, 0.12);
+}
+
+/* Layered Elevation on Cards */
+.stat-card,
+.explore-card,
+.ingredient-card,
+.product-card,
+.science-card,
+.process-card,
+.stage-card,
+.info-box,
+.progress-overview,
+.about-story-card,
+.story-strip {
+  border-color: var(--surface-border);
+  box-shadow: var(--shadow-card);
+}
+
+/* Smooth 240ms Page View Transition & Stagger Reveal */
+.app-view.view-enter {
+  animation: fadeSlideView 240ms var(--ease-out-expo) both;
+}
+
+@keyframes fadeSlideView {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stagger-item {
+  animation: staggerReveal 300ms var(--ease-out-expo) both;
+  animation-delay: calc(var(--stagger-i, 0) * 50ms);
+}
+
+@keyframes staggerReveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tactile Press Feedback (all buttons) */
+.btn:active,
+.icon-btn:active,
+.filter-pill:active,
+.copy-btn:active,
+.qty-btn:active,
+.step-check-btn:active,
+.tool-btn:active,
+.sidebar-collapse-btn:active {
+  transform: scale(0.97) !important;
+}
+
+/* Cart Bounce Micro-interaction */
+@keyframes cartBouncePop {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.24) rotate(-6deg); }
+  65% { transform: scale(0.92) rotate(4deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+.cart-bounce {
+  animation: cartBouncePop 420ms var(--ease-out-expo);
+}
+
+/* Hover-only GPU Micro-interactions (strictly pointer: fine + hover) */
+@media (hover: hover) and (pointer: fine) {
+  body:not(.sidebar-collapsed) .nav-item:hover {
+    transform: translateX(3px);
+  }
+
+  .explore-card:hover,
+  .product-card:hover,
+  .ingredient-card:hover,
+  .science-card:hover,
+  .stage-card:hover,
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .explore-card:hover .explore-card-media img,
+  .product-card:hover .product-media img,
+  .ingredient-card:hover .ingredient-media img {
+    transform: scale(1.04);
+  }
+
+  .circle-arrow {
+    transition: transform 220ms var(--ease-out-expo), background 200ms ease, color 200ms ease, border-color 200ms ease;
+  }
+
+  .explore-card:hover .circle-arrow,
+  .ingredient-card:hover .circle-arrow {
+    transform: translateX(3px);
+    background: var(--green-dark);
+    color: #FFFFFF;
+    border-color: var(--green-dark);
+  }
+}
+
+/* Lightweight Eco Confetti Layer */
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 115;
+  overflow: hidden;
+}
+
+.confetti-dot {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  opacity: 0;
+  animation: confettiBurst 950ms var(--ease-out-expo) forwards;
+}
+
+@keyframes confettiBurst {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--tx), var(--ty), 0) rotate(var(--rot)) scale(0.4);
+  }
+}

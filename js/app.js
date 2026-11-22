@@ -81,6 +81,81 @@
     }, 0);
   }
 
+  const prefersReducedMotion = () =>
+    window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function triggerRouteProgressBar() {
+    if (prefersReducedMotion()) return;
+    const bar = document.getElementById('routeProgressBar');
+    if (!bar) return;
+    bar.classList.remove('running');
+    void bar.offsetWidth;
+    bar.classList.add('running');
+  }
+
+  function triggerCartBounce() {
+    if (prefersReducedMotion()) return;
+    ['cartToggleBtn', 'sidebarCartBadge', 'bottomCartBadge'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('cart-bounce');
+      void el.offsetWidth;
+      el.classList.add('cart-bounce');
+    });
+  }
+
+  function triggerEcoConfetti() {
+    if (prefersReducedMotion()) return;
+    const layer = document.getElementById('confettiLayer');
+    if (!layer) return;
+    const colors = ['#F28C28', '#70984B', '#FFB74D', '#4B6A3A', '#DCE7C4'];
+    const cx = window.innerWidth * 0.5;
+    const cy = Math.min(window.innerHeight * 0.35, 280);
+    for (let i = 0; i < 24; i += 1) {
+      const dot = document.createElement('span');
+      dot.className = 'confetti-dot';
+      const angle = (Math.PI * 2 * i) / 24 + (Math.random() - 0.5) * 0.4;
+      const dist = 70 + Math.random() * 140;
+      dot.style.left = `${cx}px`;
+      dot.style.top = `${cy}px`;
+      dot.style.background = colors[i % colors.length];
+      dot.style.setProperty('--tx', `${Math.round(Math.cos(angle) * dist)}px`);
+      dot.style.setProperty('--ty', `${Math.round(Math.sin(angle) * dist + 40)}px`);
+      dot.style.setProperty('--rot', `${Math.round((Math.random() - 0.5) * 540)}deg`);
+      layer.appendChild(dot);
+      setTimeout(() => dot.remove(), 1000);
+    }
+  }
+
+  function applyStaggerAndCountUp(view) {
+    if (prefersReducedMotion()) return;
+    const staggerSelectors =
+      '.stats-grid > *, .explore-grid > *, .ingredients-grid > *, .process-timeline > *, .science-grid > *, .game-stages-grid > *, .shop-grid > *, .badges-grid > *';
+    view.querySelectorAll(staggerSelectors).forEach((el, idx) => {
+      el.classList.add('stagger-item');
+      el.style.setProperty('--stagger-i', String(Math.min(idx, 8)));
+    });
+
+    // Smooth count-up for numeric stat values like "3/6" or "42%"
+    view.querySelectorAll('.stat-value, [data-countup]').forEach((el) => {
+      const raw = el.textContent.trim();
+      const match = raw.match(/^(\d+)(.*)$/);
+      if (!match) return;
+      const target = Number(match[1]);
+      const suffix = match[2];
+      if (target <= 0) return;
+      const duration = 420;
+      const start = performance.now();
+      const step = (now) => {
+        const progress = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = `${Math.round(target * eased)}${suffix}`;
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
+  }
+
   function addToCart(productId) {
     const prod = SHOP_PRODUCTS.find((p) => p.id === productId);
     if (!prod) return;
@@ -93,6 +168,7 @@
     }
     saveCart();
     renderCartDrawer();
+    triggerCartBounce();
     showToast(`🪴 Đã thêm "${prod.name}" vào giỏ!`);
   }
 
@@ -406,9 +482,11 @@
   }
 
   function triggerViewTransition(view) {
+    triggerRouteProgressBar();
     view.classList.remove('view-enter');
-    void view.offsetWidth; // restart CSS keyframe smoothly
+    void view.offsetWidth;
     view.classList.add('view-enter');
+    applyStaggerAndCountUp(view);
   }
 
   function render() {
@@ -1011,6 +1089,7 @@
             state.completedScience.push(topic.id);
             addNotification(`📖 Hoàn thành bài học khoa học: ${topic.title}!`);
             showToast(`🎉 Đã hoàn thành bài học: ${topic.title}`);
+            triggerEcoConfetti();
             saveState();
           }
         } else {
@@ -1123,6 +1202,7 @@
         }
         addNotification(`🎮 Hoàn thành Màn ${completedId} với ${score} điểm!`);
         showToast(`🏆 Màn ${completedId} hoàn tất (+${score} điểm)`);
+        triggerEcoConfetti();
         saveState();
       },
       () => navigate('game')
@@ -1282,7 +1362,7 @@
             <h2>Hành trình PEELVERSE của bạn</h2>
             <p style="color:var(--text-muted);font-size:0.9rem;">Hoàn thành khám phá nguyên liệu, quy trình, bài học khoa học và 6 màn chơi để đạt 100%!</p>
           </div>
-          <div style="font-size:2rem;font-weight:800;color:var(--green-dark);">${pct}%</div>
+          <div data-countup="true" style="font-size:2rem;font-weight:800;color:var(--green-dark);">${pct}%</div>
         </div>
         <div class="progress-bar-track">
           <div class="progress-bar-fill" style="width:${pct}%;"></div>
@@ -1635,6 +1715,16 @@
   // ===== INIT =====
   document.addEventListener('DOMContentLoaded', () => {
     setupSidebarEnhancements();
+
+    // Sticky Glassmorphism Topbar scroll elevation
+    const topbarHeader = document.getElementById('topbar');
+    if (topbarHeader) {
+      const onScroll = () => {
+        topbarHeader.classList.toggle('scrolled', window.scrollY > 8);
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
 
     // Contact Modal triggers
     const sidebarContactBtn = document.getElementById('sidebarContactBtn');

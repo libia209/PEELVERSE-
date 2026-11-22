@@ -136,6 +136,28 @@
     document.getElementById('cartOverlay').classList.remove('open');
   }
 
+  function renderCartSupportBoxHtml() {
+    return `
+      <div class="cart-support-box">
+        <div class="cart-support-title">🌿 Cần tư vấn chọn chậu cây hoặc hỗ trợ đơn hàng?</div>
+        <div class="cart-support-links">
+          <div class="contact-chip-group">
+            <a href="https://zalo.me/0355415501" target="_blank" rel="noopener noreferrer" class="contact-link-pill">
+              <span>💬</span><span>Zalo: <strong>0355415501</strong></span>
+            </a>
+            <button type="button" class="copy-btn" data-copy="0355415501" data-copy-label="số Zalo" aria-label="Sao chép số Zalo">📋</button>
+          </div>
+          <div class="contact-chip-group">
+            <a href="mailto:anhfsd01109@fpt.edu.vn" class="contact-link-pill">
+              <span>✉️</span><span><strong>anhfsd01109@fpt.edu.vn</strong></span>
+            </a>
+            <button type="button" class="copy-btn" data-copy="anhfsd01109@fpt.edu.vn" data-copy-label="Email" aria-label="Sao chép Email">📋</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   function renderCartDrawer() {
     const body = document.getElementById('cartDrawerBody');
     const sub = document.getElementById('cartDrawerSub');
@@ -177,6 +199,7 @@
           <p style="font-size:0.86rem;margin-bottom:18px;">Hãy chọn cho góc học tập một chậu cây tái sinh từ vỏ cam, xơ dừa hoặc bã cà phê nhé!</p>
           <button class="btn btn-primary" id="goShopFromEmpty">Xem các mẫu chậu xanh →</button>
         </div>
+        ${renderCartSupportBoxHtml()}
       `;
       body.querySelector('#goShopFromEmpty').addEventListener('click', () => {
         closeCartDrawer();
@@ -249,6 +272,7 @@
           Xác nhận gửi yêu cầu (${formatVND(totalAmount)})
         </button>
       </form>
+      ${renderCartSupportBoxHtml()}
     `;
 
     body.querySelectorAll('[data-qty-dec]').forEach((btn) => {
@@ -1209,6 +1233,10 @@
           .join('')}
       </section>`
       }
+
+      <div style="margin-top:24px;">
+        ${renderCartSupportBoxHtml()}
+      </div>
     `;
 
     view.querySelector('#openCartFromShop').addEventListener('click', openCartDrawer);
@@ -1538,11 +1566,107 @@
     window.addEventListener('resize', applySidebarLayout);
   }
 
+  // ===== CONTACT MODAL & CLIPBOARD COPY =====
+  function copyTextWithFallback(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+    }
+    return fallbackCopy(text);
+  }
+
+  function fallbackCopy(text) {
+    return new Promise((resolve, reject) => {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  function handleCopyButtonClick(btn) {
+    const text = btn.dataset.copy;
+    const label = btn.dataset.copyLabel || 'nội dung';
+    const isTextMode = btn.dataset.copyMode === 'text';
+    if (!text) return;
+
+    copyTextWithFallback(text).then(() => {
+      if (!btn.dataset.origHtml) {
+        btn.dataset.origHtml = btn.innerHTML;
+      }
+      btn.classList.add('copied');
+      btn.innerHTML = isTextMode ? '✓ Đã sao chép!' : '✓';
+      showToast(`✅ Đã sao chép ${label}: ${text}`);
+      clearTimeout(Number(btn.dataset.copyTimer || 0));
+      const t = setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = btn.dataset.origHtml;
+      }, 1800);
+      btn.dataset.copyTimer = String(t);
+    });
+  }
+
+  function openContactModal() {
+    const overlay = document.getElementById('contactOverlay');
+    if (!overlay) return;
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+    hideSidebarTooltip();
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeContactModal() {
+    const overlay = document.getElementById('contactOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
+
   // ===== INIT =====
   document.addEventListener('DOMContentLoaded', () => {
     setupSidebarEnhancements();
 
+    // Contact Modal triggers
+    const sidebarContactBtn = document.getElementById('sidebarContactBtn');
+    const closeContactBtn = document.getElementById('closeContactBtn');
+    const contactOverlay = document.getElementById('contactOverlay');
+    if (sidebarContactBtn) {
+      sidebarContactBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openContactModal();
+      });
+    }
+    if (closeContactBtn) closeContactBtn.addEventListener('click', closeContactModal);
+    if (contactOverlay) {
+      contactOverlay.addEventListener('click', (e) => {
+        if (e.target === contactOverlay) closeContactModal();
+      });
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeContactModal();
+        closeCartDrawer();
+      }
+    });
+
+    // Global delegated click for copy buttons & route triggers
     document.addEventListener('click', (e) => {
+      const copyEl = e.target.closest('[data-copy]');
+      if (copyEl) {
+        e.preventDefault();
+        handleCopyButtonClick(copyEl);
+        return;
+      }
       const routeEl = e.target.closest('[data-route]');
       if (routeEl) {
         e.preventDefault();

@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Quicksand:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=5" />
+  <link rel="stylesheet" href="css/styles.css?v=6" />
 </head>
 <body>
   <div class="app-shell">
@@ -88,6 +88,10 @@
           <button class="nav-item" data-route="progress" data-tooltip="Tiến trình khám phá">
             <span class="nav-icon">📊</span>
             <span class="nav-label">Tiến trình khám phá</span>
+          </button>
+          <button id="sidebarContactBtn" class="nav-item" data-tooltip="Liên hệ">
+            <span class="nav-icon">💬</span>
+            <span class="nav-label">Liên hệ</span>
           </button>
         </nav>
       </div>
@@ -174,6 +178,36 @@
 
       <!-- Dynamic Route View Container -->
       <main id="appView" class="app-view" tabindex="-1"></main>
+
+      <!-- Site Footer -->
+      <footer class="site-footer" aria-label="Thông tin liên hệ PEELVERSE">
+        <div class="footer-inner">
+          <div class="footer-brand">
+            <strong>🍊 PEELVERSE — From Peel to Purpose</strong>
+            <span>Khám phá vỏ trái cây • Khoa học tự nhiên • Tái sinh bền vững</span>
+          </div>
+          <div class="footer-contacts">
+            <div class="contact-chip-group">
+              <a href="https://zalo.me/0355415501" target="_blank" rel="noopener noreferrer" class="contact-link-pill">
+                <span>💬</span>
+                <span>Zalo: <strong>0355415501</strong></span>
+              </a>
+              <button type="button" class="copy-btn" data-copy="0355415501" data-copy-label="số Zalo" aria-label="Sao chép số Zalo 0355415501" title="Sao chép số Zalo">
+                📋
+              </button>
+            </div>
+            <div class="contact-chip-group">
+              <a href="mailto:anhfsd01109@fpt.edu.vn" class="contact-link-pill">
+                <span>✉️</span>
+                <span><strong>anhfsd01109@fpt.edu.vn</strong></span>
+              </a>
+              <button type="button" class="copy-btn" data-copy="anhfsd01109@fpt.edu.vn" data-copy-label="Email" aria-label="Sao chép Email anhfsd01109@fpt.edu.vn" title="Sao chép Email">
+                📋
+              </button>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   </div>
 
@@ -216,14 +250,60 @@
     <div id="cartDrawerBody" class="cart-drawer-body"></div>
   </aside>
 
+  <!-- Contact Quick Modal -->
+  <div id="contactOverlay" class="contact-modal-overlay" aria-hidden="true">
+    <div id="contactModal" class="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle">
+      <div class="contact-modal-header">
+        <div>
+          <span class="botanical-tag" style="margin-bottom:4px;">HỖ TRỢ & KẾT NỐI</span>
+          <h3 id="contactModalTitle">💬 Liên hệ PEELVERSE</h3>
+        </div>
+        <button id="closeContactBtn" class="icon-btn" aria-label="Đóng hộp thoại liên hệ">✕</button>
+      </div>
+      <p class="contact-modal-desc">
+        Bạn cần trao đổi thêm về dự án PEELVERSE, tìm hiểu quy trình chiết xuất hay tư vấn đặt chậu cây tái sinh xanh? Liên hệ trực tiếp với chúng tôi qua Zalo hoặc Email bên dưới:
+      </p>
+
+      <div class="contact-modal-cards">
+        <div class="contact-modal-card">
+          <div class="contact-modal-card-top">
+            <span class="contact-modal-icon zalo">💬</span>
+            <div>
+              <div class="contact-modal-label">Zalo hỗ trợ nhanh</div>
+              <div class="contact-modal-value">0355415501</div>
+            </div>
+          </div>
+          <div class="contact-modal-actions">
+            <a href="https://zalo.me/0355415501" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">Nhắn Zalo →</a>
+            <button type="button" class="btn btn-secondary btn-sm copy-btn-text" data-copy="0355415501" data-copy-label="số Zalo" data-copy-mode="text">📋 Sao chép</button>
+          </div>
+        </div>
+
+        <div class="contact-modal-card">
+          <div class="contact-modal-card-top">
+            <span class="contact-modal-icon email">✉️</span>
+            <div style="min-width:0;">
+              <div class="contact-modal-label">Email dự án</div>
+              <div class="contact-modal-value" style="word-break:break-all;">anhfsd01109@fpt.edu.vn</div>
+            </div>
+          </div>
+          <div class="contact-modal-actions">
+            <a href="mailto:anhfsd01109@fpt.edu.vn" class="btn btn-orange btn-sm">Gửi Email →</a>
+            <button type="button" class="btn btn-secondary btn-sm copy-btn-text" data-copy="anhfsd01109@fpt.edu.vn" data-copy-label="Email" data-copy-mode="text">📋 Sao chép</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Floating Sidebar Tooltip (for collapsed mini mode) -->
   <div id="sidebarTooltip" class="sidebar-tooltip" role="tooltip" aria-hidden="true"></div>
 
   <!-- Toast Container -->
   <div id="toastContainer" class="toast-container" aria-live="polite"></div>
 
-  <script src="js/data.js?v=5"></script>
-  <script src="js/games.js?v=5"></script>
-  <script src="js/app.js?v=5"></script>
+  <script src="js/data.js?v=6"></script>
+  <script src="js/games.js?v=6"></script>
+  <script src="js/app.js?v=6"></script>
 </body>
 </html>

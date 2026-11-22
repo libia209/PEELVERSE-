@@ -19,7 +19,7 @@ window.PEELVERSE_DATA = {
         'Hợp chất limonene có khả năng hòa tan tốt các vết dầu mỡ nhẹ',
         'Thân thiện sinh học, dễ phân hủy trong tự nhiên'
       ],
-      researchRole: 'Đóng vai trò là nguồn cung cấp tinh dầu và hương thơm tự nhiên chủ đạo trong quá trình chiết xuất dung dịch làm sạch PEELSERVE.',
+      researchRole: 'Đóng vai trò là nguồn cung cấp tinh dầu và hương thơm tự nhiên chủ đạo trong quá trình chiết xuất dung dịch làm sạch PEELVERSE.',
       notes: [
         'Nên chọn vỏ tươi, không bị nấm mốc hay dập nát sâu.',
         'Rửa sạch bề mặt vỏ trước khi sơ chế để loại bỏ bụi bẩn và sáp bảo quản.',
@@ -60,7 +60,7 @@ window.PEELVERSE_DATA = {
       isCore: true,
       image: 'assets/images/ing-water.jpg',
       shortRole: 'Môi trường pha loãng và hỗ trợ quá trình tiếp xúc, chiết xuất',
-      description: 'Nước là dung môi phổ biến và an toàn nhất trong tự nhiên. Trong dự án PEELSERVE, nước giúp điều chỉnh nồng độ dung dịch và tạo môi trường tiếp xúc ổn định.',
+      description: 'Nước là dung môi phổ biến và an toàn nhất trong tự nhiên. Trong dự án PEELVERSE, nước giúp điều chỉnh nồng độ dung dịch và tạo môi trường tiếp xúc ổn định.',
       composition: [
         'Phân tử H₂O có tính phân cực cao',
         'Độ pH trung tính (~7.0)',
@@ -96,7 +96,7 @@ window.PEELVERSE_DATA = {
         'Hỗ trợ khử mùi thức ăn bám trên bàn ăn sau bữa ăn',
         'Bổ sung sắc màu tự nhiên bắt mắt cho mẫu thử'
       ],
-      researchRole: 'Nguyên liệu bổ trợ hương thơm thực vật, cải thiện trải nghiệm cảm quan của dung dịch lau bàn PEELSERVE.',
+      researchRole: 'Nguyên liệu bổ trợ hương thơm thực vật, cải thiện trải nghiệm cảm quan của dung dịch lau bàn PEELVERSE.',
       notes: [
         'Chỉ sử dụng lượng vừa phải (1–2 thanh nhỏ) để không lấn át hương cam chanh.',
         'Cần lọc kỹ cặn vỏ quế sau khi chiết xuất để tránh làm tắc đầu xịt.'
@@ -291,15 +291,15 @@ window.PEELVERSE_DATA = {
       subtitle: 'Vì sao các chất có thể hòa tan trong những môi trường khác nhau?',
       emoji: '🧪',
       color: '#FDF3D8',
-      summary: 'Hiểu cơ chế hòa tan giữa nước, giấm và tinh dầu trong mẫu thử PEELSERVE.',
+      summary: 'Hiểu cơ chế hòa tan giữa nước, giấm và tinh dầu trong mẫu thử PEELVERSE.',
       content: [
         'Dung môi là chất (thường ở thể lỏng) có khả năng hòa tan chất khác (chất tan) để tạo thành dung dịch. Nước được mệnh danh là "dung môi vạn năng" vì phân tử nước có tính phân cực mạnh.',
-        'Trong quy trình PEELSERVE, hỗn hợp giấm và nước đóng vai trò môi trường tiếp xúc giúp hòa tan các hợp chất phân cực từ vỏ trái cây và quế, đồng thời mang theo các giọt tinh dầu siêu nhỏ phân tán trong dung dịch.',
+        'Trong quy trình PEELVERSE, hỗn hợp giấm và nước đóng vai trò môi trường tiếp xúc giúp hòa tan các hợp chất phân cực từ vỏ trái cây và quế, đồng thời mang theo các giọt tinh dầu siêu nhỏ phân tán trong dung dịch.',
         'Bởi tinh dầu không tan hoàn toàn trong nước, việc lắc nhẹ chai xịt trước khi dùng giúp phân tán đều tinh dầu trong dung dịch.'
       ],
       keyTakeaway: 'Mỗi dung môi hòa tan tốt những chất có tính phân cực tương đồng với nó.',
       quiz: {
-        question: 'Vì sao nên lắc nhẹ chai dung dịch PEELSERVE trước khi xịt lau bàn?',
+        question: 'Vì sao nên lắc nhẹ chai dung dịch PEELVERSE trước khi xịt lau bàn?',
         options: [
           'Để tạo bọt xà phòng',
           'Để phân tán đều các giọt tinh dầu trong môi trường nước - giấm',
@@ -342,12 +342,12 @@ window.PEELVERSE_DATA = {
       summary: 'Kỹ thuật tách pha vật lý đơn giản giúp dung dịch trong sạch và sẵn sàng sử dụng.',
       content: [
         'Lọc là phương pháp vật lý dùng một lớp vật liệu có lỗ nhỏ (rây lọc, vải lọc, giấy lọc) để giữ lại các hạt chất rắn không tan và cho phần chất lỏng đi qua.',
-        'Trong dự án PEELSERVE, bước lọc giúp loại bỏ hoàn toàn xác vỏ cam, vụn quế và các chất xơ lơ lửng. Điều này vừa đảm bảo tính thẩm mỹ, vừa hạn chế nấm mốc phát sinh khi bảo quản và tránh tắc vòi phun.',
+        'Trong dự án PEELVERSE, bước lọc giúp loại bỏ hoàn toàn xác vỏ cam, vụn quế và các chất xơ lơ lửng. Điều này vừa đảm bảo tính thẩm mỹ, vừa hạn chế nấm mốc phát sinh khi bảo quản và tránh tắc vòi phun.',
         'Lọc nhiều cấp (từ rây thô đến vải mịn) là cách hiệu quả và tiết kiệm thời gian nhất trong phòng thí nghiệm học đường.'
       ],
       keyTakeaway: 'Lọc tách chất rắn khỏi chất lỏng dựa trên sự khác biệt về kích thước hạt so với lỗ lọc.',
       quiz: {
-        question: 'Mục đích chính của bước lọc trong quy trình PEELSERVE là gì?',
+        question: 'Mục đích chính của bước lọc trong quy trình PEELVERSE là gì?',
         options: [
           'Làm tăng độ chua của giấm',
           'Tách phần nguyên liệu rắn và cặn lơ lửng khỏi dung dịch lỏng',
@@ -366,12 +366,12 @@ window.PEELVERSE_DATA = {
       summary: 'Khi rác thải của hoạt động này trở thành nguyên liệu đầu vào cho một giải pháp hữu ích mới.',
       content: [
         'Trong mô hình tuyến tính truyền thống (Khai thác → Sử dụng → Vứt bỏ), vỏ trái cây sau bữa ăn sẽ trở thành rác thải và nhanh chóng bị chôn lấp, phát sinh khí nhà kính khi phân hủy yếm khí.',
-        'Kinh tế tuần hoàn đặt câu hỏi ngược lại: làm sao để kéo dài vòng đời của tài nguyên? Với PEELSERVE, vỏ trái cây được "tái sinh" thành nguồn tinh dầu cho dung dịch lau bàn, và phần bã sau khi lọc vẫn có thể tiếp tục làm phân bón hữu cơ cho cây xanh.',
+        'Kinh tế tuần hoàn đặt câu hỏi ngược lại: làm sao để kéo dài vòng đời của tài nguyên? Với PEELVERSE, vỏ trái cây được "tái sinh" thành nguồn tinh dầu cho dung dịch lau bàn, và phần bã sau khi lọc vẫn có thể tiếp tục làm phân bón hữu cơ cho cây xanh.',
         'Mỗi hành động nhỏ từ cuộc sống nội trú hằng ngày đều góp phần hình thành tư duy tiêu dùng bền vững và sáng tạo.'
       ],
       keyTakeaway: 'Không có "rác thải" nếu ta biết nhìn nhận chúng như một nguồn tài nguyên đặt đúng chỗ.',
       quiz: {
-        question: 'Điều gì thể hiện rõ nhất tinh thần Kinh tế tuần hoàn trong dự án PEELSERVE?',
+        question: 'Điều gì thể hiện rõ nhất tinh thần Kinh tế tuần hoàn trong dự án PEELVERSE?',
         options: [
           'Mua thật nhiều hóa chất tẩy rửa công nghiệp mới',
           'Tận dụng vỏ trái cây bỏ đi để nghiên cứu tạo dung dịch lau bàn và tái sử dụng bã vỏ',
@@ -452,87 +452,87 @@ window.PEELVERSE_DATA = {
 
   shopProducts: [
     {
-      id: 'pot-citrus-succulent',
-      name: 'Chậu Vỏ Cam & Bưởi Sấy Trồng Sen Đá',
-      category: 'Chậu vỏ quả',
-      price: 75000,
+      id: 'bio-table-spray',
+      name: 'Xịt Lau Bàn & Bề Mặt Đa Năng Vỏ Cam Sả (250ml)',
+      category: 'Lau bề mặt & Bếp',
+      price: 49000,
       badge: 'Bán chạy',
-      image: 'assets/images/pot-citrus-succulent.jpg',
-      desc: 'Chậu phân hủy sinh học ép từ vỏ cam, bưởi sấy khô xử lý chống mốc tự nhiên, trồng sẵn sen đá khỏe mạnh cho bàn học.',
-      care: {
-        light: '☀️ Nắng nhẹ 2–3h/ngày',
-        water: '💧 1–2 lần/tuần',
-        drainage: '🪴 Thoát nước tốt, có lớp sỏi đáy'
+      image: 'assets/images/prod-table-spray.jpg',
+      desc: 'Dung dịch lau bàn ăn, mặt kính và bàn học chiết xuất tinh dầu vỏ cam kết hợp sả tươi giúp đánh bay vết bẩn nhẹ, khử mùi thức ăn tức thì.',
+      specs: {
+        volume: '🧴 Dung tích: 250ml',
+        peel: '🍊 Vỏ cam ngọt & sả tươi',
+        benefit: '✨ Lành tính, dịu nhẹ da tay'
       }
     },
     {
-      id: 'pot-coir-herb',
-      name: 'Chậu Tái Chế Bọc Xơ Dừa & Vỏ Quế Trồng Bạc Hà',
-      category: 'Chậu tái chế',
-      price: 89000,
-      badge: 'Thơm dịu',
-      image: 'assets/images/pot-coir-herb.jpg',
-      desc: 'Tái sinh từ hộp/chai nhựa sạch bọc dây xơ dừa thủ công và điểm xuyết thanh quế thơm, trồng sẵn lá bạc hà tươi mát.',
-      care: {
-        light: '☀️ Ánh sáng gián tiếp sáng',
-        water: '💧 Giữ ẩm nhẹ mỗi ngày',
-        drainage: '🪴 Có lỗ thoát nước & đĩa hứng'
+      id: 'bio-kitchen-degreaser',
+      name: 'Dung Dịch Tẩy Dầu Mỡ Nhà Bếp Tinh Dầu Vỏ Bưởi & Chanh (500ml)',
+      category: 'Lau bề mặt & Bếp',
+      price: 69000,
+      badge: 'Tẩy dầu nhanh',
+      image: 'assets/images/prod-kitchen-degreaser.jpg',
+      desc: 'Công thức giàu D-Limonene tự nhiên từ vỏ bưởi và vỏ chanh giúp làm lỏng mảng bám dầu mỡ trên bếp gas, máy hút mùi mà không gây mùi hóa chất hắc.',
+      specs: {
+        volume: '🧴 Dung tích: 500ml',
+        peel: '🍋 Vỏ bưởi & chanh tươi',
+        benefit: '✨ Không tồn dư hóa chất độc hại'
       }
     },
     {
-      id: 'pot-combo-peelserve',
-      name: 'Combo Xanh: Chậu Hương Thảo + Xịt PEELSERVE',
-      category: 'Combo xanh',
-      price: 169000,
-      badge: 'Tiết kiệm',
-      image: 'assets/images/pot-combo-peelserve.jpg',
-      desc: 'Bộ quà tặng bền vững gồm 1 chậu hương thảo tái chế thơm dịu và 1 chai xịt dung dịch lau bàn tự nhiên PEELSERVE 250ml.',
-      care: {
-        light: '☀️ Ưa sáng 4h/ngày',
-        water: '💧 2–3 lần/tuần',
-        drainage: '🪴 Đất tơi xốp, thoát nước nhanh'
+      id: 'bio-dish-wash',
+      name: 'Nước Rửa Chén Sinh Học Enzyme Vỏ Dứa & Cam Ngọt (500ml)',
+      category: 'Rửa chén & Lau sàn',
+      price: 59000,
+      badge: 'Enzyme tự nhiên',
+      image: 'assets/images/prod-dish-wash.jpg',
+      desc: 'Lên men enzyme sinh học từ vỏ dứa và vỏ cam ngọt, tạo bọt dịu nhẹ, rửa sạch dầu mỡ và khử mùi tanh chén bát mà vẫn giữ ẩm da tay.',
+      specs: {
+        volume: '🧴 Dung tích: 500ml',
+        peel: '🍍 Enzyme vỏ dứa & cam ngọt',
+        benefit: '✨ Dễ tráng sạch, an toàn cho bé'
       }
     },
     {
-      id: 'pot-recycled-cactus',
-      name: 'Chậu Chai Tái Chế Dây Đay Trồng Xương Rồng',
-      category: 'Chậu tái chế',
-      price: 65000,
-      badge: 'Dễ chăm',
-      image: 'assets/images/pot-recycled-cactus.jpg',
-      desc: 'Chậu mini làm từ chai tái chế quấn dây đay mộc mạc, kèm sỏi trắng trang trí và xương rồng mini cực kỳ dễ chăm sóc.',
-      care: {
-        light: '☀️ Ưa nắng cửa sổ',
-        water: '💧 1 lần/tuần',
-        drainage: '🪴 Lớp sỏi thoáng rễ chống úng'
+      id: 'bio-floor-cleaner',
+      name: 'Nước Lau Sàn Kháng Khuẩn Hương Vỏ Quế & Cam Sấy (1000ml)',
+      category: 'Rửa chén & Lau sàn',
+      price: 85000,
+      badge: 'Thơm ấm tự nhiên',
+      image: 'assets/images/prod-floor-cleaner.jpg',
+      desc: 'Chiết xuất tinh dầu vỏ cam sấy kết hợp hương quế ấm áp giúp sàn nhà sạch bóng, nhanh khô, không bết dính và hỗ trợ xua đuổi côn trùng nhẹ.',
+      specs: {
+        volume: '🧴 Dung tích: 1000ml',
+        peel: '🌿 Vỏ quế & vỏ cam sấy',
+        benefit: '✨ Khô nhanh, an toàn cho thú cưng'
       }
     },
     {
-      id: 'pot-coffee-fern',
-      name: 'Chậu Bã Cà Phê & Xơ Vỏ Cam Trồng Dương Xỉ',
-      category: 'Chậu vỏ quả',
-      price: 95000,
-      badge: 'Tuần hoàn 100%',
-      image: 'assets/images/pot-coffee-fern.jpg',
-      desc: 'Chậu ép từ bã cà phê kết hợp bã vỏ cam sau quá trình chiết xuất tinh dầu PEELSERVE, trồng sẵn dương xỉ mini lọc không khí.',
-      care: {
-        light: '☀️ Bóng râm / ánh sáng đèn',
-        water: '💧 Phun sương 3 lần/tuần',
-        drainage: '🪴 Chậu thoáng khí, thoát ẩm đều'
+      id: 'bio-room-mist',
+      name: 'Xịt Khử Mùi Phòng & Giày Tinh Dầu Vỏ Bưởi Tự Nhiên (150ml)',
+      category: 'Xịt thơm & Khử mùi',
+      price: 55000,
+      badge: 'Nhỏ gọn tiện lợi',
+      image: 'assets/images/prod-room-mist.jpg',
+      desc: 'Tia sương siêu mịn chiết xuất từ tinh dầu vỏ bưởi tự nhiên giúp khử mùi ẩm mốc trong phòng nội trú, tủ quần áo và giày dép cực kỳ thanh mát.',
+      specs: {
+        volume: '🧴 Dung tích: 150ml',
+        peel: '🍊 Tinh dầu vỏ bưởi nguyên chất',
+        benefit: '✨ Không cồn công nghiệp, thơm thanh'
       }
     },
     {
-      id: 'pot-combo-desk',
-      name: 'Combo Bàn Học Xanh: 2 Chậu Mini + Phân Vỏ Chuối',
-      category: 'Combo xanh',
+      id: 'bio-clean-combo',
+      name: 'Combo Nhà Sạch Xanh PEELVERSE (Xịt Lau Bàn + Nước Rửa Chén + Xịt Khử Mùi)',
+      category: 'Combo tiết kiệm',
       price: 145000,
-      badge: 'Gợi ý nội trú',
-      image: 'assets/images/pot-citrus-succulent.jpg',
-      desc: 'Gồm 1 chậu vỏ cam trồng sen đá + 1 chậu xơ dừa trồng thảo mộc, tặng kèm gói dinh dưỡng hữu cơ ủ từ vỏ chuối tự nhiên.',
-      care: {
-        light: '☀️ Đặt gần cửa sổ thoáng',
-        water: '💧 Tưới 2 lần/tuần',
-        drainage: '🪴 Đầy đủ lớp sỏi & lỗ thoát nước'
+      badge: 'Tiết kiệm nhất',
+      image: 'assets/images/prod-clean-combo.jpg',
+      desc: 'Trọn bộ 3 sản phẩm chăm sóc nhà cửa sinh học từ vỏ trái cây: Xịt Lau Bàn 250ml + Nước Rửa Chén Enzyme 500ml + Xịt Khử Mùi Vỏ Bưởi 150ml.',
+      specs: {
+        volume: '🎁 Tổng dung tích: 900ml (3 chai)',
+        peel: '🍊 Vỏ cam, vỏ dứa & vỏ bưởi',
+        benefit: '✨ Giải pháp toàn diện, thân thiện môi trường'
       }
     }
   ]

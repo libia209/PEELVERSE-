@@ -11,7 +11,7 @@
     clearedGames: {}, // { stageId: bestScore }
     notifications: [
       '🍊 Chào mừng bạn đến với PEELVERSE — From Peel to Purpose!',
-      '🛒 Mới: Ghé mục Giỏ hàng để khám phá các chậu cây tái sinh làm sẵn!'
+      '🧴 Mới: Khám phá bộ sản phẩm làm sạch sinh học từ vỏ trái cây trong mục Giỏ hàng!'
     ]
   };
 
@@ -36,7 +36,15 @@
       const raw = localStorage.getItem(CART_STORAGE_KEY);
       if (!raw) return [];
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
+      if (!Array.isArray(parsed)) return [];
+      const validIds = new Set(SHOP_PRODUCTS.map((p) => p.id));
+      const cleaned = parsed.filter(
+        (entry) => entry && validIds.has(entry.id) && Number(entry.qty) > 0
+      );
+      if (cleaned.length !== parsed.length) {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cleaned));
+      }
+      return cleaned;
     } catch {
       return [];
     }
@@ -169,7 +177,7 @@
     saveCart();
     renderCartDrawer();
     triggerCartBounce();
-    showToast(`🪴 Đã thêm "${prod.name}" vào giỏ!`);
+    showToast(`🧴 Đã thêm "${prod.name}" vào giỏ!`);
   }
 
   function updateCartQty(productId, delta) {
@@ -215,7 +223,7 @@
   function renderCartSupportBoxHtml() {
     return `
       <div class="cart-support-box">
-        <div class="cart-support-title inline-icon-heading">${PVIcon('sprout', 16)} <span>Cần tư vấn chọn chậu cây hoặc hỗ trợ đơn hàng?</span></div>
+        <div class="cart-support-title inline-icon-heading">${PVIcon('sprout', 16)} <span>Cần tư vấn chọn sản phẩm làm sạch sinh học hoặc hỗ trợ đơn hàng?</span></div>
         <div class="cart-support-links">
           <div class="contact-chip-group">
             <a href="https://zalo.me/0355415501" target="_blank" rel="noopener noreferrer" class="contact-link-pill">
@@ -246,9 +254,9 @@
       body.innerHTML = `
         <div class="cart-summary-box" style="background:linear-gradient(145deg,#F3F8E9,#FFFFFF);border-color:#C7DC9F;text-align:center;padding:24px 18px;">
           <div style="font-size:3rem;margin-bottom:6px;">🌿</div>
-          <h3 style="margin-bottom:6px;">Đã ghi nhận yêu cầu đặt chậu xanh!</h3>
+          <h3 style="margin-bottom:6px;">Đã ghi nhận yêu cầu đặt hàng PEELVERSE!</h3>
           <p style="font-size:0.86rem;color:var(--text-muted);margin-bottom:12px;">
-            Cảm ơn <strong>${lastOrderSummary.name}</strong> đã ủng hộ dự án tái sinh xanh PEELVERSE. Nhóm sẽ liên hệ qua <strong>${lastOrderSummary.contact}</strong> trong thời gian sớm nhất.
+            Cảm ơn <strong>${lastOrderSummary.name}</strong> đã lựa chọn sản phẩm làm sạch sinh học từ vỏ trái cây PEELVERSE. Nhóm sẽ liên hệ qua <strong>${lastOrderSummary.contact}</strong> trong thời gian sớm nhất.
           </p>
           <div style="background:#FFFFFF;border:1px solid var(--border-soft);border-radius:12px;padding:12px;text-align:left;font-size:0.83rem;margin-bottom:14px;">
             <div><strong>Mã đơn:</strong> #${lastOrderSummary.code}</div>
@@ -256,7 +264,7 @@
             <div><strong>Tổng dự kiến:</strong> ${formatVND(lastOrderSummary.total)}</div>
             <div><strong>Địa chỉ:</strong> ${lastOrderSummary.address}</div>
           </div>
-          <button class="btn btn-primary" id="continueShoppingBtn" style="width:100%;">Tiếp tục khám phá chậu xanh</button>
+          <button class="btn btn-primary" id="continueShoppingBtn" style="width:100%;">Tiếp tục xem sản phẩm sinh học</button>
         </div>
       `;
       body.querySelector('#continueShoppingBtn').addEventListener('click', () => {
@@ -270,10 +278,10 @@
     if (cart.length === 0) {
       body.innerHTML = `
         <div style="text-align:center;padding:42px 16px;color:var(--text-muted);">
-          <div style="font-size:3.2rem;margin-bottom:10px;">🪴</div>
+          <div style="margin-bottom:12px;color:#2D6A4F;">${PVIcon('shopping-bag', 46)}</div>
           <h4 style="margin-bottom:6px;">Giỏ hàng đang trống</h4>
-          <p style="font-size:0.86rem;margin-bottom:18px;">Hãy chọn cho góc học tập một chậu cây tái sinh từ vỏ cam, xơ dừa hoặc bã cà phê nhé!</p>
-          <button class="btn btn-primary" id="goShopFromEmpty">Xem các mẫu chậu xanh →</button>
+          <p style="font-size:0.86rem;margin-bottom:18px;">Khám phá các dòng nước lau rửa, nước rửa chén enzyme và xịt khử mùi lành tính chiết xuất từ vỏ trái cây của PEELVERSE nhé!</p>
+          <button class="btn btn-primary" id="goShopFromEmpty">Xem sản phẩm làm sạch sinh học →</button>
         </div>
         ${renderCartSupportBoxHtml()}
       `;
@@ -327,7 +335,7 @@
       </div>
 
       <form id="ecoOrderForm" class="order-form">
-        <h4>📦 Gửi yêu cầu đặt chậu xanh</h4>
+        <h4>📦 Gửi yêu cầu đặt sản phẩm sinh học</h4>
         <div class="form-field">
           <label for="orderName">Họ và tên *</label>
           <input id="orderName" type="text" required placeholder="VD: Nguyễn Minh Anh" />
@@ -379,8 +387,8 @@
       };
       cart = [];
       saveCart();
-      addNotification(`🪴 Đã gửi yêu cầu đặt đơn #${lastOrderSummary.code} (${formatVND(lastOrderSummary.total)})!`);
-      showToast(`🎉 Đã gửi yêu cầu đặt chậu xanh #${lastOrderSummary.code}!`);
+      addNotification(`🧴 Đã gửi yêu cầu đặt đơn #${lastOrderSummary.code} (${formatVND(lastOrderSummary.total)})!`);
+      showToast(`🎉 Đã gửi yêu cầu đặt hàng #${lastOrderSummary.code}!`);
       renderCartDrawer();
     });
   }
@@ -537,7 +545,7 @@
     return {
       emoji: '🏆',
       kicker: 'Xuất sắc • Đã hoàn thành 100%',
-      title: 'Bạn đã chinh phục trọn bộ hành trình PEELVERSE! Ghé xem huy hiệu hoặc chậu tái sinh nhé.',
+      title: 'Bạn đã chinh phục trọn bộ hành trình PEELVERSE! Ghé xem huy hiệu hoặc bộ sản phẩm làm sạch sinh học nhé.',
       cta: 'Xem huy hiệu →',
       action: () => navigate('progress')
     };
@@ -779,12 +787,12 @@
           <p style="margin-bottom:14px;">
             Chúng tôi bắt đầu từ mong muốn nhìn nhận rác thải theo một cách khác — không chỉ là thứ cần loại bỏ, mà còn là nguồn nguyên liệu cho nghiên cứu, thử nghiệm và sáng tạo.
           </p>
-          <button class="btn btn-secondary btn-sm" data-nav="shop">🪴 Ghé góc Chậu tái sinh xanh →</button>
+          <button class="btn btn-secondary btn-sm" data-nav="shop">🧴 Khám phá sản phẩm làm sạch sinh học →</button>
         </div>
         <div class="story-highlights">
           <div class="story-chip">🍊 <span>Hợp chất tự nhiên & tinh dầu Limonene</span></div>
           <div class="story-chip">🔬 <span>Quy trình 6 bước khoa học, dễ theo dõi</span></div>
-          <div class="story-chip">♻️ <span>Tư duy tái sử dụng & chậu cây tái sinh bền vững</span></div>
+          <div class="story-chip">♻️ <span>Nước lau rửa sinh học & lối sống bền vững</span></div>
         </div>
       </section>
     `;
@@ -808,7 +816,7 @@
 
       <section class="about-story-card">
         <div class="about-story-text">
-          <p class="lead">PEELSERVE bắt đầu từ những điều rất quen thuộc trong cuộc sống nội trú.</p>
+          <p class="lead">PEELVERSE bắt đầu từ những điều rất quen thuộc trong cuộc sống nội trú.</p>
           <p>
             Sau mỗi bữa ăn, chúng tôi tự dọn dẹp bàn ăn, và nhận ra rằng những loại rác hữu cơ như vỏ cam, chanh, quýt hay trái cây thường bị bỏ đi khá nhiều. Trong khi đó, bàn ăn sau khi sử dụng lại thường có những vết bẩn nhưng chưa có sẵn dung dịch lau bàn phù hợp để xử lý.
           </p>
@@ -816,11 +824,11 @@
             Từ những điều tưởng chừng nhỏ bé ấy, chúng tôi bắt đầu đặt câu hỏi: Liệu những vỏ trái cây thường bị bỏ đi có thể được tận dụng để tạo ra một dung dịch lau bàn?
           </p>
           <p style="margin-bottom:0;">
-            <strong>Đó chính là khởi nguồn của PEELSERVE</strong> — dự án nghiên cứu và thử nghiệm tận dụng vỏ trái cây, kết hợp kiến thức khoa học và tư duy sáng tạo để tạo ra một giải pháp làm sạch từ những nguyên liệu quen thuộc.
+            <strong>Đó chính là khởi nguồn của PEELVERSE</strong> — dự án nghiên cứu và thử nghiệm tận dụng vỏ trái cây, kết hợp kiến thức khoa học và tư duy sáng tạo để tạo ra một giải pháp làm sạch từ những nguyên liệu quen thuộc.
           </p>
         </div>
         <div class="about-story-visual">
-          <img src="assets/images/about-lab.jpg" alt="Vỏ cam và bình thí nghiệm PEELSERVE" />
+          <img src="assets/images/about-lab.jpg" alt="Vỏ cam và bình thí nghiệm PEELVERSE" />
         </div>
       </section>
 
@@ -905,7 +913,7 @@
         <div>
           <h1 class="page-title">${PVIcon('citrus', 26)} <span>Khám phá nguyên liệu</span></h1>
           <p style="color:var(--text-muted);font-size:0.93rem;margin-top:4px;">
-            Tìm hiểu từng nguyên liệu, đặc tính khoa học, vai trò trong nghiên cứu PEELSERVE và những điều cần lưu ý.
+            Tìm hiểu từng nguyên liệu, đặc tính khoa học, vai trò trong nghiên cứu PEELVERSE và những điều cần lưu ý.
           </p>
         </div>
       </div>
@@ -1038,7 +1046,7 @@
         <div>
           <h1 class="page-title">${PVIcon('flask', 26)} <span>Quy trình thực hiện</span></h1>
           <p style="color:var(--text-muted);font-size:0.93rem;margin-top:4px;">
-            Theo dõi 6 bước nghiên cứu và tạo mẫu thử PEELSERVE từ thu gom nguyên liệu đến đánh giá hoàn thiện.
+            Theo dõi 6 bước nghiên cứu và tạo mẫu thử PEELVERSE từ thu gom nguyên liệu đến đánh giá hoàn thiện.
           </p>
         </div>
         <button class="btn btn-orange" data-nav="game">🎮 Thử thực hành qua Mini Game</button>
@@ -1101,7 +1109,7 @@
           state.completedSteps.push(step);
           showToast(`🔬 Đã hoàn thành Bước ${step}!`);
           if (state.completedSteps.length === DATA.processSteps.length) {
-            addNotification('🔬 Bạn đã hoàn thành toàn bộ 6 bước quy trình PEELSERVE!');
+            addNotification('🔬 Bạn đã hoàn thành toàn bộ 6 bước quy trình PEELVERSE!');
           }
         }
         saveState();
@@ -1118,7 +1126,7 @@
         <div>
           <h1 class="page-title">${PVIcon('book-open', 26)} <span>Kiến thức khoa học</span></h1>
           <p style="color:var(--text-muted);font-size:0.93rem;margin-top:4px;">
-            Giải thích các hiện tượng hóa học, vật lý và nguyên lý kinh tế tuần hoàn được ứng dụng trong dự án PEELSERVE.
+            Giải thích các hiện tượng hóa học, vật lý và nguyên lý kinh tế tuần hoàn được ứng dụng trong dự án PEELVERSE.
           </p>
         </div>
       </div>
@@ -1256,8 +1264,8 @@
     const readout = view.querySelector('#phReadout');
     const describePh = (val) => {
       if (val <= 2) return { type: 'Axit mạnh', sample: 'Nước cốt chanh đậm đặc / Axit pin' };
-      if (val <= 3.5) return { type: 'Axit nhẹ', sample: 'Giấm trắng (~2.5–3.0) — nguyên liệu PEELSERVE' };
-      if (val <= 5.5) return { type: 'Axit dịu nhẹ', sample: 'Dung dịch PEELSERVE sau pha loãng (~3.5–4.5)' };
+      if (val <= 3.5) return { type: 'Axit nhẹ', sample: 'Giấm trắng (~2.5–3.0) — nguyên liệu PEELVERSE' };
+      if (val <= 5.5) return { type: 'Axit dịu nhẹ', sample: 'Dung dịch PEELVERSE sau pha loãng (~3.5–4.5)' };
       if (val < 7) return { type: 'Axit rất nhẹ', sample: 'Nước mưa, sữa tươi' };
       if (val === 7) return { type: 'Trung tính', sample: 'Nước tinh khiết (H₂O)' };
       if (val <= 9.5) return { type: 'Bazơ (kiềm) nhẹ', sample: 'Dung dịch baking soda' };
@@ -1349,21 +1357,22 @@
     );
   }
 
-  // ===== 07. ECO PLANTER SHOP VIEW =====
+  // ===== 07. BIO-CLEANING SHOP VIEW =====
   function renderShop(view) {
     const categories = [
       { key: 'Tất cả', icon: '⊞' },
-      { key: 'Chậu vỏ quả', icon: '🍊' },
-      { key: 'Chậu tái chế', icon: '♻️' },
-      { key: 'Combo xanh', icon: '🎁' }
+      { key: 'Lau bề mặt & Bếp', icon: '✨' },
+      { key: 'Rửa chén & Lau sàn', icon: '🫧' },
+      { key: 'Xịt thơm & Khử mùi', icon: '🍊' },
+      { key: 'Combo tiết kiệm', icon: '🎁' }
     ];
 
     let list = SHOP_PRODUCTS.filter((p) => {
       const matchCat = shopCategory === 'Tất cả' ? true : p.category === shopCategory;
       let matchPrice = true;
-      if (shopPriceRange === 'under90') matchPrice = p.price < 90000;
-      else if (shopPriceRange === '90to150') matchPrice = p.price >= 90000 && p.price <= 150000;
-      else if (shopPriceRange === 'over150') matchPrice = p.price > 150000;
+      if (shopPriceRange === 'under60') matchPrice = p.price < 60000;
+      else if (shopPriceRange === '60to120') matchPrice = p.price >= 60000 && p.price <= 120000;
+      else if (shopPriceRange === 'over120') matchPrice = p.price > 120000;
       return matchCat && matchPrice;
     });
 
@@ -1377,10 +1386,10 @@
       ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Giỏ hàng' }])}
       <section class="shop-hero">
         <div>
-          <span class="hero-badge">CHẬU CÂY TÁI SINH XANH LÀM SẴN</span>
+          <span class="hero-badge">SẢN PHẨM LÀM SẠCH SINH HỌC TỪ VỎ QUẢ</span>
           <h1 class="inline-icon-heading" style="font-size:2rem;margin-bottom:6px;">${PVIcon('shopping-cart', 28)} <span>Giỏ hàng PEELVERSE</span></h1>
-          <p style="color:var(--text-muted);max-width:600px;font-size:0.94rem;">
-            Những chậu cây nhỏ xinh được chế tác thủ công từ vỏ cam bưởi sấy, bã cà phê, xơ dừa và vật liệu tái chế — mang mảng xanh tuần hoàn đến bàn học của bạn.
+          <p style="color:var(--text-muted);max-width:620px;font-size:0.94rem;">
+            Các dòng dung dịch lau rửa bề mặt, nước rửa chén enzyme, nước lau sàn và xịt khử mùi lành tính chiết xuất từ tinh dầu và enzyme vỏ cam, bưởi, chanh, dứa — sạch bóng không gian sống, dịu nhẹ da tay.
           </p>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
@@ -1405,9 +1414,9 @@
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <select id="shopPriceFilter" class="sort-select" aria-label="Lọc theo mức giá">
             <option value="all" ${shopPriceRange === 'all' ? 'selected' : ''}>Giá: Tất cả</option>
-            <option value="under90" ${shopPriceRange === 'under90' ? 'selected' : ''}>Dưới 90.000đ</option>
-            <option value="90to150" ${shopPriceRange === '90to150' ? 'selected' : ''}>90.000đ – 150.000đ</option>
-            <option value="over150" ${shopPriceRange === 'over150' ? 'selected' : ''}>Trên 150.000đ</option>
+            <option value="under60" ${shopPriceRange === 'under60' ? 'selected' : ''}>Dưới 60.000đ</option>
+            <option value="60to120" ${shopPriceRange === '60to120' ? 'selected' : ''}>60.000đ – 120.000đ</option>
+            <option value="over120" ${shopPriceRange === 'over120' ? 'selected' : ''}>Trên 120.000đ</option>
           </select>
 
           <select id="shopSortSelect" class="sort-select" aria-label="Sắp xếp sản phẩm">
@@ -1420,7 +1429,7 @@
 
       ${
         list.length === 0
-          ? `<div class="info-box" style="text-align:center;padding:36px;">Không có chậu cây nào khớp bộ lọc hiện tại. Hãy thử chọn mức giá hoặc danh mục khác nhé!</div>`
+          ? `<div class="info-box" style="text-align:center;padding:36px;">Không có sản phẩm làm sạch nào khớp bộ lọc hiện tại. Hãy thử chọn mức giá hoặc danh mục khác nhé!</div>`
           : `
       <section class="shop-grid">
         ${list
@@ -1437,9 +1446,9 @@
                 <h3 class="product-title">${p.name}</h3>
                 <p class="product-desc">${p.desc}</p>
                 <div class="care-pills">
-                  <span class="care-pill">${p.care.light}</span>
-                  <span class="care-pill">${p.care.water}</span>
-                  <span class="care-pill">${p.care.drainage}</span>
+                  <span class="care-pill">${p.specs.volume}</span>
+                  <span class="care-pill">${p.specs.peel}</span>
+                  <span class="care-pill">${p.specs.benefit}</span>
                 </div>
                 <div class="product-foot">
                   <span class="product-price">${formatVND(p.price)}</span>
@@ -1606,12 +1615,12 @@
 
     const navEntries = [
       { title: '🏠 Trang chủ', desc: 'Tổng quan dự án PEELVERSE, tiến độ và lối tắt nhanh', group: 'Điều hướng', action: () => navigate('home') },
-      { title: '🌱 Về dự án', desc: 'Câu chuyện PEELSERVE từ cuộc sống nội trú, Sứ mệnh & Tầm nhìn', group: 'Điều hướng', action: () => navigate('about') },
+      { title: '🌱 Về dự án', desc: 'Câu chuyện PEELVERSE từ cuộc sống nội trú, Sứ mệnh & Tầm nhìn', group: 'Điều hướng', action: () => navigate('about') },
       { title: '🍊 Khám phá nguyên liệu', desc: 'Danh sách 6 nguyên liệu nghiên cứu và đặc tính', group: 'Điều hướng', action: () => navigate('ingredients') },
       { title: '🔬 Quy trình thực hiện', desc: '6 bước thu gom, làm sạch, sơ chế, chiết xuất, lọc & đánh giá', group: 'Điều hướng', action: () => navigate('process') },
       { title: '📖 Kiến thức khoa học', desc: '7 bài học về tinh dầu, limonene, độ pH, chiết xuất, kinh tế tuần hoàn', group: 'Điều hướng', action: () => navigate('science') },
       { title: '🎮 Trò chơi (Mini Game)', desc: '6 màn chơi mô phỏng tạo dung dịch lau bàn', group: 'Điều hướng', action: () => navigate('game') },
-      { title: '🛒 Giỏ hàng & Chậu tái sinh', desc: 'Chậu cây tái sinh xanh làm sẵn từ vỏ cam, xơ dừa, bã cà phê', group: 'Điều hướng', action: () => navigate('shop') },
+      { title: '🛒 Giỏ hàng & Sản phẩm sinh học', desc: 'Nước lau rửa, nước rửa chén enzyme & xịt khử mùi từ vỏ trái cây', group: 'Điều hướng', action: () => navigate('shop') },
       { title: '📊 Tiến trình khám phá', desc: 'Xem phần trăm hoàn thành và 8 huy hiệu xanh', group: 'Điều hướng', action: () => navigate('progress') }
     ];
 
@@ -1658,10 +1667,10 @@
         action: () => navigate('game-play', g.id)
       })),
       ...SHOP_PRODUCTS.map((sp) => ({
-        title: `🪴 ${sp.name}`,
+        title: `🧴 ${sp.name}`,
         desc: `${formatVND(sp.price)} • ${sp.category}`,
-        group: 'Chậu tái sinh',
-        searchBlob: normalizeVi(`chau cay chau tai sinh gio hang ${sp.name} ${sp.category} ${sp.desc}`),
+        group: 'Sản phẩm sinh học',
+        searchBlob: normalizeVi(`nuoc lau rua tay rua chen lau san xit khu mui sinh hoc gio hang ${sp.name} ${sp.category} ${sp.desc}`),
         action: () => {
           shopCategory = 'Tất cả';
           shopPriceRange = 'all';
@@ -1685,7 +1694,7 @@
       }
     ];
 
-    const quickChips = ['Vỏ cam', 'Limonene', 'Độ pH', 'Mini Game', 'Chậu tái sinh', 'Liên hệ'];
+    const quickChips = ['Vỏ cam', 'Limonene', 'Độ pH', 'Mini Game', 'Nước lau rửa', 'Liên hệ'];
     let flatMatches = [];
     let activeIdx = -1;
 
@@ -1731,7 +1740,7 @@
               : ''
           }
           <div class="search-kbd-hint">
-            <span>Gõ có dấu hoặc không dấu (VD: "vo cam", "chau cay")</span>
+            <span>Gõ có dấu hoặc không dấu (VD: "vo cam", "rua chen")</span>
             <span>Esc để đóng</span>
           </div>
         `;
@@ -1760,7 +1769,7 @@
       if (flatMatches.length === 0) {
         dropdown.innerHTML = `
           <div style="padding:14px 12px;font-size:0.86rem;color:var(--text-muted);text-align:center;">
-            Không tìm thấy kết quả cho "<strong>${rawQ}</strong>". Hãy thử từ khóa khác như <em>vỏ cam, limonene, độ pH, chậu cây</em>.
+            Không tìm thấy kết quả cho "<strong>${rawQ}</strong>". Hãy thử từ khóa khác như <em>vỏ cam, limonene, độ pH, nước rửa chén</em>.
           </div>
         `;
       } else {

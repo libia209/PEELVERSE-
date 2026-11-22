@@ -34,7 +34,7 @@ window.PEELVERSE_GAMES = {
       id: 6,
       title: 'Thử thách lau bàn',
       emoji: '✨',
-      desc: 'Thử thách tương tác mô phỏng việc làm sạch bàn ăn: xịt dung dịch PEELSERVE và lau sạch vết bẩn tính điểm!'
+      desc: 'Thử thách tương tác mô phỏng việc làm sạch bàn ăn: xịt dung dịch PEELVERSE và lau sạch vết bẩn tính điểm!'
     }
   ],
 
@@ -127,7 +127,7 @@ window.PEELVERSE_GAMES = {
       { id: 4, emoji: '🍊', name: 'Vỏ quýt tươi', good: true, note: 'Rất giàu tinh dầu họ cam quýt!' },
       { id: 5, emoji: '🥤', name: 'Ống hút nhựa', good: false, note: 'Rác thải nhựa không thể dùng để chiết xuất!' },
       { id: 6, emoji: '🌿', name: 'Thanh quế khô', good: true, note: 'Tạo hương thơm ấm áp tự nhiên.' },
-      { id: 7, emoji: '🍋', name: 'Vỏ chanh xanh', good: true, note: 'Nguyên liệu tuyệt vời cho PEELSERVE!' },
+      { id: 7, emoji: '🍋', name: 'Vỏ chanh xanh', good: true, note: 'Nguyên liệu tuyệt vời cho PEELVERSE!' },
       { id: 8, emoji: '🗑️', name: 'Giấy ăn bẩn', good: false, note: 'Tạp chất không phù hợp với quy trình nghiên cứu.' }
     ].sort(() => Math.random() - 0.5);
 
@@ -370,7 +370,7 @@ window.PEELVERSE_GAMES = {
           updateHud();
           if (matched === pairs.length) {
             setTimeout(() => {
-              finishStage(score, 'Bạn đã nắm vững vai trò khoa học của từng thành phần trong công thức PEELSERVE!');
+              finishStage(score, 'Bạn đã nắm vững vai trò khoa học của từng thành phần trong công thức PEELVERSE!');
             }, 500);
           }
         } else {
@@ -443,7 +443,7 @@ window.PEELVERSE_GAMES = {
     });
   },
 
-  // STAGE 6: Table cleaning challenge (spray PEELSERVE -> wipe with cloth)
+  // STAGE 6: Table cleaning challenge (spray PEELVERSE -> wipe with cloth)
   runStage6(board, hud, feedback, finishStage) {
     const stains = [
       { id: 1, icon: '☕', label: 'Vết cà phê', x: 14, y: 20 },
@@ -470,10 +470,10 @@ window.PEELVERSE_GAMES = {
 
     board.innerHTML = `
       <p style="font-weight:700;color:var(--green-dark);text-align:center;margin-bottom:10px;">
-        Nhiệm vụ: Chọn <strong>🧴 Xịt PEELSERVE</strong> để xịt vào các vết bẩn trên bàn ăn, sau đó chuyển sang <strong>🧽 Khăn lau</strong> để lau sạch bóng!
+        Nhiệm vụ: Chọn <strong>🧴 Xịt PEELVERSE</strong> để xịt vào các vết bẩn trên bàn ăn, sau đó chuyển sang <strong>🧽 Khăn lau</strong> để lau sạch bóng!
       </p>
       <div class="table-tools">
-        <button class="tool-btn active" data-tool="spray">🧴 1. Xịt dung dịch PEELSERVE</button>
+        <button class="tool-btn active" data-tool="spray">🧴 1. Xịt dung dịch PEELVERSE</button>
         <button class="tool-btn" data-tool="wipe">🧽 2. Khăn lau sạch</button>
       </div>
       <div class="dining-table" id="diningTable">
@@ -512,7 +512,7 @@ window.PEELVERSE_GAMES = {
             el.classList.remove('unsprayed');
             el.classList.add('sprayed');
             score += 20;
-            feedback.textContent = '💦 Đã xịt dung dịch PEELSERVE! Giờ hãy dùng Khăn lau để lau sạch nhé.';
+            feedback.textContent = '💦 Đã xịt dung dịch PEELVERSE! Giờ hãy dùng Khăn lau để lau sạch nhé.';
             updateHud();
           } else {
             feedback.textContent = '💧 Vết này đã được xịt rồi — chuyển sang Khăn lau để lau sạch!';
@@ -533,7 +533,7 @@ window.PEELVERSE_GAMES = {
               }, 450);
             }
           } else if (state === 'unsprayed') {
-            feedback.textContent = '🧴 Hãy xịt dung dịch PEELSERVE vào vết bẩn trước khi lau nhé!';
+            feedback.textContent = '🧴 Hãy xịt dung dịch PEELVERSE vào vết bẩn trước khi lau nhé!';
           }
         }
       });

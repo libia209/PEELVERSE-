@@ -11,7 +11,7 @@
     clearedGames: {}, // { stageId: bestScore }
     notifications: [
       '🍊 Chào mừng bạn đến với PEELVERSE — From Peel to Purpose!',
-      '🪴 Mới: Ghé mục Giỏ hàng chậu xanh để khám phá các chậu cây tái sinh làm sẵn!'
+      '🛒 Mới: Ghé mục Giỏ hàng để khám phá các chậu cây tái sinh làm sẵn!'
     ]
   };
 
@@ -166,7 +166,7 @@
       body.innerHTML = `
         <div style="text-align:center;padding:42px 16px;color:var(--text-muted);">
           <div style="font-size:3.2rem;margin-bottom:10px;">🪴</div>
-          <h4 style="margin-bottom:6px;">Giỏ hàng chậu xanh đang trống</h4>
+          <h4 style="margin-bottom:6px;">Giỏ hàng đang trống</h4>
           <p style="font-size:0.86rem;margin-bottom:18px;">Hãy chọn cho góc học tập một chậu cây tái sinh từ vỏ cam, xơ dừa hoặc bã cà phê nhé!</p>
           <button class="btn btn-primary" id="goShopFromEmpty">Xem các mẫu chậu xanh →</button>
         </div>
@@ -1120,7 +1120,7 @@
       <section class="shop-hero">
         <div>
           <span class="hero-badge">CHẬU CÂY TÁI SINH XANH LÀM SẴN</span>
-          <h1 style="font-size:2rem;margin-bottom:6px;">🪴 Giỏ hàng chậu xanh PEELVERSE</h1>
+          <h1 style="font-size:2rem;margin-bottom:6px;">🛒 Giỏ hàng PEELVERSE</h1>
           <p style="color:var(--text-muted);max-width:600px;font-size:0.94rem;">
             Những chậu cây nhỏ xinh được chế tác thủ công từ vỏ cam bưởi sấy, bã cà phê, xơ dừa và vật liệu tái chế — mang mảng xanh tuần hoàn đến bàn học của bạn.
           </p>

@@ -78,6 +78,56 @@
     }
   }
 
+  function showAuthToast(msg, type = 'warning') {
+    const container = getEl('toastContainer');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = msg;
+    container.appendChild(toast);
+    while (container.children.length > 3) {
+      container.firstElementChild.remove();
+    }
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(8px)';
+      toast.style.transition = '0.22s ease';
+      setTimeout(() => toast.remove(), 230);
+    }, 2800);
+  }
+
+  function cleanOAuthUrlParams() {
+    const hash = window.location.hash || '';
+    const search = window.location.search || '';
+    const hasAuthTokens =
+      hash.includes('access_token=') ||
+      hash.includes('refresh_token=') ||
+      hash.includes('error=') ||
+      search.includes('code=') ||
+      search.includes('error=');
+    if (hasAuthTokens && window.history && window.history.replaceState) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }
+
+  function checkOAuthReturnError() {
+    const searchParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+    const err = searchParams.get('error') || hashParams.get('error');
+    const errDesc = searchParams.get('error_description') || hashParams.get('error_description') || '';
+    if (!err) return;
+    const isCancel =
+      err === 'access_denied' ||
+      errDesc.toLowerCase().includes('cancel') ||
+      errDesc.toLowerCase().includes('denied');
+    const msg = isCancel
+      ? 'Bạn đã hủy đăng nhập bằng Google. Bạn có thể thử lại bất cứ lúc nào!'
+      : translateAuthError({ message: errDesc || err });
+    setAlert('error', msg);
+    showAuthToast(`⚠️ ${msg}`, 'warning');
+    cleanOAuthUrlParams();
+  }
+
   // ===== SWITCH AUTH VIEWS =====
   function showAuthPanel(panel) {
     // panel: 'login' | 'signup' | 'otp' | 'forgot'
@@ -85,12 +135,14 @@
     const tabsWrap = getEl('authTabsWrap');
     const loginForm = getEl('authLoginForm');
     const signupForm = getEl('authSignupForm');
+    const oauthSection = getEl('authOauthSection');
     const otpView = getEl('authOtpView');
     const forgotForm = getEl('authForgotForm');
 
     if (tabsWrap) tabsWrap.classList.toggle('hidden', panel === 'otp' || panel === 'forgot');
     if (loginForm) loginForm.classList.toggle('hidden', panel !== 'login');
     if (signupForm) signupForm.classList.toggle('hidden', panel !== 'signup');
+    if (oauthSection) oauthSection.classList.toggle('hidden', panel !== 'login' && panel !== 'signup');
     if (otpView) otpView.classList.toggle('hidden', panel !== 'otp');
     if (forgotForm) forgotForm.classList.toggle('hidden', panel !== 'forgot');
 
@@ -146,6 +198,7 @@
   function updateHeaderUser(user) {
     const wrap = getEl('userAccountWrap');
     const initialEl = getEl('userAvatarInitial');
+    const avatarImg = getEl('userAvatarImg');
     const nameEl = getEl('userDisplayName');
     const menuNameEl = getEl('userMenuName');
     const menuEmailEl = getEl('userMenuEmail');
@@ -164,8 +217,28 @@
     const email = user.email || '';
     const displayName = fullName || (email.split('@')[0] || 'Thành viên');
     const initial = displayName.charAt(0).toUpperCase() || 'P';
+    const avatarUrl = meta.avatar_url || meta.picture || '';
 
     if (initialEl) initialEl.textContent = initial;
+    if (avatarImg && initialEl) {
+      if (avatarUrl) {
+        avatarImg.onerror = () => {
+          avatarImg.classList.add('hidden');
+          initialEl.classList.remove('hidden');
+        };
+        avatarImg.onload = () => {
+          avatarImg.classList.remove('hidden');
+          initialEl.classList.add('hidden');
+        };
+        avatarImg.src = avatarUrl;
+        avatarImg.alt = displayName;
+      } else {
+        avatarImg.removeAttribute('src');
+        avatarImg.classList.add('hidden');
+        initialEl.classList.remove('hidden');
+      }
+    }
+
     if (nameEl) nameEl.textContent = displayName;
     if (menuNameEl) menuNameEl.textContent = displayName;
     if (menuEmailEl) menuEmailEl.textContent = email;
@@ -176,6 +249,7 @@
     if (session && session.user) {
       updateHeaderUser(session.user);
       hideAuthGate();
+      cleanOAuthUrlParams();
     } else {
       updateHeaderUser(null);
       showAuthGate();
@@ -468,6 +542,41 @@
         }
       });
     }
+
+    // 5b. GOOGLE OAUTH LOGIN
+    const googleAuthBtn = getEl('googleAuthBtn');
+    if (googleAuthBtn) {
+      googleAuthBtn.addEventListener('click', async () => {
+        setAlert('', '');
+        googleAuthBtn.disabled = true;
+        const origHtml = googleAuthBtn.innerHTML;
+        googleAuthBtn.innerHTML = '<span class="auth-spinner dark" aria-hidden="true"></span> <span>Đang chuyển hướng sang Google...</span>';
+        try {
+          const { error } = await sb.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+              redirectTo: window.location.origin + window.location.pathname
+            }
+          });
+          if (error) {
+            const msg = translateAuthError(error);
+            setAlert('error', msg);
+            showAuthToast(`⚠️ ${msg}`, 'warning');
+            googleAuthBtn.disabled = false;
+            googleAuthBtn.innerHTML = origHtml;
+          }
+        } catch (err) {
+          const msg = translateAuthError(err);
+          setAlert('error', msg);
+          showAuthToast(`⚠️ ${msg}`, 'warning');
+          googleAuthBtn.disabled = false;
+          googleAuthBtn.innerHTML = origHtml;
+        }
+      });
+    }
+
+    // Check OAuth error callback if user canceled or provider returned error
+    checkOAuthReturnError();
 
     // 6. HEADER ACCOUNT DROPDOWN & SIGN OUT
     const accountBtn = getEl('userAccountBtn');

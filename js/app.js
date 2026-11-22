@@ -60,6 +60,7 @@
   let activeGameStageId = null;
   let ingredientFilter = 'Tất cả';
   let ingredientSort = 'default';
+  let scienceFilter = 'Tất cả';
   let shopCategory = 'Tất cả';
   let shopPriceRange = 'all';
   let shopSort = 'default';
@@ -1125,36 +1126,347 @@
     });
   }
 
-  // ===== 05. SCIENCE KNOWLEDGE VIEW =====
+  // ===== 05. SCIENCE KNOWLEDGE VIEW (INTERACTIVE SCIENCE LAB) =====
   function renderScience(view) {
+    const filterCategories = [
+      { key: 'Tất cả', icon: 'sparkles' },
+      { key: 'Hoạt chất & Tinh dầu', icon: 'citrus' },
+      { key: 'Cơ chế làm sạch', icon: 'flask' },
+      { key: 'So sánh & An toàn', icon: 'check-circle' }
+    ];
+
+    const glossaryTerms = [
+      {
+        term: 'D-Limonene',
+        formula: 'C₁₀H₁₆',
+        desc: 'Hợp chất hydrocarbon không phân cực chiếm 70–95% trong tinh dầu vỏ cam, chanh, bưởi. Nhờ tính không phân cực, D-Limonene phá vỡ liên kết và hòa tan nhanh các vết dầu mỡ tự nhiên.'
+      },
+      {
+        term: 'Enzyme sinh học',
+        formula: 'Bio-Catalyst',
+        desc: 'Các protein xúc tác sinh học tạo ra khi lên men vỏ dứa, vỏ cam. Chúng cắt nhỏ các phân tử chất bẩn hữu cơ (dầu mỡ, tinh bột, đạm) thành mảnh dễ rửa trôi bằng nước.'
+      },
+      {
+        term: 'Terpene',
+        formula: 'Hợp chất thơm',
+        desc: 'Nhóm hợp chất hữu cơ dễ bay hơi tạo nên mùi hương tươi mát đặc trưng của vỏ quả có múi và thảo mộc như quế, sả, giúp khử mùi hôi tự nhiên.'
+      },
+      {
+        term: 'Chất hoạt động bề mặt',
+        formula: 'Surfactant',
+        desc: 'Phân tử có 1 đầu ưa nước và 1 đầu ưa dầu, đóng vai trò cầu nối giúp nước cuốn trôi chất bẩn dầu mỡ khỏi mặt bàn và chén bát.'
+      }
+    ];
+
+    const flashcards = [
+      {
+        frontTag: 'Vỏ cam ngọt',
+        icon: 'ph-orange-slice',
+        accent: '#EA580C',
+        question: 'Vì sao bóp nhẹ vỏ cam tươi lại có tia sương thơm bắn ra?',
+        answer: 'Lớp vỏ ngoài (flavedo) chứa hàng nghìn túi tinh dầu căng đầy D-Limonene. Khi bóp, áp suất làm vỡ túi dầu và giải phóng tinh dầu siêu mịn!'
+      },
+      {
+        frontTag: 'Vỏ bưởi xanh',
+        icon: 'ph-drop',
+        accent: '#059669',
+        question: 'Tinh dầu vỏ bưởi giúp khử mùi phòng và giày bằng cách nào?',
+        answer: 'Các phân tử Terpene bay hơi nhanh giúp trung hòa phân tử mùi ẩm mốc, đồng thời để lại hương thanh mát mà không cần hương liệu tổng hợp.'
+      },
+      {
+        frontTag: 'Vỏ dứa lên men',
+        icon: 'ph-flask',
+        accent: '#D97706',
+        question: 'Enzyme Bromelain từ vỏ dứa có tác dụng gì trong nước rửa chén?',
+        answer: 'Enzyme tự nhiên giúp phân giải mảng bám thức ăn và dầu mỡ nhẹ nhàng, giúp chén bát sạch nhanh, ít tốn nước tráng và dịu nhẹ cho da tay.'
+      },
+      {
+        frontTag: 'Vỏ chanh & Giấm',
+        icon: 'ph-sparkle',
+        accent: '#0284C7',
+        question: 'Độ pH lý tưởng của dung dịch lau bàn từ vỏ quả là bao nhiêu?',
+        answer: 'Khoảng pH 3.5 – 4.5 (axit dịu nhẹ): đủ để làm sạch cặn khoáng & vết ố nhẹ trên bàn ăn nhưng vẫn êm dịu hơn nhiều so với hóa chất tẩy mạnh.'
+      }
+    ];
+
+    const miniQuiz = [
+      {
+        q: 'Hoạt chất chính trong vỏ cam, bưởi giúp hòa tan vết dầu mỡ là gì?',
+        opts: ['D-Limonene', 'Natri clorua (muối ăn)', 'Tinh bột'],
+        ans: 0,
+        exp: 'Chính xác! D-Limonene (C₁₀H₁₆) là hợp chất không phân cực hòa tan tốt dầu mỡ.'
+      },
+      {
+        q: 'Vùng độ pH của dung dịch làm sạch vỏ quả PEELVERSE sau pha loãng thường nằm ở mức nào?',
+        opts: ['pH 12 – 13 (kiềm rất mạnh)', 'pH 3.5 – 4.5 (axit dịu nhẹ)', 'pH 0 – 1 (axit đặc)'],
+        ans: 1,
+        exp: 'Đúng rồi! pH 3.5 – 4.5 giúp làm sạch vết bẩn nhẹ nhàng và thân thiện hơn với bề mặt bàn thông thường.'
+      },
+      {
+        q: 'Ưu điểm nổi bật của nước lau rửa sinh học từ vỏ trái cây so với hóa chất công nghiệp là gì?',
+        opts: ['Phân hủy sinh học tự nhiên, ít gây khô rát da tay', 'Có mùi clo nồng hơn', 'Không thể hòa tan dầu mỡ'],
+        ans: 0,
+        exp: 'Chuẩn xác! Hợp chất thực vật phân hủy sinh học nhanh và hạn chế tồn dư hóa chất độc hại.'
+      },
+      {
+        q: 'Thao tác cắt nhỏ vỏ cam thành miếng đồng đều 1.5–2 cm nhằm mục đích gì?',
+        opts: ['Trang trí cho đẹp', 'Tăng diện tích tiếp xúc giúp chiết xuất tinh dầu nhanh hơn', 'Làm giảm mùi thơm của vỏ'],
+        ans: 1,
+        exp: 'Tuyệt vời! Diện tích tiếp xúc lớn hơn giúp dung môi thấm sâu và chiết xuất hiệu quả hơn.'
+      }
+    ];
+
+    const filteredTopics = DATA.scienceTopics.filter((t) =>
+      scienceFilter === 'Tất cả' ? true : t.category === scienceFilter
+    );
+    const completedCount = state.completedScience.length;
+
     view.innerHTML = `
       ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Kiến thức khoa học' }])}
-      <div class="page-hero-header">
-        <div>
-          <h1 class="page-title">${PVIcon('book-open', 26)} <span>Kiến thức khoa học</span></h1>
-          <p style="color:var(--text-muted);font-size:0.93rem;margin-top:4px;">
-            Giải thích các hiện tượng hóa học, vật lý và nguyên lý kinh tế tuần hoàn được ứng dụng trong dự án PEELVERSE.
+
+      <!-- Magazine-Style Science Hero Banner -->
+      <section class="science-lab-hero">
+        <div class="science-hero-content">
+          <span class="hero-badge" style="background:rgba(45,106,79,0.12);color:#1E4D2B;">INTERACTIVE SCIENCE LAB • PEELVERSE</span>
+          <h1 class="page-title" style="margin-bottom:8px;">${PVIcon('book-open', 28)} <span>Khoa học đằng sau vỏ trái cây</span></h1>
+          <p style="color:var(--text-muted);max-width:640px;font-size:0.94rem;">
+            Khám phá cơ chế hóa học tự nhiên biến vỏ cam, bưởi, chanh, dứa thành giải pháp làm sạch sinh học qua sơ đồ trực quan, thẻ lật 3D và kiểm tra nhanh.
           </p>
+        </div>
+
+        <div class="science-highlights-grid">
+          <div class="science-hl-card">
+            <span class="science-hl-icon" style="background:#FFF0E3;color:#EA580C;"><i class="ph-duotone ph-orange-slice pv-duotone" style="font-size:22px;"></i></span>
+            <div>
+              <strong>70–95% D-Limonene</strong>
+              <span>Hoạt chất tách dầu mỡ tự nhiên</span>
+            </div>
+          </div>
+          <div class="science-hl-card">
+            <span class="science-hl-icon" style="background:#E3F6EE;color:#059669;"><i class="ph-duotone ph-flask pv-duotone" style="font-size:22px;"></i></span>
+            <div>
+              <strong>Enzyme sinh học</strong>
+              <span>Phân giải chất bẩn hữu cơ êm dịu</span>
+            </div>
+          </div>
+          <div class="science-hl-card">
+            <span class="science-hl-icon" style="background:#E4F3FC;color:#0284C7;"><i class="ph-duotone ph-drop pv-duotone" style="font-size:22px;"></i></span>
+            <div>
+              <strong>pH 3.5 – 4.5</strong>
+              <span>Dịu nhẹ bề mặt &amp; da tay (${completedCount}/${DATA.scienceTopics.length} bài)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Topic Filter Pills -->
+      <div class="filter-bar" style="margin-bottom:20px;">
+        <div class="filter-pills">
+          ${filterCategories
+            .map(
+              (c) => `
+            <button type="button" class="filter-pill ${scienceFilter === c.key ? 'active' : ''}" data-sci-filter="${c.key}">
+              ${PVIcon(c.icon, 16)} <span>${c.key}</span>
+            </button>
+          `
+            )
+            .join('')}
         </div>
       </div>
 
+      <!-- Interactive Bento Grid with Inline SVG Visual Diagrams -->
+      <section class="science-bento-grid">
+        ${
+          scienceFilter === 'Tất cả' || scienceFilter === 'Hoạt chất & Tinh dầu' || scienceFilter === 'Cơ chế làm sạch'
+            ? `
+        <!-- Bento Visual 1: D-Limonene Oil Breakdown SVG Diagram -->
+        <article class="bento-card bento-span-2 bento-mechanism">
+          <div class="bento-card-head">
+            <span class="bento-tag" style="background:#FFF0E3;color:#C25B0A;">SƠ ĐỒ CƠ CHẾ</span>
+            <h3>Cơ chế D-Limonene phá vỡ &amp; cuốn trôi phân tử dầu mỡ</h3>
+            <p>Theo nguyên lý <strong>"tương đồng hòa tan nhau"</strong>, phân tử D-Limonene không phân cực len vào mảng dầu mỡ, tách chúng khỏi mặt bàn để khăn lau dễ dàng cuốn sạch.</p>
+          </div>
+          <div class="bento-svg-box" aria-label="Sơ đồ 3 bước D-Limonene tách dầu mỡ">
+            <svg viewBox="0 0 640 165" fill="none" xmlns="http://www.w3.org/2000/svg" class="science-diagram-svg">
+              <!-- Step 1 -->
+              <rect x="8" y="14" width="186" height="138" rx="18" fill="#FFFDF9" stroke="#EBE3D3" stroke-width="1.5"/>
+              <text x="24" y="38" fill="#EA580C" font-size="11" font-weight="800">1. VẾT DẦU BÁM BÀN</text>
+              <rect x="24" y="114" width="154" height="14" rx="7" fill="#E6D5BC"/>
+              <ellipse cx="101" cy="106" rx="44" ry="18" fill="#D97706" fill-opacity="0.32" stroke="#D97706" stroke-width="2"/>
+              <circle cx="88" cy="104" r="6" fill="#B45309" fill-opacity="0.65"/>
+              <circle cx="110" cy="107" r="7" fill="#B45309" fill-opacity="0.65"/>
+              <circle cx="100" cy="96" r="5" fill="#D97706" fill-opacity="0.8"/>
+
+              <!-- Arrow 1 -->
+              <path d="M202 83H220M220 83L214 77M220 83L214 89" stroke="#70984B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+
+              <!-- Step 2 -->
+              <rect x="228" y="14" width="186" height="138" rx="18" fill="#FFFDF9" stroke="#EBE3D3" stroke-width="1.5"/>
+              <text x="244" y="38" fill="#2D6A4F" font-size="11" font-weight="800">2. LIMONENE BAO BỌC</text>
+              <rect x="244" y="114" width="154" height="14" rx="7" fill="#E6D5BC"/>
+              <circle cx="300" cy="84" r="14" fill="#FDE68A" stroke="#EA580C" stroke-width="2" stroke-dasharray="4 3"/>
+              <circle cx="300" cy="84" r="6" fill="#D97706"/>
+              <circle cx="344" cy="76" r="16" fill="#D8F3DC" stroke="#2D6A4F" stroke-width="2" stroke-dasharray="4 3"/>
+              <circle cx="344" cy="76" r="6.5" fill="#D97706"/>
+              <circle cx="322" cy="58" r="5" fill="#EA580C"/>
+              <circle cx="366" cy="94" r="4.5" fill="#2D6A4F"/>
+
+              <!-- Arrow 2 -->
+              <path d="M422 83H440M440 83L434 77M440 83L434 89" stroke="#70984B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+
+              <!-- Step 3 -->
+              <rect x="448" y="14" width="184" height="138" rx="18" fill="#F2F9F0" stroke="#C6E4BE" stroke-width="1.5"/>
+              <text x="464" y="38" fill="#15803D" font-size="11" font-weight="800">3. BỀ MẶT SẠCH BÓNG</text>
+              <rect x="464" y="114" width="152" height="14" rx="7" fill="#DCEBD4"/>
+              <path d="M510 66L514 78L526 82L514 86L510 98L506 86L494 82L506 78L510 66Z" fill="#F28C28"/>
+              <path d="M562 54L564.5 62L572.5 64.5L564.5 67L562 75L559.5 67L551.5 64.5L559.5 62L562 54Z" fill="#2D6A4F"/>
+              <text x="492" y="108" fill="#15803D" font-size="11" font-weight="700">Thơm cam tự nhiên</text>
+            </svg>
+          </div>
+        </article>`
+            : ''
+        }
+
+        ${
+          scienceFilter === 'Tất cả' || scienceFilter === 'Cơ chế làm sạch' || scienceFilter === 'So sánh & An toàn'
+            ? `
+        <!-- Bento Visual 2: Interactive Colorful pH Scale 1 -> 14 -->
+        <article class="bento-card bento-span-2 bento-ph">
+          <div class="bento-card-head">
+            <span class="bento-tag" style="background:#E4F3FC;color:#0284C7;">THANG ĐO pH TRỰC QUAN (1 – 14)</span>
+            <h3>Vùng pH an toàn của PEELVERSE so với hóa chất tẩy mạnh</h3>
+            <p>Dung dịch vỏ quả pha loãng nằm ở vùng axit dịu nhẹ (pH 3.5–4.5), tránh xa ngưỡng kiềm ăn mòn (pH 12–14) của nhiều chất tẩy rửa công nghiệp.</p>
+          </div>
+          <div class="bento-svg-box">
+            <svg viewBox="0 0 640 132" fill="none" xmlns="http://www.w3.org/2000/svg" class="science-diagram-svg">
+              <defs>
+                <linearGradient id="phGradSvg" x1="16" y1="0" x2="624" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#EF4444"/>
+                  <stop offset="22%" stop-color="#F97316"/>
+                  <stop offset="42%" stop-color="#FACC15"/>
+                  <stop offset="52%" stop-color="#22C55E"/>
+                  <stop offset="72%" stop-color="#0EA5E9"/>
+                  <stop offset="100%" stop-color="#7C3AED"/>
+                </linearGradient>
+              </defs>
+              <!-- Spectrum bar -->
+              <rect x="16" y="58" width="608" height="22" rx="11" fill="url(#phGradSvg)"/>
+              <!-- Scale ticks -->
+              <text x="20" y="98" fill="#566250" font-size="11" font-weight="700">1 (Axit mạnh)</text>
+              <text x="152" y="98" fill="#C25B0A" font-size="11" font-weight="800">3.5 – 4.5</text>
+              <text x="302" y="98" fill="#15803D" font-size="11" font-weight="700">7 (Nước)</text>
+              <text x="518" y="98" fill="#6D28D9" font-size="11" font-weight="700">12–14 (Tẩy mạnh)</text>
+
+              <!-- Marker: PEELVERSE Safe Zone -->
+              <rect x="118" y="10" width="144" height="32" rx="10" fill="#2C4026"/>
+              <text x="190" y="30" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="800">PEELVERSE (pH ~4.0)</text>
+              <path d="M190 42V56" stroke="#2C4026" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="190" cy="69" r="7" fill="#FFFFFF" stroke="#2C4026" stroke-width="3"/>
+
+              <!-- Marker: Neutral Water -->
+              <circle cx="320" cy="69" r="5.5" fill="#FFFFFF" stroke="#15803D" stroke-width="2.5"/>
+
+              <!-- Marker: Industrial Chemical -->
+              <rect x="478" y="10" width="146" height="32" rx="10" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1.5"/>
+              <text x="551" y="30" text-anchor="middle" fill="#B91C1C" font-size="11" font-weight="700">Tẩy kiềm mạnh (~13)</text>
+              <path d="M551 42V56" stroke="#DC2626" stroke-width="2" stroke-dasharray="3 2"/>
+              <circle cx="551" cy="69" r="6" fill="#FFFFFF" stroke="#DC2626" stroke-width="2.5"/>
+            </svg>
+          </div>
+        </article>`
+            : ''
+        }
+
+        ${
+          scienceFilter === 'Tất cả' || scienceFilter === 'So sánh & An toàn'
+            ? `
+        <!-- Bento Visual 3: Bio Cleaner vs Chemical Comparison -->
+        <article class="bento-card bento-span-full bento-compare">
+          <div class="bento-card-head">
+            <span class="bento-tag" style="background:#E3F6EE;color:#059669;">SO SÁNH &amp; AN TOÀN</span>
+            <h3>Nước lau rửa sinh học PEELVERSE vs Chất tẩy rửa hóa học công nghiệp</h3>
+          </div>
+          <div class="compare-grid">
+            ${[
+              { label: 'An toàn & dịu nhẹ cho da tay', bio: 95, chem: 35, bioNote: 'pH dịu nhẹ, không chất ăn mòn', chemNote: 'Dễ gây khô rát da tay' },
+              { label: 'Phân hủy sinh học thân thiện nguồn nước', bio: 98, chem: 25, bioNote: '100% gốc thực vật dễ phân hủy', chemNote: 'Tồn dư hóa chất tổng hợp' },
+              { label: 'Mùi hương dễ chịu trong phòng kín', bio: 94, chem: 30, bioNote: 'Hương tinh dầu cam, bưởi, quế', chemNote: 'Mùi clo / hương liệu nồng' },
+              { label: 'Tận dụng rác hữu cơ (Kinh tế tuần hoàn)', bio: 100, chem: 10, bioNote: 'Tái sinh từ vỏ quả bỏ đi', chemNote: 'Phát thải từ hóa dầu' }
+            ]
+              .map(
+                (row) => `
+              <div class="compare-row-card">
+                <div class="compare-row-title">${row.label}</div>
+                <div class="compare-bar-item">
+                  <div class="compare-bar-label">
+                    <span class="compare-ok"><i class="ph-duotone ph-check-circle pv-duotone"></i> PEELVERSE</span>
+                    <small>${row.bioNote}</small>
+                  </div>
+                  <div class="compare-track"><div class="compare-fill bio" style="width:${row.bio}%;"></div></div>
+                </div>
+                <div class="compare-bar-item">
+                  <div class="compare-bar-label">
+                    <span class="compare-no"><i class="ph-duotone ph-x-circle pv-duotone"></i> Hóa chất mạnh</span>
+                    <small>${row.chemNote}</small>
+                  </div>
+                  <div class="compare-track"><div class="compare-fill chem" style="width:${row.chem}%;"></div></div>
+                </div>
+              </div>
+            `
+              )
+              .join('')}
+          </div>
+        </article>`
+            : ''
+        }
+      </section>
+
+      <!-- Interactive Scientific Keyword Glossary Badges -->
+      <section class="glossary-section">
+        <div class="section-head" style="margin-bottom:12px;">
+          <h2 class="inline-icon-heading">${PVIcon('lightbulb', 20)} <span>Từ khóa khoa học tương tác</span></h2>
+          <span style="font-size:0.8rem;color:var(--text-muted);">Chạm hoặc hover vào từng từ khóa để xem giải thích</span>
+        </div>
+        <div class="glossary-badges">
+          ${glossaryTerms
+            .map(
+              (g, idx) => `
+            <button type="button" class="glossary-badge ${idx === 0 ? 'active' : ''}" data-glossary="${idx}">
+              <strong>${g.term}</strong>
+              <span>${g.formula}</span>
+            </button>
+          `
+            )
+            .join('')}
+        </div>
+        <div id="glossaryPopover" class="glossary-popover">
+          <div class="glossary-pop-title">${glossaryTerms[0].term} <span class="glossary-pop-formula">${glossaryTerms[0].formula}</span></div>
+          <p>${glossaryTerms[0].desc}</p>
+        </div>
+      </section>
+
+      <!-- 7 Detailed Science Lessons Grid -->
+      <div class="section-head" style="margin-top:26px;">
+        <h2 class="inline-icon-heading">${PVIcon('book-open', 20)} <span>Thư viện bài học chi tiết (${filteredTopics.length})</span></h2>
+      </div>
       <section class="science-grid">
-        ${DATA.scienceTopics
+        ${filteredTopics
           .map((topic) => {
             const done = state.completedScience.includes(topic.id);
             return `
             <article class="science-card" data-topic="${topic.id}">
-              <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
                 <div class="science-card-icon" style="background:${topic.color};">${topic.emoji}</div>
                 <span class="progress-badge ${done ? 'done' : ''}" style="position:static;">
                   ${done ? 'Đã hoàn thành ✓' : 'Chưa học'}
                 </span>
               </div>
+              <span class="bento-mini-cat">${topic.category || 'Khoa học'}</span>
               <h3>${topic.title}</h3>
               <p style="font-weight:600;color:var(--green-mid);font-size:0.84rem;flex:0;">${topic.subtitle}</p>
               <p>${topic.summary}</p>
               <div class="science-card-foot">
-                <span>Khám phá & làm quiz</span>
+                <span>Đọc chi tiết &amp; làm quiz</span>
                 <span>→</span>
               </div>
             </article>
@@ -1162,11 +1474,149 @@
           })
           .join('')}
       </section>
+
+      <!-- 3D Flip Flashcards: "Bạn có biết?" -->
+      <section class="flashcards-section">
+        <div class="section-head" style="margin-bottom:14px;">
+          <h2 class="inline-icon-heading">${PVIcon('sparkles', 20)} <span>Thẻ lật "Bạn có biết?"</span></h2>
+          <span style="font-size:0.8rem;color:var(--text-muted);">Bấm vào từng thẻ để xoay 3D xem sự thật thú vị</span>
+        </div>
+        <div class="flashcards-grid">
+          ${flashcards
+            .map(
+              (fc, i) => `
+            <div class="flip-card" role="button" tabindex="0" aria-pressed="false" data-flip="${i}">
+              <div class="flip-card-inner">
+                <div class="flip-card-front" style="--fc-accent:${fc.accent};">
+                  <span class="flip-tag" style="color:${fc.accent};">${fc.frontTag}</span>
+                  <div class="flip-icon" style="color:${fc.accent};">
+                    <i class="ph-duotone ${fc.icon} pv-duotone" style="font-size:32px;"></i>
+                  </div>
+                  <h4>${fc.question}</h4>
+                  <span class="flip-hint">Chạm để lật đáp án ↻</span>
+                </div>
+                <div class="flip-card-back" style="--fc-accent:${fc.accent};">
+                  <span class="flip-tag" style="background:rgba(255,255,255,0.22);color:#FFFFFF;">Sự thật khoa học</span>
+                  <p>${fc.answer}</p>
+                  <span class="flip-hint" style="color:rgba(255,255,255,0.85);">Chạm để lật lại ↺</span>
+                </div>
+              </div>
+            </div>
+          `
+            )
+            .join('')}
+        </div>
+      </section>
+
+      <!-- Mini Science Quiz (4 Quick Questions) -->
+      <section class="mini-science-quiz">
+        <div class="section-head" style="margin-bottom:12px;">
+          <h2 class="inline-icon-heading">${PVIcon('award', 22)} <span>Kiểm tra nhanh kiến thức (4 câu)</span></h2>
+          <span id="miniQuizScorePill" class="hud-pill">Điểm: 0/4</span>
+        </div>
+        <div class="mini-quiz-list">
+          ${miniQuiz
+            .map(
+              (item, qIdx) => `
+            <div class="mini-quiz-card" data-qidx="${qIdx}">
+              <div class="mini-quiz-q"><strong>Câu ${qIdx + 1}:</strong> ${item.q}</div>
+              <div class="mini-quiz-opts">
+                ${item.opts
+                  .map(
+                    (opt, oIdx) => `
+                  <button type="button" class="quiz-option mini-quiz-opt" data-q="${qIdx}" data-o="${oIdx}">
+                    ${String.fromCharCode(65 + oIdx)}. ${opt}
+                  </button>
+                `
+                  )
+                  .join('')}
+              </div>
+              <div class="mini-quiz-exp" id="miniQuizExp-${qIdx}"></div>
+            </div>
+          `
+            )
+            .join('')}
+        </div>
+      </section>
     `;
 
+    // Topic filters
+    view.querySelectorAll('[data-sci-filter]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        scienceFilter = btn.dataset.sciFilter;
+        renderScience(view);
+      });
+    });
+
+    // Glossary hover & click
+    const glossaryPopover = view.querySelector('#glossaryPopover');
+    const showGlossary = (idx) => {
+      const g = glossaryTerms[idx];
+      if (!g || !glossaryPopover) return;
+      view.querySelectorAll('.glossary-badge').forEach((b, i) => b.classList.toggle('active', i === idx));
+      glossaryPopover.innerHTML = `
+        <div class="glossary-pop-title">${g.term} <span class="glossary-pop-formula">${g.formula}</span></div>
+        <p>${g.desc}</p>
+      `;
+    };
+    view.querySelectorAll('.glossary-badge').forEach((btn) => {
+      const idx = Number(btn.dataset.glossary);
+      btn.addEventListener('click', () => showGlossary(idx));
+      btn.addEventListener('mouseenter', () => {
+        if (window.matchMedia('(hover: hover)').matches) showGlossary(idx);
+      });
+    });
+
+    // 7 detailed science cards
     view.querySelectorAll('.science-card').forEach((card) => {
       card.addEventListener('click', () => {
         navigate('science-detail', card.dataset.topic);
+      });
+    });
+
+    // 3D Flip flashcards
+    view.querySelectorAll('.flip-card').forEach((card) => {
+      const toggleFlip = () => {
+        const flipped = card.classList.toggle('flipped');
+        card.setAttribute('aria-pressed', String(flipped));
+      };
+      card.addEventListener('click', toggleFlip);
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleFlip();
+        }
+      });
+    });
+
+    // Mini 4-question quiz
+    const quizCorrectSet = new Set();
+    view.querySelectorAll('.mini-quiz-opt').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const qIdx = Number(btn.dataset.q);
+        const oIdx = Number(btn.dataset.o);
+        const item = miniQuiz[qIdx];
+        const card = view.querySelector(`.mini-quiz-card[data-qidx="${qIdx}"]`);
+        const expEl = view.querySelector(`#miniQuizExp-${qIdx}`);
+        card.querySelectorAll('.mini-quiz-opt').forEach((b) => b.classList.remove('correct', 'wrong'));
+
+        if (oIdx === item.ans) {
+          btn.classList.add('correct');
+          expEl.style.color = '#166534';
+          expEl.textContent = `✓ ${item.exp}`;
+          const wasNew = !quizCorrectSet.has(qIdx);
+          quizCorrectSet.add(qIdx);
+          const pill = view.querySelector('#miniQuizScorePill');
+          if (pill) pill.textContent = `Điểm: ${quizCorrectSet.size}/4`;
+          if (wasNew && quizCorrectSet.size === 4) {
+            triggerEcoConfetti();
+            showToast('🎉 Xuất sắc! Bạn đã trả lời đúng cả 4/4 câu hỏi khoa học nhanh!');
+          }
+        } else {
+          btn.classList.add('wrong');
+          expEl.style.color = '#B91C1C';
+          expEl.textContent = '✕ Chưa chính xác, bạn thử chọn đáp án khác nhé!';
+        }
       });
     });
   }
@@ -1290,43 +1740,124 @@
     update();
   }
 
-  // ===== 06. GAME HUB & PLAY =====
+  // ===== 06. GAME HUB & PLAY (REDESIGNED LAB HERO + 6 COLORED STAGE CARDS) =====
+  function getPlayerRank(clearedCount, totalScore) {
+    if (clearedCount >= 6 || totalScore >= 900) {
+      return { title: 'Bậc thầy PEELVERSE', icon: 'ph-crown', color: '#D97706', bg: '#FEF3C7' };
+    }
+    if (clearedCount >= 3 || totalScore >= 350) {
+      return { title: 'Chuyên gia Chiết xuất', icon: 'ph-flask', color: '#059669', bg: '#D1FAE5' };
+    }
+    return { title: 'Tân binh Tái sinh', icon: 'ph-plant', color: '#2D6A4F', bg: '#E6F4E8' };
+  }
+
   function renderGameHub(view) {
     const clearedCount = Object.keys(state.clearedGames).length;
     const totalScore = Object.values(state.clearedGames).reduce((a, b) => a + b, 0);
+    const rank = getPlayerRank(clearedCount, totalScore);
+    const ringCircumference = 201.06; // 2 * PI * 32
+    const ringOffset = ringCircumference * (1 - clearedCount / GAMES.stages.length);
 
     view.innerHTML = `
       ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Trò chơi' }])}
-      <section class="game-hub-banner">
-        <div>
-          <span class="hero-badge" style="background:rgba(242,140,40,0.16);color:var(--orange-deep);">KHU VỰC MINI GAME TƯƠNG TÁC</span>
-          <h1 class="inline-icon-heading" style="font-size:2rem;margin-bottom:6px;">${PVIcon('gamepad', 28)} <span>Trò chơi mô phỏng PEELVERSE</span></h1>
-          <p style="color:var(--text-muted);max-width:600px;font-size:0.94rem;">
-            Trải nghiệm trực tiếp 6 công đoạn biến vỏ trái cây thành dung dịch lau bàn sạch bóng. Chọn bất kỳ màn nào bên dưới hoặc bắt đầu từ Màn 1 để chinh phục trọn bộ!
-          </p>
+      <section class="game-lab-hero">
+        <div class="game-hero-deco" aria-hidden="true">
+          <svg viewBox="0 0 320 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="255" cy="48" r="56" fill="#F28C28" fill-opacity="0.11"/>
+            <circle cx="70" cy="175" r="44" fill="#2D6A4F" fill-opacity="0.09"/>
+            <circle cx="205" cy="155" r="18" fill="#F28C28" fill-opacity="0.14"/>
+            <circle cx="282" cy="126" r="11" fill="#2D6A4F" fill-opacity="0.14"/>
+          </svg>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-          <div class="hud-pill">🏆 Đã vượt qua: ${clearedCount}/6 màn • ⭐ ${totalScore} điểm</div>
-          <button class="btn btn-primary" id="startFirstStageBtn">Bắt đầu chơi ngay →</button>
+
+        <div class="game-hero-left">
+          <span class="hero-badge" style="background:rgba(234,88,12,0.14);color:#C2410C;">PHÒNG THÍ NGHIỆM TƯƠNG TÁC • 6 MÀN MÔ PHỎNG</span>
+          <h1 class="inline-icon-heading" style="font-size:clamp(1.6rem,3vw,2.15rem);margin-bottom:8px;">
+            ${PVIcon('gamepad', 28)} <span>Trò chơi mô phỏng PEELVERSE</span>
+          </h1>
+          <p style="color:var(--text-muted);max-width:540px;font-size:0.94rem;margin-bottom:18px;">
+            Hóa thân thành nhà nghiên cứu xanh! Chinh phục 6 công đoạn từ thu thập vỏ cam tươi, rửa sạch, sơ chế, phối trộn, lọc tinh dầu đến thử thách lau bàn sạch bóng.
+          </p>
+          <button class="btn btn-primary btn-shimmer" id="startFirstStageBtn">
+            <span>Bắt đầu chơi ngay →</span>
+          </button>
+        </div>
+
+        <div class="game-hero-dashboard">
+          <div class="game-ring-box">
+            <svg width="78" height="78" viewBox="0 0 78 78" class="game-progress-svg">
+              <circle cx="39" cy="39" r="32" fill="none" stroke="rgba(44,64,38,0.12)" stroke-width="6" />
+              <circle cx="39" cy="39" r="32" fill="none" stroke="#EA580C" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="${ringCircumference}" stroke-dashoffset="${ringOffset}"
+                transform="rotate(-90 39 39)" />
+            </svg>
+            <div class="game-ring-center">
+              <strong>${clearedCount}/6</strong>
+              <span>Màn</span>
+            </div>
+          </div>
+
+          <div class="game-dash-stats">
+            <div class="game-rank-pill" style="background:${rank.bg};color:${rank.color};">
+              <i class="ph-duotone ${rank.icon} pv-duotone" style="font-size:16px;"></i>
+              <span>${rank.title}</span>
+            </div>
+            <div class="game-total-score">
+              <span class="label">Tổng điểm tích lũy</span>
+              <strong data-countup="true">${totalScore} điểm</strong>
+            </div>
+          </div>
         </div>
       </section>
 
       <section class="game-stages-grid">
         ${GAMES.stages
           .map((st) => {
-            const best = state.clearedGames[st.id];
+            const best = state.clearedGames[st.id] || 0;
+            const isCleared = best > 0;
+            const stars = GAMES.getStarsForScore(st, best);
+            const pct = Math.min(100, Math.round((best / (st.maxScore || 200)) * 100));
+            const starsHtml = [1, 2, 3]
+              .map(
+                (i) =>
+                  `<i class="ph-duotone ph-star pv-duotone stage-star ${i <= stars ? 'lit' : ''}" style="font-size:17px;"></i>`
+              )
+              .join('');
+
             return `
-            <article class="stage-card ${best ? 'cleared' : ''}">
-              <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span class="stage-num">Màn ${st.id}</span>
-                ${best ? `<span style="font-size:0.8rem;font-weight:700;color:var(--green-mid);">✓ ${best} điểm</span>` : ''}
+            <article class="stage-card-v2 ${isCleared ? 'cleared' : ''}" style="--stage-accent:${st.accent};--stage-glow:${st.glow};">
+              <div class="stage-visual-header" style="background:${st.accentBg};">
+                <span class="stage-watermark">${st.num}</span>
+                <div class="stage-glass-emblem" style="color:${st.accent};">
+                  <i class="ph-duotone ${st.icon} pv-duotone" style="font-size:30px;"></i>
+                </div>
+                <span class="stage-status-chip ${isCleared ? 'done' : ''}">
+                  ${isCleared ? '✓ Đã chinh phục' : 'Chưa mở'}
+                </span>
               </div>
-              <div style="font-size:2.4rem;">${st.emoji}</div>
-              <h3>${st.title}</h3>
-              <p style="font-size:0.86rem;color:var(--text-muted);flex:1;">${st.desc}</p>
-              <button class="btn ${best ? 'btn-secondary' : 'btn-orange'}" data-stage="${st.id}" style="margin-top:8px;width:100%;">
-                ${best ? 'Chơi lại' : 'Mở màn chơi →'}
-              </button>
+
+              <div class="stage-card-v2-body">
+                <div class="stage-card-meta-row">
+                  <span class="stage-label-sm" style="color:${st.accent};">Màn ${st.num}</span>
+                  <div class="stage-stars-row" aria-label="${stars}/3 sao">${starsHtml}</div>
+                </div>
+                <h3>${st.title}</h3>
+                <p class="stage-desc-v2">${st.desc}</p>
+
+                <div class="stage-score-meter">
+                  <div class="stage-score-labels">
+                    <span>Điểm cao nhất</span>
+                    <strong>${best} / ${st.maxScore}</strong>
+                  </div>
+                  <div class="stage-mini-track">
+                    <div class="stage-mini-fill" style="width:${pct}%;background:${st.accent};"></div>
+                  </div>
+                </div>
+
+                <button class="btn stage-cta-btn ${isCleared ? 'is-cleared' : ''}" data-stage="${st.id}">
+                  ${isCleared ? 'Chơi lại màn này ↻' : 'Chinh phục ngay →'}
+                </button>
+              </div>
             </article>
           `;
           })

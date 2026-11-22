@@ -2,41 +2,91 @@ window.PEELVERSE_GAMES = {
   stages: [
     {
       id: 1,
+      num: '01',
       title: 'Thu thập nguyên liệu',
       emoji: '🧺',
+      icon: 'ph-orange-slice',
+      accent: '#EA580C',
+      accentBg: 'linear-gradient(135deg, #FFF1E3 0%, #FDE0C2 100%)',
+      glow: 'rgba(234, 88, 12, 0.22)',
+      maxScore: 200,
+      scienceTip: 'Vỏ cam, chanh, quýt tươi không nấm mốc chứa hàm lượng tinh dầu D-Limonene cao nhất ở lớp vỏ ngoài (flavedo).',
       desc: 'Chọn và thu thập các loại vỏ trái cây phù hợp vào giỏ, phân biệt nguyên liệu nên sử dụng và không nên sử dụng.'
     },
     {
       id: 2,
+      num: '02',
       title: 'Làm sạch nguyên liệu',
       emoji: '🫧',
+      icon: 'ph-drop',
+      accent: '#0284C7',
+      accentBg: 'linear-gradient(135deg, #E3F4FD 0%, #C6E8FA 100%)',
+      glow: 'rgba(2, 132, 199, 0.22)',
+      maxScore: 180,
+      scienceTip: 'Rửa sạch bụi bẩn và lớp sáp mỏng bằng nước mát giúp bảo toàn tinh dầu dễ bay hơi trước khi chiết xuất.',
       desc: 'Thao tác rửa vỏ trái cây, loại bỏ bụi bẩn bằng cách tương tác trực tiếp trên màn hình.'
     },
     {
       id: 3,
+      num: '03',
       title: 'Sơ chế',
       emoji: '✂️',
+      icon: 'ph-scissors',
+      accent: '#CA8A04',
+      accentBg: 'linear-gradient(135deg, #FEF9DC 0%, #FDECA8 100%)',
+      glow: 'rgba(202, 138, 4, 0.22)',
+      maxScore: 200,
+      scienceTip: 'Cắt vỏ thành miếng đồng đều 1.5–2 cm làm tăng mạnh diện tích tiếp xúc, giúp dung môi khuếch tán tinh dầu nhanh hơn.',
       desc: 'Hoàn thành thử thách sơ chế thông qua các thao tác chạm cắt vỏ thành kích thước đồng đều.'
     },
     {
       id: 4,
+      num: '04',
       title: 'Ghép nguyên liệu',
       emoji: '🧪',
+      icon: 'ph-flask',
+      accent: '#059669',
+      accentBg: 'linear-gradient(135deg, #E2F7EE 0%, #BFEBD8 100%)',
+      glow: 'rgba(5, 150, 105, 0.22)',
+      maxScore: 220,
+      scienceTip: 'Giấm trắng (axit axetic ~5%) kết hợp tinh dầu vỏ cam và hương quế tạo nên công thức làm sạch vừa thơm dịu vừa sạch cặn.',
       desc: 'Ghép các nguyên liệu vào đúng vị trí vai trò khoa học để tạo hỗn hợp chiết xuất chuẩn.'
     },
     {
       id: 5,
+      num: '05',
       title: 'Lọc dung dịch',
       emoji: '🫖',
+      icon: 'ph-funnel',
+      accent: '#D97706',
+      accentBg: 'linear-gradient(135deg, #FEF2DC 0%, #FCDBA8 100%)',
+      glow: 'rgba(217, 119, 6, 0.22)',
+      maxScore: 220,
+      scienceTip: 'Lọc tách hoàn toàn bã rắn giúp dung dịch vàng trong, không làm tắc đầu vòi xịt và bảo quản lâu hơn.',
       desc: 'Thực hiện minigame lọc, tách phần bã nguyên liệu rắn để thu lấy dung dịch trong.'
     },
     {
       id: 6,
+      num: '06',
       title: 'Thử thách lau bàn',
       emoji: '✨',
+      icon: 'ph-sparkle',
+      accent: '#15803D',
+      accentBg: 'linear-gradient(135deg, #E4F6E7 0%, #C2EBC9 100%)',
+      glow: 'rgba(21, 128, 61, 0.22)',
+      maxScore: 450,
+      scienceTip: 'Phân tử D-Limonene không phân cực hòa tan vết dầu mỡ trên mặt bàn, giúp khăn lau cuốn sạch chỉ trong một lần lau!',
       desc: 'Thử thách tương tác mô phỏng việc làm sạch bàn ăn: xịt dung dịch PEELVERSE và lau sạch vết bẩn tính điểm!'
     }
   ],
+
+  getStarsForScore(stage, score) {
+    if (!score || score <= 0) return 0;
+    const ratio = score / (stage.maxScore || 200);
+    if (ratio >= 0.85) return 3;
+    if (ratio >= 0.55) return 2;
+    return 1;
+  },
 
   activeTimer: null,
 
@@ -54,16 +104,21 @@ window.PEELVERSE_GAMES = {
 
     container.innerHTML = `
       <button class="btn-back" id="gameBackBtn">← Quay lại danh sách màn chơi</button>
-      <div class="game-arena">
-        <div class="game-hud">
-          <div>
-            <span class="stage-num">Màn ${stage.id} / 6</span>
-            <h2 style="margin-top:6px;">${stage.emoji} ${stage.title}</h2>
+      <div class="game-arena" style="--stage-accent:${stage.accent};">
+        <div class="game-hud game-hud-modern" style="background:${stage.accentBg};">
+          <div class="game-hud-title">
+            <span class="game-hud-icon" style="color:${stage.accent};">
+              <i class="ph-duotone ${stage.icon} pv-duotone" style="font-size:24px;"></i>
+            </span>
+            <div>
+              <span class="stage-num" style="background:#FFFFFF;color:${stage.accent};">Màn ${stage.num} / 06</span>
+              <h2 style="margin-top:4px;font-size:1.3rem;">${stage.title}</h2>
+            </div>
           </div>
           <div class="hud-pills" id="gameHudPills"></div>
         </div>
         <div id="gameBoard" class="game-board"></div>
-        <div id="gameFeedback" style="margin-top:14px;font-weight:600;color:var(--green-dark);min-height:24px;"></div>
+        <div id="gameFeedback" class="game-feedback-bar"></div>
       </div>
     `;
 
@@ -79,19 +134,35 @@ window.PEELVERSE_GAMES = {
     const finishStage = (score, message) => {
       this.cleanup();
       onComplete(stageId, score);
+      const stars = this.getStarsForScore(stage, score);
+      const starsHtml = [1, 2, 3]
+        .map(
+          (i) =>
+            `<i class="ph-duotone ph-star pv-duotone result-star ${i <= stars ? 'lit' : ''}" style="font-size:32px;"></i>`
+        )
+        .join('');
+
       board.innerHTML = `
-        <div style="text-align:center;padding:36px 16px;">
-          <div style="font-size:4rem;margin-bottom:10px;">🎉</div>
-          <h2 style="margin-bottom:8px;">Hoàn thành Màn ${stageId}: ${stage.title}!</h2>
-          <p style="color:var(--text-muted);max-width:460px;margin:0 auto 18px;">${message}</p>
-          <div style="display:inline-block;background:var(--bg-sage);color:var(--green-dark);font-weight:800;padding:8px 20px;border-radius:999px;margin-bottom:22px;">
-            ⭐ Điểm số: ${score} điểm
+        <div class="game-result-modal">
+          <div class="game-result-emblem" style="background:${stage.accentBg};color:${stage.accent};">
+            <i class="ph-duotone ph-trophy pv-duotone" style="font-size:42px;"></i>
           </div>
-          <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+          <div class="game-result-stars" aria-label="Đạt ${stars} trên 3 sao">${starsHtml}</div>
+          <h2 style="margin-bottom:6px;">Hoàn thành Màn ${stage.num}: ${stage.title}!</h2>
+          <p style="color:var(--text-muted);max-width:480px;margin:0 auto 14px;">${message}</p>
+          <div class="game-result-score-pill" style="border-color:${stage.accent};color:${stage.accent};">
+            <i class="ph-duotone ph-sparkle pv-duotone" style="font-size:18px;"></i>
+            <span>Điểm số: <strong>${score}</strong> điểm</span>
+          </div>
+          <div class="game-science-tip">
+            <i class="ph-duotone ph-lightbulb pv-duotone" style="font-size:20px;color:#D97706;flex-shrink:0;"></i>
+            <div><strong>Mẹo khoa học nhanh:</strong> ${stage.scienceTip}</div>
+          </div>
+          <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:20px;">
             <button class="btn btn-secondary" id="replayStageBtn">Chơi lại màn này</button>
             ${stageId < 6
               ? `<button class="btn btn-primary" id="nextStageBtn">Tiếp tục Màn ${stageId + 1} →</button>`
-              : `<button class="btn btn-orange" id="allDoneBtn">Xem bảng thành tích 🏆</button>`}
+              : `<button class="btn btn-orange" id="allDoneBtn">Xem bảng thành tích →</button>`}
           </div>
         </div>
       `;

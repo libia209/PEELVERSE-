@@ -4512,3 +4512,815 @@ body.auth-locked {
   border-radius: 50%;
   display: block;
 }
+
+
+/* ===== REDESIGNED GAME HUB (LAB HERO + 6 COLORED STAGE CARDS + RESULT MODAL) ===== */
+.game-lab-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  padding: clamp(22px, 3vw, 32px);
+  background: linear-gradient(132deg, #DCE8C9 0%, #F4F5E5 50%, #FDE3CA 100%);
+  border: 1px solid rgba(112, 152, 75, 0.25);
+  display: grid;
+  grid-template-columns: 1.35fr 0.85fr;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.game-hero-deco {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.game-hero-deco svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.game-hero-left {
+  position: relative;
+  z-index: 2;
+}
+
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 70%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.32) 50%, transparent 100%);
+  animation: btnShimmerSweep 3.2s ease-in-out infinite;
+}
+
+@keyframes btnShimmerSweep {
+  0%, 60% { left: -120%; }
+  100% { left: 160%; }
+}
+
+.game-hero-dashboard {
+  position: relative;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.84);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 22px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 10px 26px rgba(44, 64, 38, 0.08);
+}
+
+.game-ring-box {
+  position: relative;
+  width: 78px;
+  height: 78px;
+  flex-shrink: 0;
+}
+
+.game-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.05;
+}
+
+.game-ring-center strong {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.15rem;
+  color: var(--green-dark);
+}
+
+.game-ring-center span {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.game-dash-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.game-rank-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 800;
+  align-self: flex-start;
+}
+
+.game-total-score {
+  display: flex;
+  flex-direction: column;
+}
+
+.game-total-score .label {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.game-total-score strong {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.3rem;
+  color: var(--green-dark);
+}
+
+/* 6 Colored Stage Cards */
+.stage-card-v2 {
+  background: #FFFFFF;
+  border: 1px solid var(--surface-border);
+  border-radius: 22px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-card);
+  transition: transform 280ms var(--ease-out-expo), box-shadow 280ms ease, border-color 220ms ease;
+}
+
+.stage-visual-header {
+  height: 106px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(44, 64, 38, 0.06);
+}
+
+.stage-visual-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(44, 64, 38, 0.07) 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+  pointer-events: none;
+}
+
+.stage-watermark {
+  position: absolute;
+  left: 14px;
+  bottom: -14px;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 4.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--stage-accent);
+  opacity: 0.14;
+  user-select: none;
+  pointer-events: none;
+}
+
+.stage-glass-emblem {
+  position: relative;
+  z-index: 2;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.76);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(44, 64, 38, 0.1);
+  transition: transform 260ms var(--ease-out-expo);
+}
+
+.stage-status-chip {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-muted);
+  border: 1px solid rgba(235, 227, 211, 0.9);
+}
+
+.stage-status-chip.done {
+  background: var(--green-dark);
+  color: #FFFFFF;
+  border-color: var(--green-dark);
+}
+
+.stage-card-v2-body {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.stage-card-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stage-label-sm {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.stage-stars-row {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.stage-star {
+  color: #D6D3CD;
+}
+
+.stage-star.lit {
+  color: #F59E0B;
+}
+
+.stage-desc-v2 {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.stage-score-meter {
+  margin: 6px 0 4px;
+}
+
+.stage-score-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+
+.stage-mini-track {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: #F1ECE1;
+  overflow: hidden;
+}
+
+.stage-mini-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 450ms var(--ease-out-expo);
+}
+
+.stage-cta-btn {
+  width: 100%;
+  margin-top: 6px;
+  background: var(--bg-canvas);
+  color: var(--green-dark);
+  border: 1.5px solid var(--border-soft);
+}
+
+.stage-cta-btn.is-cleared {
+  background: #FFFFFF;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .stage-card-v2:hover {
+    transform: translateY(-6px);
+    border-color: var(--stage-accent);
+    box-shadow: 0 16px 34px var(--stage-glow);
+  }
+  .stage-card-v2:hover .stage-glass-emblem {
+    transform: scale(1.08);
+  }
+  .stage-card-v2:hover .stage-cta-btn {
+    background: var(--stage-accent);
+    color: #FFFFFF;
+    border-color: var(--stage-accent);
+  }
+}
+
+/* Modern In-Game HUD & Result Modal */
+.game-hud-modern {
+  border-radius: 16px;
+  padding: 14px 18px;
+  border-bottom: none;
+  margin-bottom: 18px;
+}
+
+.game-hud-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.game-hud-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.88);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(44, 64, 38, 0.08);
+}
+
+.game-feedback-bar {
+  margin-top: 14px;
+  font-weight: 600;
+  color: var(--green-dark);
+  min-height: 24px;
+}
+
+.game-result-modal {
+  text-align: center;
+  padding: 28px 16px;
+  animation: fadeSlideView 280ms var(--ease-out-expo);
+}
+
+.game-result-emblem {
+  width: 78px;
+  height: 78px;
+  border-radius: 24px;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-card);
+}
+
+.game-result-stars {
+  display: inline-flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.result-star {
+  color: #D6D3CD;
+}
+
+.result-star.lit {
+  color: #F59E0B;
+}
+
+.game-result-score-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  background: #FFFFFF;
+  border: 1.5px solid var(--green-accent);
+  font-size: 0.94rem;
+  margin-bottom: 16px;
+}
+
+.game-science-tip {
+  max-width: 520px;
+  margin: 0 auto;
+  background: #FFFBF0;
+  border: 1px solid #F4D89C;
+  border-radius: 14px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+  font-size: 0.86rem;
+  color: var(--text-main);
+}
+
+/* ===== REDESIGNED INTERACTIVE SCIENCE LAB ===== */
+.science-lab-hero {
+  background: linear-gradient(135deg, #E3EED6 0%, #F7F7EA 52%, #FCEAD6 100%);
+  border: 1px solid rgba(112, 152, 75, 0.24);
+  border-radius: var(--radius-lg);
+  padding: clamp(22px, 3vw, 30px);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-shadow: var(--shadow-card);
+}
+
+.science-highlights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.science-hl-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.science-hl-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.science-hl-card strong {
+  display: block;
+  font-size: 0.92rem;
+  color: var(--green-dark);
+}
+
+.science-hl-card span {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* Bento Grid & Inline SVG Diagrams */
+.science-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.bento-card {
+  background: #FFFFFF;
+  border: 1px solid var(--surface-border);
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bento-span-2 {
+  grid-column: span 2;
+}
+
+.bento-span-full {
+  grid-column: 1 / -1;
+}
+
+.bento-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  margin-bottom: 8px;
+}
+
+.bento-card-head h3 {
+  font-size: 1.15rem;
+  margin-bottom: 6px;
+}
+
+.bento-card-head p {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+.bento-svg-box {
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.science-diagram-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.bento-mini-cat {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--orange-deep);
+}
+
+/* Bio vs Chemical Comparison Grid */
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.compare-row-card {
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.compare-row-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--green-dark);
+}
+
+.compare-bar-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.compare-ok {
+  color: #15803D;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.compare-no {
+  color: #B91C1C;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.compare-track {
+  height: 7px;
+  background: #E9E4D8;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.compare-fill.bio {
+  height: 100%;
+  background: linear-gradient(90deg, #2D6A4F, #70984B);
+  border-radius: var(--radius-pill);
+}
+
+.compare-fill.chem {
+  height: 100%;
+  background: linear-gradient(90deg, #EF4444, #F87171);
+  border-radius: var(--radius-pill);
+}
+
+/* Interactive Glossary Badges */
+.glossary-section {
+  background: #FFFFFF;
+  border: 1px solid var(--surface-border);
+  border-radius: 22px;
+  padding: 20px 22px;
+  box-shadow: var(--shadow-card);
+}
+
+.glossary-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.glossary-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-canvas);
+  border: 1.5px solid var(--border-soft);
+  color: var(--green-dark);
+  font-size: 0.85rem;
+  transition: all 180ms ease;
+}
+
+.glossary-badge span {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.glossary-badge.active,
+.glossary-badge:hover {
+  background: var(--bg-sage);
+  border-color: var(--green-accent);
+}
+
+.glossary-popover {
+  background: var(--bg-sage-soft);
+  border: 1px solid #D1E1B8;
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.glossary-pop-title {
+  font-weight: 800;
+  color: var(--green-dark);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.glossary-pop-formula {
+  font-size: 0.74rem;
+  background: #FFFFFF;
+  color: var(--orange-deep);
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+}
+
+.glossary-popover p {
+  font-size: 0.88rem;
+  color: var(--text-main);
+}
+
+/* 3D Flip Flashcards */
+.flashcards-section {
+  margin-top: 28px;
+}
+
+.flashcards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.flip-card {
+  perspective: 1000px;
+  height: 226px;
+  cursor: pointer;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 20px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-card);
+}
+
+.flip-card-front {
+  background: #FFFFFF;
+  border: 1.5px solid var(--surface-border);
+}
+
+.flip-card-back {
+  background: linear-gradient(145deg, var(--green-dark), #3C5A34);
+  color: #FFFFFF;
+  transform: rotateY(180deg);
+}
+
+.flip-card-back p {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.flip-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--bg-canvas);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  align-self: flex-start;
+}
+
+.flip-card-front h4 {
+  font-size: 0.94rem;
+  line-height: 1.38;
+}
+
+.flip-hint {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-light);
+}
+
+/* Mini Science Quiz */
+.mini-science-quiz {
+  margin-top: 28px;
+  background: linear-gradient(145deg, #F6FAEE 0%, #FFFFFF 100%);
+  border: 1px solid #D3E2BA;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.mini-quiz-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.mini-quiz-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mini-quiz-q {
+  font-size: 0.9rem;
+  color: var(--green-dark);
+}
+
+.mini-quiz-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.mini-quiz-exp {
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-height: 20px;
+}
+
+@media (max-width: 1023px) {
+  .game-lab-hero {
+    grid-template-columns: 1fr;
+  }
+  .science-highlights-grid {
+    grid-template-columns: 1fr;
+  }
+  .science-bento-grid {
+    grid-template-columns: 1fr;
+  }
+  .bento-span-2 {
+    grid-column: span 1;
+  }
+  .compare-grid,
+  .flashcards-grid,
+  .mini-quiz-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .compare-grid,
+  .flashcards-grid,
+  .mini-quiz-list {
+    grid-template-columns: 1fr;
+  }
+  .game-hero-dashboard {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

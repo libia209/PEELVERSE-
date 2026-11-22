@@ -221,6 +221,7 @@ window.PEELVERSE_DATA = {
   scienceTopics: [
     {
       id: 'essential-oils',
+      category: 'Hoạt chất & Tinh dầu',
       title: 'Tinh dầu và hợp chất tự nhiên',
       subtitle: 'Vì sao vỏ cam, chanh có mùi đặc trưng?',
       emoji: '🍊',
@@ -245,6 +246,7 @@ window.PEELVERSE_DATA = {
     },
     {
       id: 'limonene',
+      category: 'Hoạt chất & Tinh dầu',
       title: 'Limonene',
       subtitle: 'Một hợp chất phổ biến trong tinh dầu của nhiều loại quả có múi',
       emoji: '🧬',
@@ -269,6 +271,7 @@ window.PEELVERSE_DATA = {
     },
     {
       id: 'ph-scale',
+      category: 'Cơ chế làm sạch',
       title: 'Độ pH',
       subtitle: 'Axit, bazơ và cách hiểu thang đo pH',
       emoji: '📊',
@@ -294,6 +297,7 @@ window.PEELVERSE_DATA = {
     },
     {
       id: 'solvents',
+      category: 'Cơ chế làm sạch',
       title: 'Dung môi',
       subtitle: 'Vì sao các chất có thể hòa tan trong những môi trường khác nhau?',
       emoji: '🧪',
@@ -318,6 +322,7 @@ window.PEELVERSE_DATA = {
     },
     {
       id: 'extraction',
+      category: 'Cơ chế làm sạch',
       title: 'Chiết xuất',
       subtitle: 'Quá trình chuyển các hợp chất từ nguyên liệu vào môi trường',
       emoji: '⚗️',
@@ -342,6 +347,7 @@ window.PEELVERSE_DATA = {
     },
     {
       id: 'filtration',
+      category: 'Cơ chế làm sạch',
       title: 'Lọc',
       subtitle: 'Cách tách các thành phần rắn và lỏng',
       emoji: '🫖',
@@ -366,6 +372,7 @@ window.PEELVERSE_DATA = {
     },
     {
       id: 'circular-economy',
+      category: 'So sánh & An toàn',
       title: 'Kinh tế tuần hoàn',
       subtitle: 'Tận dụng tài nguyên và giảm lãng phí thông qua tư duy tái sử dụng',
       emoji: '♻️',

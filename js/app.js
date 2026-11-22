@@ -1054,19 +1054,29 @@
             const checked = state.completedSteps.includes(s.step);
             return `
             <article class="process-card ${checked ? 'completed' : ''}" data-step-card="${s.step}">
-              <div class="process-card-top">
-                <span class="step-badge">Bước ${s.step}</span>
-                <span class="step-emoji">${s.emoji}</span>
+              ${
+                s.image
+                  ? `<div class="process-media">
+                      <img src="${s.image}" alt="Bước ${s.step}: ${s.title}" loading="lazy" />
+                      <span class="step-badge process-media-badge">Bước ${s.step}</span>
+                      <span class="process-media-emoji">${s.emoji}</span>
+                    </div>`
+                  : `<div class="process-card-top">
+                      <span class="step-badge">Bước ${s.step}</span>
+                      <span class="step-emoji">${s.emoji}</span>
+                    </div>`
+              }
+              <div class="process-card-body">
+                <h3>${s.title}</h3>
+                <p><strong>${s.summary}</strong></p>
+                <p>${s.details}</p>
+                <div class="process-detail-list">
+                  <strong>💡 Mẹo nghiên cứu:</strong> ${s.tip}
+                </div>
+                <button class="step-check-btn ${checked ? 'checked' : ''}" data-step="${s.step}">
+                  ${checked ? '✓ Đã nắm rõ bước này' : '○ Đánh dấu đã tìm hiểu'}
+                </button>
               </div>
-              <h3>${s.title}</h3>
-              <p><strong>${s.summary}</strong></p>
-              <p>${s.details}</p>
-              <div class="process-detail-list">
-                <strong>💡 Mẹo nghiên cứu:</strong> ${s.tip}
-              </div>
-              <button class="step-check-btn ${checked ? 'checked' : ''}" data-step="${s.step}">
-                ${checked ? '✓ Đã nắm rõ bước này' : '○ Đánh dấu đã tìm hiểu'}
-              </button>
             </article>
           `;
           })

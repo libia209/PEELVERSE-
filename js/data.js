@@ -159,6 +159,7 @@ window.PEELVERSE_DATA = {
       step: 1,
       title: 'Thu gom nguyên liệu',
       emoji: '🧺',
+      image: 'assets/images/step-1-collect.jpg',
       summary: 'Thu gom vỏ trái cây, phân loại và ghi nhận tình trạng nguyên liệu.',
       details: 'Sau mỗi bữa ăn tại khu nội trú, vỏ cam, chanh, quýt được thu gom riêng khỏi rác thải sinh hoạt thông thường. Nhóm tiến hành phân loại để loại bỏ những phần bị dập sâu, nấm mốc hoặc lẫn tạp chất.',
       tip: 'Ghi chép khối lượng và độ tươi của vỏ giúp theo dõi sự đồng nhất giữa các mẻ thử nghiệm.'
@@ -167,6 +168,7 @@ window.PEELVERSE_DATA = {
       step: 2,
       title: 'Làm sạch',
       emoji: '🫧',
+      image: 'assets/images/step-2-wash.jpg',
       summary: 'Loại bỏ bụi bẩn và các phần không phù hợp, chuẩn bị nguyên liệu.',
       details: 'Rửa nhẹ nhàng vỏ trái cây dưới dòng nước sạch để cuốn trôi bụi bám, đất cát và lớp sáp mỏng ngoài vỏ. Sau đó để ráo nước tự nhiên nhằm tránh làm loãng môi trường chiết xuất không kiểm soát.',
       tip: 'Không ngâm vỏ quá lâu trong nước nóng vì có thể làm thất thoát sớm tinh dầu dễ bay hơi.'
@@ -175,6 +177,7 @@ window.PEELVERSE_DATA = {
       step: 3,
       title: 'Sơ chế',
       emoji: '✂️',
+      image: 'assets/images/step-3-prep.jpg',
       summary: 'Chuẩn bị nguyên liệu với kích thước tương đối đồng đều để thuận tiện nghiên cứu.',
       details: 'Cắt vỏ trái cây thành các miếng nhỏ kích thước khoảng 1.5 – 2 cm. Việc tăng diện tích bề mặt tiếp xúc giúp dung môi dễ dàng thấm vào các túi tinh dầu và đẩy nhanh quá trình khuếch tán hợp chất.',
       tip: 'Kích thước đồng đều giúp quá trình chiết xuất diễn ra đều hơn và dễ lọc hơn ở bước sau.'
@@ -183,6 +186,7 @@ window.PEELVERSE_DATA = {
       step: 4,
       title: 'Nghiên cứu chiết xuất',
       emoji: '⚗️',
+      image: 'assets/images/step-4-extract.jpg',
       summary: 'Quan sát sự chuyển dịch của một số hợp chất từ nguyên liệu thực vật sang môi trường dung dịch.',
       details: 'Cho vỏ trái cây đã sơ chế cùng thanh quế vào bình thủy tinh sạch, thêm giấm trắng ngập nguyên liệu và đậy kín nắp. Đặt nơi thoáng mát, tránh ánh nắng trực tiếp và quan sát sự thay đổi màu sắc, mùi hương theo từng ngày.',
       tip: 'Lắc nhẹ bình định kỳ giúp tăng khả năng tiếp xúc giữa bề mặt vỏ và dung môi.'
@@ -191,6 +195,7 @@ window.PEELVERSE_DATA = {
       step: 5,
       title: 'Lọc',
       emoji: '🫖',
+      image: 'assets/images/step-5-filter.jpg',
       summary: 'Tách phần nguyên liệu rắn khỏi dung dịch thu được.',
       details: 'Sử dụng rây lọc mịn hoặc vải lọc sạch để tách hoàn toàn bã vỏ trái cây, cặn quế và các hạt lơ lửng khỏi phần dịch chiết lỏng. Bã vỏ sau khi lọc có thể tiếp tục mang đi ủ phân hữu cơ.',
       tip: 'Lọc 2 lần (lọc thô rồi lọc tinh) giúp dung dịch trong hơn và không làm nghẹt vòi phun.'
@@ -199,6 +204,7 @@ window.PEELVERSE_DATA = {
       step: 6,
       title: 'Hoàn thiện và đánh giá mẫu thử',
       emoji: '✨',
+      image: 'assets/images/step-6-evaluate.jpg',
       summary: 'Pha loãng theo tỉ lệ phù hợp, bảo quản và đánh giá hiệu quả thực tế.',
       details: 'Pha dịch chiết thu được với nước sạch theo tỉ lệ nghiên cứu, chiết vào chai xịt có nhãn ghi ngày thực hiện. Tiến hành kiểm tra cảm quan (màu sắc, mùi hương), đo độ pH và thử nghiệm lau các vết bẩn nhẹ trên bàn ăn.',
       tip: 'Bảo quản mẫu thử nơi râm mát, tránh ánh nắng để duy trì hương thơm tự nhiên lâu hơn.'

@@ -386,48 +386,64 @@ window.PEELVERSE_DATA = {
   badges: [
     {
       id: 'first-peel',
+      icon: 'citrus',
+      theme: 'amber',
       emoji: '🍊',
       title: 'Nhà thám hiểm vỏ quả',
       desc: 'Khám phá ít nhất 3 nguyên liệu trong phòng thí nghiệm.'
     },
     {
       id: 'all-ingredients',
+      icon: 'flask',
+      theme: 'emerald',
       emoji: '🧪',
       title: 'Chuyên gia nguyên liệu',
-      desc: 'Khám phá đầy đủ 4 nguyên liệu cốt lõi của PEELSERVE.'
+      desc: 'Khám phá đầy đủ 4 nguyên liệu cốt lõi của PEELVERSE.'
     },
     {
       id: 'science-spark',
+      icon: 'lightbulb',
+      theme: 'amber',
       emoji: '💡',
       title: 'Tia sáng khoa học',
       desc: 'Hoàn thành ít nhất 3 bài học trong Thư viện kiến thức.'
     },
     {
       id: 'master-chemist',
+      icon: 'beaker',
+      theme: 'emerald',
       emoji: '🔬',
       title: 'Bậc thầy quy trình',
       desc: 'Hoàn thành toàn bộ 6 bước quy trình thực hiện.'
     },
     {
       id: 'game-starter',
+      icon: 'gamepad',
+      theme: 'amber',
       emoji: '🎮',
       title: 'Người chơi tập sự',
       desc: 'Vượt qua ít nhất 2 màn chơi mô phỏng.'
     },
     {
       id: 'peelserve-champion',
+      icon: 'trophy',
+      theme: 'amber',
       emoji: '🏆',
-      title: 'Đại sứ PEELSERVE',
+      title: 'Đại sứ PEELVERSE',
       desc: 'Chinh phục toàn bộ 6 thử thách trong Mini Game.'
     },
     {
       id: 'eco-scholar',
+      icon: 'sprout',
+      theme: 'emerald',
       emoji: '🌿',
       title: 'Học giả xanh',
       desc: 'Hoàn thành toàn bộ 7 chủ đề Kiến thức khoa học.'
     },
     {
       id: 'peelverse-legend',
+      icon: 'sparkles',
+      theme: 'emerald',
       emoji: '✨',
       title: 'Huyền thoại PEELVERSE',
       desc: 'Đạt 100% tiến trình khám phá trên toàn website.'

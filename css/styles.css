@@ -3775,3 +3775,165 @@ body.in-game-play .back-to-top {
     padding: 12px;
   }
 }
+
+
+/* ===== UNIFIED LUCIDE SVG ICON SYSTEM, PROGRESS RING & PREMIUM BADGE EMBLEMS ===== */
+.pv-icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.inline-icon-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Standardized 34x34 Sidebar Icon Container */
+.nav-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+}
+
+/* Header Mini SVG Progress Ring */
+.progress-ring-wrap {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-ring-svg {
+  transform: rotate(-90deg);
+}
+
+.progress-ring-bg {
+  fill: var(--bg-sage-soft);
+  stroke: #E0E7D2;
+  stroke-width: 2.8;
+}
+
+.progress-ring-fill {
+  fill: none;
+  stroke: var(--green-accent);
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 450ms var(--ease-out-expo);
+}
+
+.progress-ring-leaf {
+  position: absolute;
+  color: var(--green-dark);
+}
+
+/* Crisp Stat Card Icon Colors */
+.stat-icon.sage { color: #2F5227; }
+.stat-icon.peach { color: #C96514; }
+.stat-icon.apricot { color: #C45328; }
+.stat-icon.olive { color: #4A6A2E; }
+
+/* Redesigned Badge Collection Emblems (ZERO grayscale on emojis!) */
+.badge-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-soft);
+  border-radius: 20px;
+  padding: 22px 18px 20px;
+  text-align: center;
+  opacity: 1;
+  filter: none !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 220ms var(--ease-out-expo), box-shadow 220ms ease, border-color 220ms ease;
+}
+
+.badge-card.unlocked {
+  border-color: #E7CFA9;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFBF4 100%);
+  box-shadow: var(--shadow-card);
+}
+
+.badge-emblem {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  transition: transform 240ms var(--ease-out-expo), box-shadow 240ms ease;
+}
+
+/* Locked Emblem State: clean warm stone + dashed hairline + corner lock */
+.badge-card:not(.unlocked) .badge-emblem {
+  background: #F6F3EC;
+  border: 1.5px dashed #D3CCC0;
+  color: #9CA3AF;
+}
+
+.badge-lock-pin {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 1px solid #DFD9CE;
+  color: #8C9289;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(44, 64, 38, 0.08);
+}
+
+/* Unlocked Emblem States: Amber & Emerald warm gradients */
+.badge-card.unlocked .badge-emblem.theme-amber {
+  background: linear-gradient(145deg, #FFF1D6 0%, #FCD69F 100%);
+  color: #C25B0A;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 20px rgba(242, 140, 40, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.badge-card.unlocked .badge-emblem.theme-emerald {
+  background: linear-gradient(145deg, #E6F4DC 0%, #C6E6B5 100%);
+  color: #26532B;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 20px rgba(112, 152, 75, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.badge-status-pill {
+  margin-top: auto;
+  padding-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.badge-status-pill.unlocked {
+  color: #2E6B34;
+}
+
+.badge-status-pill.locked {
+  color: #8E948B;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .badge-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover);
+  }
+  .badge-card.unlocked:hover {
+    border-color: var(--orange-primary);
+  }
+  .badge-card.unlocked:hover .badge-emblem {
+    transform: translateY(-2px) scale(1.04);
+  }
+}

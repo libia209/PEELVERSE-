@@ -215,19 +215,19 @@
   function renderCartSupportBoxHtml() {
     return `
       <div class="cart-support-box">
-        <div class="cart-support-title">🌿 Cần tư vấn chọn chậu cây hoặc hỗ trợ đơn hàng?</div>
+        <div class="cart-support-title inline-icon-heading">${PVIcon('sprout', 16)} <span>Cần tư vấn chọn chậu cây hoặc hỗ trợ đơn hàng?</span></div>
         <div class="cart-support-links">
           <div class="contact-chip-group">
             <a href="https://zalo.me/0355415501" target="_blank" rel="noopener noreferrer" class="contact-link-pill">
-              <span>💬</span><span>Zalo: <strong>0355415501</strong></span>
+              ${PVIcon('message-circle', 15)}<span>Zalo: <strong>0355415501</strong></span>
             </a>
-            <button type="button" class="copy-btn" data-copy="0355415501" data-copy-label="số Zalo" aria-label="Sao chép số Zalo">📋</button>
+            <button type="button" class="copy-btn" data-copy="0355415501" data-copy-label="số Zalo" aria-label="Sao chép số Zalo">${PVIcon('copy', 15)}</button>
           </div>
           <div class="contact-chip-group">
             <a href="mailto:anhfsd01109@fpt.edu.vn" class="contact-link-pill">
-              <span>✉️</span><span><strong>anhfsd01109@fpt.edu.vn</strong></span>
+              ${PVIcon('mail', 15)}<span><strong>anhfsd01109@fpt.edu.vn</strong></span>
             </a>
-            <button type="button" class="copy-btn" data-copy="anhfsd01109@fpt.edu.vn" data-copy-label="Email" aria-label="Sao chép Email">📋</button>
+            <button type="button" class="copy-btn" data-copy="anhfsd01109@fpt.edu.vn" data-copy-label="Email" aria-label="Sao chép Email">${PVIcon('copy', 15)}</button>
           </div>
         </div>
       </div>
@@ -443,8 +443,14 @@
   }
 
   function updateHeaderStats() {
+    const pct = getOverallProgress();
     const xpEl = document.getElementById('headerXp');
-    if (xpEl) xpEl.textContent = `${getOverallProgress()}%`;
+    if (xpEl) xpEl.textContent = `${pct}%`;
+    const ringEl = document.getElementById('headerProgressRing');
+    if (ringEl) {
+      const circumference = 94.25; // 2 * PI * 15
+      ringEl.style.strokeDashoffset = String(circumference * (1 - pct / 100));
+    }
     const notifList = document.getElementById('notifList');
     if (notifList) {
       notifList.innerHTML = state.notifications
@@ -630,7 +636,7 @@
       <section class="stats-grid">
         <div class="stat-card" data-nav="ingredients">
           <div class="stat-card-main">
-            <div class="stat-icon sage">🌿</div>
+            <div class="stat-icon sage">${PVIcon('citrus', 21)}</div>
             <div>
               <div class="stat-value">${state.exploredIngredients.length}/${DATA.ingredients.length}</div>
               <div class="stat-label">Nguyên liệu đã khám phá</div>
@@ -644,7 +650,7 @@
 
         <div class="stat-card" data-nav="science">
           <div class="stat-card-main">
-            <div class="stat-icon peach">📖</div>
+            <div class="stat-icon peach">${PVIcon('book-open', 21)}</div>
             <div>
               <div class="stat-value">${state.completedScience.length}/${DATA.scienceTopics.length}</div>
               <div class="stat-label">Bài học đã hoàn thành</div>
@@ -658,7 +664,7 @@
 
         <div class="stat-card" data-nav="game">
           <div class="stat-card-main">
-            <div class="stat-icon apricot">🎮</div>
+            <div class="stat-icon apricot">${PVIcon('gamepad', 21)}</div>
             <div>
               <div class="stat-value">${gamesCount}/${GAMES.stages.length}</div>
               <div class="stat-label">Thử thách đã vượt qua</div>
@@ -672,7 +678,7 @@
 
         <div class="stat-card" data-nav="progress">
           <div class="stat-card-main">
-            <div class="stat-icon olive">⭐</div>
+            <div class="stat-icon olive">${PVIcon('award', 21)}</div>
             <div>
               <div class="stat-value">${badgesCount}/${DATA.badges.length}</div>
               <div class="stat-label">Huy hiệu đã đạt được</div>
@@ -686,7 +692,7 @@
       </section>
 
       <div class="section-head">
-        <h2>Khám phá ngay ✨</h2>
+        <h2 class="inline-icon-heading"><span>Khám phá ngay</span> ${PVIcon('sparkles', 20)}</h2>
         <button class="section-pill-link" data-nav="process">Xem quy trình 6 bước →</button>
       </div>
 
@@ -713,7 +719,7 @@
           </div>
           <div class="explore-card-body">
             <div class="explore-card-top">
-              <span class="explore-card-title">🌿 Nguyên liệu</span>
+              <span class="explore-card-title inline-icon-heading">${PVIcon('citrus', 16)} <span>Nguyên liệu</span></span>
               <span class="circle-arrow">→</span>
             </div>
             <p class="explore-card-desc">Khám phá các loại vỏ trái cây, giấm trắng, nước, quế và tiềm năng của chúng!</p>
@@ -727,7 +733,7 @@
           </div>
           <div class="explore-card-body">
             <div class="explore-card-top">
-              <span class="explore-card-title">📖 Kiến thức khoa học</span>
+              <span class="explore-card-title inline-icon-heading">${PVIcon('book-open', 16)} <span>Kiến thức khoa học</span></span>
               <span class="circle-arrow">→</span>
             </div>
             <p class="explore-card-desc">Học hỏi tinh dầu, limonene, độ pH, chiết xuất và kinh tế tuần hoàn!</p>
@@ -741,7 +747,7 @@
           </div>
           <div class="explore-card-body">
             <div class="explore-card-top">
-              <span class="explore-card-title">🎯 Mini Game</span>
+              <span class="explore-card-title inline-icon-heading">${PVIcon('gamepad', 16)} <span>Mini Game</span></span>
               <span class="circle-arrow">→</span>
             </div>
             <p class="explore-card-desc">Thử thách bản thân với 6 màn mô phỏng tạo dung dịch lau bàn!</p>
@@ -755,7 +761,7 @@
           </div>
           <div class="explore-card-body">
             <div class="explore-card-top">
-              <span class="explore-card-title">✨ Thành tích</span>
+              <span class="explore-card-title inline-icon-heading">${PVIcon('trophy', 16)} <span>Thành tích</span></span>
               <span class="circle-arrow">→</span>
             </div>
             <p class="explore-card-desc">Thu thập huy hiệu và theo dõi hành trình khám phá xanh của bạn!</p>
@@ -797,7 +803,7 @@
     view.innerHTML = `
       ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Về dự án' }])}
       <div class="page-hero-header">
-        <h1 class="page-title">🌿 About Project <span style="font-size:0.95rem;font-weight:600;color:var(--text-muted);">• Ý tưởng • Sứ mệnh • Tầm nhìn</span></h1>
+        <h1 class="page-title">${PVIcon('sprout', 26)} <span>About Project</span> <span style="font-size:0.95rem;font-weight:600;color:var(--text-muted);">• Ý tưởng • Sứ mệnh • Tầm nhìn</span></h1>
       </div>
 
       <section class="about-story-card">
@@ -820,7 +826,7 @@
 
       <section class="mission-vision-grid">
         <article class="mv-card">
-          <div class="mv-icon">🎯</div>
+          <div class="mv-icon" style="color:var(--orange-deep);">${PVIcon('target', 28)}</div>
           <div>
             <h3>Sứ mệnh</h3>
             <p>
@@ -829,7 +835,7 @@
           </div>
         </article>
         <article class="mv-card">
-          <div class="mv-icon">🔭</div>
+          <div class="mv-icon" style="color:var(--green-mid);">${PVIcon('compass', 28)}</div>
           <div>
             <h3>Tầm nhìn</h3>
             <p>
@@ -897,7 +903,7 @@
       ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Khám phá nguyên liệu' }])}
       <div class="page-hero-header">
         <div>
-          <h1 class="page-title">🍊 Khám phá nguyên liệu</h1>
+          <h1 class="page-title">${PVIcon('citrus', 26)} <span>Khám phá nguyên liệu</span></h1>
           <p style="color:var(--text-muted);font-size:0.93rem;margin-top:4px;">
             Tìm hiểu từng nguyên liệu, đặc tính khoa học, vai trò trong nghiên cứu PEELSERVE và những điều cần lưu ý.
           </p>
@@ -1030,7 +1036,7 @@
       ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Quy trình thực hiện' }])}
       <div class="page-hero-header">
         <div>
-          <h1 class="page-title">🔬 Quy trình thực hiện</h1>
+          <h1 class="page-title">${PVIcon('flask', 26)} <span>Quy trình thực hiện</span></h1>
           <p style="color:var(--text-muted);font-size:0.93rem;margin-top:4px;">
             Theo dõi 6 bước nghiên cứu và tạo mẫu thử PEELSERVE từ thu gom nguyên liệu đến đánh giá hoàn thiện.
           </p>
@@ -1110,7 +1116,7 @@
       ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Kiến thức khoa học' }])}
       <div class="page-hero-header">
         <div>
-          <h1 class="page-title">📖 Kiến thức khoa học</h1>
+          <h1 class="page-title">${PVIcon('book-open', 26)} <span>Kiến thức khoa học</span></h1>
           <p style="color:var(--text-muted);font-size:0.93rem;margin-top:4px;">
             Giải thích các hiện tượng hóa học, vật lý và nguyên lý kinh tế tuần hoàn được ứng dụng trong dự án PEELSERVE.
           </p>
@@ -1279,7 +1285,7 @@
       <section class="game-hub-banner">
         <div>
           <span class="hero-badge" style="background:rgba(242,140,40,0.16);color:var(--orange-deep);">KHU VỰC MINI GAME TƯƠNG TÁC</span>
-          <h1 style="font-size:2rem;margin-bottom:6px;">🎮 Trò chơi mô phỏng PEELSERVE</h1>
+          <h1 class="inline-icon-heading" style="font-size:2rem;margin-bottom:6px;">${PVIcon('gamepad', 28)} <span>Trò chơi mô phỏng PEELVERSE</span></h1>
           <p style="color:var(--text-muted);max-width:600px;font-size:0.94rem;">
             Trải nghiệm trực tiếp 6 công đoạn biến vỏ trái cây thành dung dịch lau bàn sạch bóng. Chọn bất kỳ màn nào bên dưới hoặc bắt đầu từ Màn 1 để chinh phục trọn bộ!
           </p>
@@ -1372,7 +1378,7 @@
       <section class="shop-hero">
         <div>
           <span class="hero-badge">CHẬU CÂY TÁI SINH XANH LÀM SẴN</span>
-          <h1 style="font-size:2rem;margin-bottom:6px;">🛒 Giỏ hàng PEELVERSE</h1>
+          <h1 class="inline-icon-heading" style="font-size:2rem;margin-bottom:6px;">${PVIcon('shopping-cart', 28)} <span>Giỏ hàng PEELVERSE</span></h1>
           <p style="color:var(--text-muted);max-width:600px;font-size:0.94rem;">
             Những chậu cây nhỏ xinh được chế tác thủ công từ vỏ cam bưởi sấy, bã cà phê, xơ dừa và vật liệu tái chế — mang mảng xanh tuần hoàn đến bàn học của bạn.
           </p>
@@ -1489,7 +1495,7 @@
     view.innerHTML = `
       ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Tiến trình khám phá' }])}
       <div class="page-hero-header">
-        <h1 class="page-title">📊 Tiến trình khám phá & Huy hiệu</h1>
+        <h1 class="page-title">${PVIcon('trending-up', 26)} <span>Tiến trình khám phá & Huy hiệu</span></h1>
       </div>
 
       <section class="progress-overview">
@@ -1504,28 +1510,32 @@
           <div class="progress-bar-fill" style="width:${pct}%;"></div>
         </div>
         <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:0.86rem;color:var(--text-muted);">
-          <span>🍊 Nguyên liệu: <strong>${state.exploredIngredients.length}/${DATA.ingredients.length}</strong></span>
-          <span>🔬 Quy trình: <strong>${state.completedSteps.length}/${DATA.processSteps.length}</strong></span>
-          <span>📖 Khoa học: <strong>${state.completedScience.length}/${DATA.scienceTopics.length}</strong></span>
-          <span>🎮 Mini Game: <strong>${Object.keys(state.clearedGames).length}/${GAMES.stages.length}</strong></span>
+          <span class="inline-icon-heading">${PVIcon('citrus', 15)} Nguyên liệu: <strong>${state.exploredIngredients.length}/${DATA.ingredients.length}</strong></span>
+          <span class="inline-icon-heading">${PVIcon('flask', 15)} Quy trình: <strong>${state.completedSteps.length}/${DATA.processSteps.length}</strong></span>
+          <span class="inline-icon-heading">${PVIcon('book-open', 15)} Khoa học: <strong>${state.completedScience.length}/${DATA.scienceTopics.length}</strong></span>
+          <span class="inline-icon-heading">${PVIcon('gamepad', 15)} Mini Game: <strong>${Object.keys(state.clearedGames).length}/${GAMES.stages.length}</strong></span>
         </div>
       </section>
 
       <div class="section-head">
-        <h2>Bộ sưu tập Huy hiệu (${unlocked.size}/${DATA.badges.length}) 🏆</h2>
+        <h2 class="inline-icon-heading">${PVIcon('trophy', 22)} <span>Bộ sưu tập Huy hiệu (${unlocked.size}/${DATA.badges.length})</span></h2>
       </div>
 
       <section class="badges-grid">
         ${DATA.badges
           .map((b) => {
             const isUnlocked = unlocked.has(b.id);
+            const themeClass = b.theme === 'amber' ? 'theme-amber' : 'theme-emerald';
             return `
             <article class="badge-card ${isUnlocked ? 'unlocked' : ''}">
-              <div class="badge-emoji">${b.emoji}</div>
+              <div class="badge-emblem ${themeClass}">
+                ${PVIcon(b.icon || 'award', 30)}
+                ${isUnlocked ? '' : `<span class="badge-lock-pin" aria-hidden="true">${PVIcon('lock', 12)}</span>`}
+              </div>
               <h4 style="margin-bottom:6px;">${b.title}</h4>
               <p style="font-size:0.82rem;color:var(--text-muted);">${b.desc}</p>
-              <div style="margin-top:10px;font-size:0.75rem;font-weight:700;color:${isUnlocked ? 'var(--green-mid)' : 'var(--text-light)'};">
-                ${isUnlocked ? '✓ Đã mở khóa' : '🔒 Chưa mở khóa'}
+              <div class="badge-status-pill ${isUnlocked ? 'unlocked' : 'locked'}">
+                ${isUnlocked ? `${PVIcon('check-circle', 15)} <span>Đã mở khóa</span>` : `${PVIcon('lock', 14)} <span>Chưa mở khóa</span>`}
               </div>
             </article>
           `;
@@ -2043,7 +2053,7 @@
         btn.dataset.origHtml = btn.innerHTML;
       }
       btn.classList.add('copied');
-      btn.innerHTML = isTextMode ? '✓ Đã sao chép!' : '✓';
+      btn.innerHTML = isTextMode ? `${PVIcon('check', 15)} <span>Đã sao chép!</span>` : PVIcon('check', 15);
       showToast(`✅ Đã sao chép ${label}: ${text}`);
       clearTimeout(Number(btn.dataset.copyTimer || 0));
       const t = setTimeout(() => {

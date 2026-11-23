@@ -601,13 +601,8 @@
 
     const profStatus = (currentProfile && currentProfile.seller_verification_status) || 'none';
     const verStatus = (currentVerification && currentVerification.status) || profStatus;
-    const isVerified = Boolean(
-      (currentProfile && currentProfile.role === 'creator') ||
-        profStatus === 'verified' ||
-        verStatus === 'verified'
-    );
 
-    if (isVerified) {
+    if (profStatus === 'verified' || verStatus === 'verified') {
       renderStatusCard(mount, 'verified');
     } else if (profStatus === 'pending' || verStatus === 'pending') {
       renderStatusCard(mount, 'pending');

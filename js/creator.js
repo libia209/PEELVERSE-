@@ -100,8 +100,8 @@
             ? `<div class="ai-score-track"><div class="ai-score-fill ${meta.cls}" style="width:${score}%;"></div></div>`
             : ''
         }
-        ${note ? `<div class="ai-mod-note"><strong>Nhận xét:</strong> ${escapeHtml(note)}</div>` : ''}
-        ${suggestions ? `<div class="ai-mod-suggest"><strong>💡 Gợi ý chỉnh sửa:</strong> ${escapeHtml(suggestions)}</div>` : ''}
+        ${note ? `<div class="ai-mod-note"><strong>Nhận xét:</strong> ${escapeHtml(note)}</div>`: ''}
+        ${suggestions ? `<div class="ai-mod-suggest"><strong>Gợi ý chỉnh sửa:</strong> ${escapeHtml(suggestions)}</div>`: ''}
       </div>
     `;
   }
@@ -225,13 +225,13 @@
       price: Number(row.price || 0),
       stock: Number(row.stock ?? 0),
       isActive: row.is_active !== false,
-      badge: `🏪 ${shopName}`,
+      badge: `${shopName}`,
       image: row.image_url || 'assets/images/prod-table-spray.jpg',
       desc: row.description || 'Sản phẩm sinh học thủ công từ cộng đồng Nhà sáng tạo PEELVERSE.',
       specs: {
-        volume: `🧴 ${row.volume || 'Tiêu chuẩn'}`,
-        peel: `🍊 ${row.peel_ingredients || 'Chiết xuất vỏ trái cây'}`,
-        benefit: Number(row.stock ?? 0) > 0 ? `📦 Còn ${row.stock} sản phẩm` : '⚠️ Tạm hết hàng'
+        volume: `${row.volume || 'Tiêu chuẩn'}`,
+        peel: `${row.peel_ingredients || 'Chiết xuất vỏ trái cây'}`,
+        benefit: Number(row.stock ?? 0) > 0 ? `Còn ${row.stock} sản phẩm`: 'Tạm hết hàng'
       }
     };
   }
@@ -278,7 +278,7 @@
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
       throw new Error('Chỉ hỗ trợ ảnh định dạng JPG, PNG hoặc WebP.');
     }
-    if (file.size > MAX_IMAGE_BYTES) {
+    if (file.size >MAX_IMAGE_BYTES) {
       throw new Error('Ảnh vượt quá giới hạn 2MB. Vui lòng chọn ảnh nhẹ hơn.');
     }
     const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -411,7 +411,7 @@
           <div style="margin-bottom:10px;color:#EA580C;"><i class="ph-duotone ph-storefront pv-duotone" style="font-size:44px;"></i></div>
           <h2 style="margin-bottom:8px;">Kênh Nhà sáng tạo dành riêng cho Creator</h2>
           <p style="color:var(--text-muted);max-width:460px;margin:0 auto 18px;">
-            Nâng cấp tài khoản của bạn lên vai trò <strong>Nhà sáng tạo</strong> để đăng bán sản phẩm sinh học từ vỏ trái cây và quản lý đơn hàng trực tiếp trên PEELVERSE!
+            Nâng cấp tài khoản của bạn lên vai trò <strong>Nhà sáng tạo</strong>để đăng bán sản phẩm sinh học từ vỏ trái cây và quản lý đơn hàng trực tiếp trên PEELVERSE!
           </p>
           <button type="button" class="btn btn-orange" id="promptUpgradeCreatorBtn">Đăng ký làm Nhà sáng tạo ngay →</button>
         </div>
@@ -433,7 +433,7 @@
           </h1>
           <p style="color:var(--text-muted);font-size:0.9rem;">
             Gian hàng: <strong>${escapeHtml(profile.shop_name || profile.full_name || 'Gian hàng xanh')}</strong>
-            ${profile.phone ? ` • SĐT: <strong>${escapeHtml(profile.phone)}</strong>` : ''}
+            ${profile.phone ? `• SĐT: <strong>${escapeHtml(profile.phone)}</strong>`: ''}
           </p>
         </div>
         <div class="creator-tabs" role="tablist">
@@ -541,13 +541,13 @@
         return;
       }
       if (!ALLOWED_IMAGE_TYPES.includes(f.type)) {
-        toast('⚠️ Chỉ chấp nhận ảnh JPG, PNG hoặc WebP!', 'warning');
+        toast('Chỉ chấp nhận ảnh JPG, PNG hoặc WebP!', 'warning');
         fileInput.value = '';
         previewWrap.classList.add('hidden');
         return;
       }
-      if (f.size > MAX_IMAGE_BYTES) {
-        toast('⚠️ Ảnh vượt quá 2MB. Vui lòng chọn ảnh nhẹ hơn!', 'warning');
+      if (f.size >MAX_IMAGE_BYTES) {
+        toast('Ảnh vượt quá 2MB. Vui lòng chọn ảnh nhẹ hơn!', 'warning');
         fileInput.value = '';
         previewWrap.classList.add('hidden');
         return;
@@ -562,7 +562,7 @@
       const btn = container.querySelector('#cpSubmitBtn');
       const prodName = container.querySelector('#cpName').value.trim();
       btn.disabled = true;
-      btn.innerHTML = '<span class="auth-spinner"></span> Đang đăng...';
+      btn.innerHTML = '<span class="auth-spinner"></span>Đang đăng...';
 
       try {
         let imageUrl = container.querySelector('#cpImageUrl').value.trim();
@@ -600,11 +600,11 @@
           aiArea.innerHTML = renderAiResultCardHtml(modResult);
           const status = modResult.moderation_status || modResult.status || 'pending';
           if (status === 'approved') {
-            toast('🎉 Sản phẩm đã được duyệt và mở bán thành công!');
+            toast('Sản phẩm đã được duyệt và mở bán thành công!');
             form.reset();
             previewWrap.classList.add('hidden');
           } else if (status === 'rejected') {
-            toast('⚠️ Sản phẩm chưa đạt kiểm duyệt. Xem gợi ý chỉnh sửa bên dưới!', 'warning');
+            toast('Sản phẩm chưa đạt kiểm duyệt. Xem gợi ý chỉnh sửa bên dưới!', 'warning');
           } else {
             toast('⏳ Sản phẩm đã được gửi và đang chờ kiểm duyệt.');
           }
@@ -613,12 +613,12 @@
             moderation_status: 'pending',
             ai_review_note: 'Sản phẩm đã được gửi lên hệ thống và đang chờ kiểm duyệt (dự kiến 1–2 ngày).'
           });
-          toast('✅ Đã gửi sản phẩm lên hệ thống chờ kiểm duyệt.');
+          toast('Đã gửi sản phẩm lên hệ thống chờ kiểm duyệt.');
         }
 
         if (onProductsChanged) onProductsChanged();
       } catch (err) {
-        toast(`⚠️ ${translateDbError(err)}`, 'warning');
+        toast(`${translateDbError(err)}`, 'warning');
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<span>Đăng</span>';
@@ -667,7 +667,7 @@
                     <i class="ph-duotone ${modMeta.icon} pv-duotone" style="font-size:14px;"></i>
                     <span>${modMeta.shortLabel}</span>
                   </span>
-                  ${hasScore ? `<span class="ai-score-mini">AI: ${Math.round(Number(p.ai_score))}/100</span>` : ''}
+                  ${hasScore ? `<span class="ai-score-mini">AI: ${Math.round(Number(p.ai_score))}/100</span>`: ''}
                   <span class="order-status-badge ${p.is_active && isApproved ? 'status-completed' : 'status-cancelled'}">
                     ${p.is_active && isApproved ? 'Đang bán' : 'Đang ẩn'}
                   </span>
@@ -678,8 +678,8 @@
                 ${
                   p.ai_review_note || suggestions
                     ? `<div class="ai-inline-reason ${modMeta.cls}">
-                        ${p.ai_review_note ? `<div><strong>AI nhận xét:</strong> ${escapeHtml(p.ai_review_note)}</div>` : ''}
-                        ${suggestions ? `<div><strong>Gợi ý:</strong> ${escapeHtml(suggestions)}</div>` : ''}
+                        ${p.ai_review_note ? `<div><strong>AI nhận xét:</strong> ${escapeHtml(p.ai_review_note)}</div>`: ''}
+                        ${suggestions ? `<div><strong>Gợi ý:</strong> ${escapeHtml(suggestions)}</div>`: ''}
                       </div>`
                     : ''
                 }
@@ -693,7 +693,7 @@
               </div>
               <div class="creator-prod-actions">
                 <button type="button" class="btn btn-secondary btn-sm" data-toggle-active="${p.id}" data-cur="${p.is_active ? '1' : '0'}" ${!isApproved ? 'disabled title="Cần đạt trạng thái Đã duyệt AI trước khi mở bán"' : ''}>
-                  ${!isApproved ? '🔒 Chưa duyệt' : p.is_active ? 'Tạm ẩn' : 'Mở bán'}
+                  ${!isApproved ? 'Chưa duyệt' : p.is_active ? 'Tạm ẩn' : 'Mở bán'}
                 </button>
                 <button type="button" class="btn ${modStatus === 'rejected' || modStatus === 'pending' ? 'btn-orange' : 'btn-secondary'} btn-sm" data-open-edit="${p.id}">
                   ${modStatus === 'rejected' || modStatus === 'pending' ? 'Chỉnh sửa & Gửi AI duyệt lại' : 'Sửa nhanh'}
@@ -716,11 +716,11 @@
           btn.disabled = true;
           try {
             await updateProduct(btn.dataset.toggleActive, { is_active: next });
-            toast(next ? '✅ Đã bật hiển thị sản phẩm!' : '⏸️ Đã tạm ẩn sản phẩm.');
+            toast(next ? 'Đã bật hiển thị sản phẩm!' : '⏸ Đã tạm ẩn sản phẩm.');
             if (onProductsChanged) onProductsChanged();
             renderMyProductsTab(container, { user, onProductsChanged });
           } catch (err) {
-            toast(`⚠️ ${translateDbError(err)}`, 'warning');
+            toast(`${translateDbError(err)}`, 'warning');
             btn.disabled = false;
           }
         });
@@ -742,7 +742,7 @@
           const stock = Number(box.querySelector('.qe-stock').value);
           const description = box.querySelector('.qe-desc').value.trim();
           btn.disabled = true;
-          btn.innerHTML = '<span class="auth-spinner"></span> Đang duyệt...';
+          btn.innerHTML = '<span class="auth-spinner"></span>Đang duyệt...';
           try {
             // Step A: Update product & set pending/inactive for AI re-moderation
             await updateProduct(id, {
@@ -762,8 +762,8 @@
             const status = modResult.moderation_status || modResult.status || 'pending';
             toast(
               status === 'approved'
-                ? '🎉 Sản phẩm đã được duyệt lại & mở bán!'
-                : '📋 Đã cập nhật trạng thái kiểm duyệt sản phẩm.'
+                ? 'Sản phẩm đã được duyệt lại & mở bán!'
+                : 'Đã cập nhật trạng thái kiểm duyệt sản phẩm.'
             );
             if (onProductsChanged) onProductsChanged();
             await renderMyProductsTab(container, { user, onProductsChanged });
@@ -772,7 +772,7 @@
               refreshedArea.innerHTML = renderAiResultCardHtml(modResult);
             }
           } catch (err) {
-            toast(`⚠️ ${translateDbError(err)}`, 'warning');
+            toast(`${translateDbError(err)}`, 'warning');
             btn.disabled = false;
             btn.textContent = 'Lưu & AI duyệt lại';
           }
@@ -785,17 +785,17 @@
           btn.disabled = true;
           try {
             await deleteProduct(btn.dataset.deleteProd);
-            toast('🗑️ Đã xóa sản phẩm.');
+            toast('Đã xóa sản phẩm.');
             if (onProductsChanged) onProductsChanged();
             renderMyProductsTab(container, { user, onProductsChanged });
           } catch (err) {
-            toast(`⚠️ ${translateDbError(err)}`, 'warning');
+            toast(`${translateDbError(err)}`, 'warning');
             btn.disabled = false;
           }
         });
       });
     } catch (err) {
-      container.innerHTML = `<div class="info-box warning-box">⚠️ ${escapeHtml(translateDbError(err))}</div>`;
+      container.innerHTML = `<div class="info-box warning-box"> ${escapeHtml(translateDbError(err))}</div>`;
     }
   }
 
@@ -832,7 +832,7 @@
                   <div><strong>Tổng tiền:</strong> <span style="color:var(--orange-deep);font-weight:800;">${formatVND(o.total_price)}</span></div>
                   <div><strong>Người mua:</strong> ${escapeHtml(o.buyer_name || '')} • ${escapeHtml(o.buyer_phone || '')}</div>
                   <div><strong>Địa chỉ:</strong> ${escapeHtml(o.shipping_address || '')}</div>
-                  ${o.note ? `<div><strong>Ghi chú:</strong> ${escapeHtml(o.note)}</div>` : ''}
+                  ${o.note ? `<div><strong>Ghi chú:</strong> ${escapeHtml(o.note)}</div>`: ''}
                 </div>
                 <div class="order-card-foot">
                   <label style="font-size:0.8rem;font-weight:700;color:var(--green-dark);">Cập nhật trạng thái:</label>
@@ -856,16 +856,16 @@
           sel.disabled = true;
           try {
             await updateOrderStatus(orderId, nextStatus);
-            toast(`✅ Đã cập nhật đơn sang "${ORDER_STATUS_META[nextStatus].label}"!`);
+            toast(`Đã cập nhật đơn sang "${ORDER_STATUS_META[nextStatus].label}"!`);
             renderCreatorOrdersTab(container, { user });
           } catch (err) {
-            toast(`⚠️ ${translateDbError(err)}`, 'warning');
+            toast(`${translateDbError(err)}`, 'warning');
             sel.disabled = false;
           }
         });
       });
     } catch (err) {
-      container.innerHTML = `<div class="info-box warning-box">⚠️ ${escapeHtml(translateDbError(err))}</div>`;
+      container.innerHTML = `<div class="info-box warning-box"> ${escapeHtml(translateDbError(err))}</div>`;
     }
   }
 
@@ -906,7 +906,7 @@
                   <div><strong>Sản phẩm:</strong> ${escapeHtml(o.product_name || 'Sản phẩm')} × ${o.quantity || 1}</div>
                   <div><strong>Tổng tiền (COD):</strong> <span style="color:var(--orange-deep);font-weight:800;">${formatVND(o.total_price)}</span></div>
                   <div><strong>Giao tới:</strong> ${escapeHtml(o.shipping_address || '')} (${escapeHtml(o.buyer_phone || '')})</div>
-                  ${o.note ? `<div><strong>Ghi chú:</strong> ${escapeHtml(o.note)}</div>` : ''}
+                  ${o.note ? `<div><strong>Ghi chú:</strong> ${escapeHtml(o.note)}</div>`: ''}
                 </div>
                 ${
                   o.status === 'pending'
@@ -928,16 +928,16 @@
           btn.disabled = true;
           try {
             await updateOrderStatus(btn.dataset.cancelOrder, 'cancelled');
-            toast('✅ Đã hủy đơn hàng thành công.');
+            toast('Đã hủy đơn hàng thành công.');
             renderBuyerOrdersPanel(container, user);
           } catch (err) {
-            toast(`⚠️ ${translateDbError(err)}`, 'warning');
+            toast(`${translateDbError(err)}`, 'warning');
             btn.disabled = false;
           }
         });
       });
     } catch (err) {
-      container.innerHTML = `<div class="info-box warning-box">⚠️ ${escapeHtml(translateDbError(err))}</div>`;
+      container.innerHTML = `<div class="info-box warning-box"> ${escapeHtml(translateDbError(err))}</div>`;
     }
   }
 

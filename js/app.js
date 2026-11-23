@@ -10,8 +10,8 @@
     completedScience: [],
     clearedGames: {}, // { stageId: bestScore }
     notifications: [
-      '🍊 Chào mừng bạn đến với PEELVERSE — From Peel to Purpose!',
-      '🧴 Mới: Khám phá bộ sản phẩm làm sạch sinh học từ vỏ trái cây trong mục Giỏ hàng!'
+      ' Chào mừng bạn đến với PEELVERSE — From Peel to Purpose!',
+      ' Mới: Khám phá bộ sản phẩm làm sạch sinh học từ vỏ trái cây trong mục Giỏ hàng!'
     ]
   };
 
@@ -199,7 +199,7 @@
     saveCart();
     renderCartDrawer();
     triggerCartBounce();
-    showToast(`🧴 Đã thêm "${prod.name}" vào giỏ!`);
+    showToast(`Đã thêm "${prod.name}" vào giỏ!`);
   }
 
   function updateCartQty(productId, delta) {
@@ -282,7 +282,7 @@
     if (lastOrderSummary) {
       body.innerHTML = `
         <div class="cart-summary-box" style="background:linear-gradient(145deg,#F3F8E9,#FFFFFF);border-color:#C7DC9F;text-align:center;padding:24px 18px;">
-          <div style="font-size:3rem;margin-bottom:6px;">🌿</div>
+          <div style="font-size:3rem;margin-bottom:6px;"></div>
           <h3 style="margin-bottom:6px;">Đã ghi nhận yêu cầu đặt hàng PEELVERSE!</h3>
           <p style="font-size:0.86rem;color:var(--text-muted);margin-bottom:12px;">
             Cảm ơn <strong>${lastOrderSummary.name}</strong> đã lựa chọn sản phẩm làm sạch sinh học từ vỏ trái cây PEELVERSE. Nhóm sẽ liên hệ qua <strong>${lastOrderSummary.contact}</strong> trong thời gian sớm nhất.
@@ -364,7 +364,7 @@
       </div>
 
       <form id="ecoOrderForm" class="order-form">
-        <h4>📦 Xác nhận đặt hàng (Thanh toán khi nhận hàng - COD)</h4>
+        <h4> Xác nhận đặt hàng (Thanh toán khi nhận hàng - COD)</h4>
         <div class="form-field">
           <label for="orderName">Họ và tên *</label>
           <input id="orderName" type="text" required placeholder="VD: Nguyễn Minh Anh" />
@@ -441,12 +441,12 @@
         };
         cart = [];
         saveCart();
-        addNotification(`🧴 Đã đặt đơn hàng #${lastOrderSummary.code} (${formatVND(lastOrderSummary.total)})!`);
-        showToast(`🎉 Đặt hàng thành công! Mã đơn #${lastOrderSummary.code}`);
+        addNotification(`Đã đặt đơn hàng #${lastOrderSummary.code} (${formatVND(lastOrderSummary.total)})!`);
+        showToast(`Đặt hàng thành công! Mã đơn #${lastOrderSummary.code}`);
         renderCartDrawer();
         if (currentRoute === 'shop' || currentRoute === 'my-orders') render();
       } catch (err) {
-        showToast(`⚠️ ${creatorApi ? creatorApi.translateDbError(err) : 'Không thể lưu đơn hàng.'}`, 'warning');
+        showToast(`${creatorApi ? creatorApi.translateDbError(err) : 'Không thể lưu đơn hàng.'}`, 'warning');
         if (submitBtn) {
           submitBtn.disabled = false;
           submitBtn.textContent = `Xác nhận đặt hàng COD (${formatVND(totalAmount)})`;
@@ -624,7 +624,7 @@
       };
     }
     return {
-      emoji: '🏆',
+      emoji: '',
       kicker: 'Xuất sắc • Đã hoàn thành 100%',
       title: 'Bạn đã chinh phục trọn bộ hành trình PEELVERSE! Ghé xem huy hiệu hoặc bộ sản phẩm làm sạch sinh học nhé.',
       cta: 'Xem huy hiệu →',
@@ -942,7 +942,7 @@
       </section>
 
       <div class="section-head">
-        <h2>Vấn đề rác thải vỏ trái cây & góc nhìn mới ♻️</h2>
+        <h2>Vấn đề rác thải vỏ trái cây & góc nhìn mới </h2>
       </div>
       <section class="waste-impact-grid">
         <div class="impact-card">
@@ -975,10 +975,10 @@
   function renderIngredients(view) {
     const categories = [
       { key: 'Tất cả', icon: '⊞' },
-      { key: 'Trái cây', icon: '🍊' },
-      { key: 'Chất lỏng', icon: '💧' },
-      { key: 'Gia vị', icon: '🌿' },
-      { key: 'Thực vật', icon: '🌱' }
+      { key: 'Trái cây', icon: '' },
+      { key: 'Chất lỏng', icon: '' },
+      { key: 'Gia vị', icon: '' },
+      { key: 'Thực vật', icon: '' }
     ];
 
     let list = DATA.ingredients.filter((item) =>
@@ -1035,7 +1035,7 @@
             <article class="ingredient-card" data-ingredient="${item.id}">
               <div class="ingredient-media">
                 <img src="${item.image}" alt="${item.name}" />
-                ${item.isCore ? `<span class="core-badge">Cốt lõi</span>` : ''}
+                ${item.isCore ? `<span class="core-badge">Cốt lõi</span>`: ''}
                 <span class="progress-badge ${done ? 'done' : ''}">${done ? '100% ✓' : '0%'}</span>
               </div>
               <div class="ingredient-footer">
@@ -1075,8 +1075,8 @@
 
     if (!state.exploredIngredients.includes(item.id)) {
       state.exploredIngredients.push(item.id);
-      addNotification(`🌿 Bạn vừa khám phá nguyên liệu: ${item.name}!`);
-      showToast(`✅ Đã khám phá: ${item.name} (+100%)`);
+      addNotification(`Bạn vừa khám phá nguyên liệu: ${item.name}!`);
+      showToast(`Đã khám phá: ${item.name} (+100%)`);
       saveState();
     }
 
@@ -1107,15 +1107,15 @@
 
       <section class="detail-grid">
         <div class="info-box">
-          <h3>🧬 Thành phần chính</h3>
+          <h3> Thành phần chính</h3>
           <ul>${item.composition.map((c) => `<li>${c}</li>`).join('')}</ul>
         </div>
         <div class="info-box">
-          <h3>🔬 Đặc tính khoa học</h3>
+          <h3> Đặc tính khoa học</h3>
           <ul>${item.properties.map((p) => `<li>${p}</li>`).join('')}</ul>
         </div>
         <div class="info-box warning-box" style="grid-column: 1 / -1;">
-          <h3>⚠️ Lưu ý khi nghiên cứu & sử dụng</h3>
+          <h3> Lưu ý khi nghiên cứu & sử dụng</h3>
           <ul>${item.notes.map((n) => `<li>${n}</li>`).join('')}</ul>
         </div>
       </section>
@@ -1139,7 +1139,7 @@
             Theo dõi 6 bước nghiên cứu và tạo mẫu thử PEELVERSE từ thu gom nguyên liệu đến đánh giá hoàn thiện.
           </p>
         </div>
-        <button class="btn btn-orange" data-nav="game">🎮 Thử thực hành qua Mini Game</button>
+        <button class="btn btn-orange" data-nav="game"> Thử thực hành qua Mini Game</button>
       </div>
 
       <div class="progress-overview" style="padding:18px 24px;margin-bottom:22px;">
@@ -1175,7 +1175,7 @@
                 <p><strong>${s.summary}</strong></p>
                 <p>${s.details}</p>
                 <div class="process-detail-list">
-                  <strong>💡 Mẹo nghiên cứu:</strong> ${s.tip}
+                  <strong> Mẹo nghiên cứu:</strong> ${s.tip}
                 </div>
                 <button class="step-check-btn ${checked ? 'checked' : ''}" data-step="${s.step}">
                   ${checked ? '✓ Đã nắm rõ bước này' : '○ Đánh dấu đã tìm hiểu'}
@@ -1197,9 +1197,9 @@
           state.completedSteps = state.completedSteps.filter((x) => x !== step);
         } else {
           state.completedSteps.push(step);
-          showToast(`🔬 Đã hoàn thành Bước ${step}!`);
+          showToast(`Đã hoàn thành Bước ${step}!`);
           if (state.completedSteps.length === DATA.processSteps.length) {
-            addNotification('🔬 Bạn đã hoàn thành toàn bộ 6 bước quy trình PEELVERSE!');
+            addNotification(' Bạn đã hoàn thành toàn bộ 6 bước quy trình PEELVERSE!');
           }
         }
         saveState();
@@ -1692,7 +1692,7 @@
           if (pill) pill.textContent = `Điểm: ${quizCorrectSet.size}/4`;
           if (wasNew && quizCorrectSet.size === 4) {
             triggerEcoConfetti();
-            showToast('🎉 Xuất sắc! Bạn đã trả lời đúng cả 4/4 câu hỏi khoa học nhanh!');
+            showToast(' Xuất sắc! Bạn đã trả lời đúng cả 4/4 câu hỏi khoa học nhanh!');
           }
         } else {
           btn.classList.add('wrong');
@@ -1732,13 +1732,13 @@
         ${topic.hasPhWidget ? renderPhWidgetHtml() : ''}
 
         <div style="margin-top:20px;background:var(--bg-sage-soft);padding:16px 20px;border-radius:14px;border-left:4px solid var(--green-accent);">
-          <strong>📌 Ghi nhớ cốt lõi:</strong> ${topic.keyTakeaway}
+          <strong> Ghi nhớ cốt lõi:</strong> ${topic.keyTakeaway}
         </div>
       </article>
 
       <section class="quiz-box">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-          <h3>🧠 Kiểm tra nhanh kiến thức</h3>
+          <h3> Kiểm tra nhanh kiến thức</h3>
           ${alreadyDone ? '<span class="detail-tag" style="background:var(--green-dark);color:#FFF;">✓ Đã hoàn thành bài học</span>' : ''}
         </div>
         <p style="margin-top:8px;font-weight:700;color:var(--green-dark);">${topic.quiz.question}</p>
@@ -1770,18 +1770,18 @@
         if (idx === topic.quiz.correctIndex) {
           btn.classList.add('correct');
           fb.style.color = '#1E4D20';
-          fb.textContent = `🎉 ${topic.quiz.explanation}`;
+          fb.textContent = `${topic.quiz.explanation}`;
           if (!state.completedScience.includes(topic.id)) {
             state.completedScience.push(topic.id);
-            addNotification(`📖 Hoàn thành bài học khoa học: ${topic.title}!`);
-            showToast(`🎉 Đã hoàn thành bài học: ${topic.title}`);
+            addNotification(`Hoàn thành bài học khoa học: ${topic.title}!`);
+            showToast(`Đã hoàn thành bài học: ${topic.title}`);
             triggerEcoConfetti();
             saveState();
           }
         } else {
           btn.classList.add('wrong');
           fb.style.color = '#8E1B18';
-          fb.textContent = '❌ Chưa chính xác, bạn hãy thử chọn lại đáp án khác nhé!';
+          fb.textContent = ' Chưa chính xác, bạn hãy thử chọn lại đáp án khác nhé!';
         }
       });
     });
@@ -1790,7 +1790,7 @@
   function renderPhWidgetHtml() {
     return `
       <div class="ph-widget">
-        <h4>🧪 Tương tác: Kéo thanh thang đo pH (0 – 14)</h4>
+        <h4> Tương tác: Kéo thanh thang đo pH (0 – 14)</h4>
         <div class="ph-bar"></div>
         <input type="range" id="phSlider" class="ph-slider" min="0" max="14" step="0.5" value="3.5" />
         <div class="ph-readout" id="phReadout"></div>
@@ -1841,44 +1841,21 @@
     const ringOffset = ringCircumference * (1 - clearedCount / GAMES.stages.length);
 
     view.innerHTML = `
-      ${renderBreadcrumb([{ label: 'Khám phá', route: 'home' }, { label: 'Mô phỏng chiết xuất' }])}
-      <section class="game-lab-hero">
-        <div class="game-hero-left">
+      <section class="editorial-page-header">
+        <div class="editorial-page-header-left">
           <span class="eyebrow-tag">MÔ PHỎNG TƯƠNG TÁC • 06 CÔNG ĐOẠN</span>
-          <h1 class="serif-heading" style="font-size:clamp(1.85rem,3.4vw,2.6rem);margin:6px 0 10px;">
-            Mô phỏng quy trình chiết xuất PEELVERSE
-          </h1>
-          <p style="color:var(--text-muted);max-width:540px;font-size:0.94rem;margin-bottom:20px;">
-            Trải nghiệm trực tiếp 6 công đoạn phòng lab: thu thập vỏ quả đạt chuẩn, làm sạch, sơ chế đồng đều, phối trộn, lọc tinh chất và kiểm chứng làm sạch bề mặt.
-          </p>
-          <button class="btn btn-primary" id="startFirstStageBtn">
-            <span>Bắt đầu mô phỏng →</span>
-          </button>
+          <h1 class="editorial-h1">Mô phỏng chiết xuất</h1>
+          <p class="editorial-sub">Thực hành 6 công đoạn phòng lab biến vỏ trái cây thành dung dịch làm sạch sinh học.</p>
         </div>
-
-        <div class="game-hero-dashboard">
-          <div class="game-ring-box">
-            <svg width="78" height="78" viewBox="0 0 78 78" class="game-progress-svg">
-              <circle cx="39" cy="39" r="32" fill="none" stroke="rgba(22,42,34,0.12)" stroke-width="5" />
-              <circle cx="39" cy="39" r="32" fill="none" stroke="#A85432" stroke-width="5" stroke-linecap="round"
-                stroke-dasharray="${ringCircumference}" stroke-dashoffset="${ringOffset}"
-                transform="rotate(-90 39 39)" />
-            </svg>
-            <div class="game-ring-center">
-              <strong>${clearedCount}/6</strong>
-              <span>Công đoạn</span>
-            </div>
+        <div class="editorial-page-header-right">
+          <div class="sim-inline-summary">
+            <span><strong>${clearedCount}/6</strong> công đoạn</span>
+            <span class="hairline-sep">|</span>
+            <span><strong>${totalScore}</strong> điểm</span>
+            <span class="hairline-sep">|</span>
+            <span>${rank.title}</span>
           </div>
-
-          <div class="game-dash-stats">
-            <div class="game-rank-pill">
-              <span>${rank.title}</span>
-            </div>
-            <div class="game-total-score">
-              <span class="eyebrow-tag" style="font-size:10px;">TỔNG ĐIỂM TÍCH LŨY</span>
-              <strong data-countup="true">${totalScore} điểm</strong>
-            </div>
-          </div>
+          <button class="btn btn-primary btn-sm" id="startFirstStageBtn">Bắt đầu mô phỏng →</button>
         </div>
       </section>
 
@@ -1955,8 +1932,8 @@
         if (score > prev) {
           state.clearedGames[completedId] = score;
         }
-        addNotification(`🎮 Hoàn thành Màn ${completedId} với ${score} điểm!`);
-        showToast(`🏆 Màn ${completedId} hoàn tất (+${score} điểm)`);
+        addNotification(`Hoàn thành Màn ${completedId} với ${score} điểm!`);
+        showToast(`Màn ${completedId} hoàn tất (+${score} điểm)`);
         triggerEcoConfetti();
         saveState();
       },
@@ -1986,17 +1963,71 @@
     }
   }
 
+  function openProductQuickView(productId) {
+    const p = getAllShopProducts().find((item) => item.id === productId);
+    const overlay = document.getElementById('productQuickViewOverlay');
+    const body = document.getElementById('productQuickViewBody');
+    if (!p || !overlay || !body) return;
+
+    const isCreatorProd = p.source === 'creator';
+    const outOfStock = isCreatorProd && Number(p.stock) <= 0;
+    const shortVol = String((p.specs && p.specs.volume) || '').replace(/^Dung tích:\s*/i, '').trim();
+    const shortPeel = String((p.specs && p.specs.peel) || '').trim();
+    const benefit = String((p.specs && p.specs.benefit) || '').trim();
+
+    body.innerHTML = `
+      <div class="qv-media">
+        <img src="${p.image}" alt="${p.name}" onerror="this.onerror=null;this.src='assets/images/prod-table-spray.jpg';" />
+      </div>
+      <div class="qv-details">
+        <span class="eyebrow-tag">${p.category}${shortVol ? `• ${shortVol}`: ''}</span>
+        <h2 id="qvTitle" class="serif-heading" style="font-size:1.85rem;margin:8px 0 10px;line-height:1.18;">${p.name}</h2>
+        <div class="qv-price">${formatVND(p.price)}</div>
+        ${
+          isCreatorProd
+            ? `<div class="qv-creator-row">Gian hàng: <strong>${p.shopName}</strong> • Đã kiểm duyệt AI ✓</div>`
+            : `<div class="qv-creator-row">Chính hãng PEELVERSE • Công thức thực vật</div>`
+        }
+        <p class="qv-desc">${p.desc}</p>
+        <div class="qv-meta-list">
+          ${shortPeel ? `<div><span>Thành phần vỏ quả</span><strong>${shortPeel}</strong></div>`: ''}
+          ${benefit ? `<div><span>Đặc tính an toàn</span><strong>${benefit}</strong></div>`: ''}
+        </div>
+        <button type="button" id="qvAddToCartBtn" class="btn btn-primary" style="width:100%;margin-top:18px;" ${outOfStock ? 'disabled' : ''}>
+          ${outOfStock ? 'Tạm hết hàng' : 'Thêm vào giỏ'}
+        </button>
+      </div>
+    `;
+
+    const addBtn = body.querySelector('#qvAddToCartBtn');
+    if (addBtn && !outOfStock) {
+      addBtn.addEventListener('click', () => {
+        addToCart(p.id);
+        closeProductQuickView();
+        if (currentRoute === 'shop') render();
+      });
+    }
+
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeProductQuickView() {
+    const overlay = document.getElementById('productQuickViewOverlay');
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+  }
+
   function renderShop(view) {
     const categories = [
-      { key: 'Tất cả', icon: '⊞' },
-      { key: 'Lau bề mặt & Bếp', icon: '✨' },
-      { key: 'Rửa chén & Lau sàn', icon: '🫧' },
-      { key: 'Xịt thơm & Khử mùi', icon: '🍊' },
-      { key: 'Combo tiết kiệm', icon: '🎁' },
-      { key: 'Thủ công từ vỏ quả', icon: '🌿' }
+      { key: 'Tất cả', label: 'Tất cả' },
+      { key: 'Lau bề mặt & Bếp', label: 'Lau bề mặt' },
+      { key: 'Rửa chén & Lau sàn', label: 'Rửa chén & Sàn' },
+      { key: 'Xịt thơm & Khử mùi', label: 'Xịt thơm' },
+      { key: 'Combo tiết kiệm', label: 'Combo' },
+      { key: 'Thủ công từ vỏ quả', label: 'Thủ công' }
     ];
-
-    const sources = ['Tất cả', 'Chính hãng PEELVERSE', 'Cộng đồng Nhà sáng tạo'];
 
     const allProducts = getAllShopProducts();
     let list = allProducts.filter((p) => {
@@ -2017,74 +2048,57 @@
     if (shopSort === 'price-asc') list = [...list].sort((a, b) => a.price - b.price);
     else if (shopSort === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
 
-    const totalQty = getCartTotalQty();
-    const totalAmount = getCartTotalAmount();
-
     view.innerHTML = `
-      ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: shopViewTab === 'orders' ? 'Đơn hàng của tôi' : 'Giỏ hàng' }])}
-      <section class="shop-hero">
-        <div>
-          <span class="hero-badge">SẢN PHẨM LÀM SẠCH SINH HỌC TỪ VỎ QUẢ</span>
-          <h1 class="inline-icon-heading" style="font-size:2rem;margin-bottom:6px;">${PVIcon('shopping-cart', 28)} <span>Giỏ hàng PEELVERSE</span></h1>
-          <p style="color:var(--text-muted);max-width:620px;font-size:0.94rem;">
-            Các dòng dung dịch lau rửa bề mặt, nước rửa chén enzyme, nước lau sàn, xịt khử mùi chính hãng PEELVERSE cùng sản phẩm xanh từ cộng đồng Nhà sáng tạo.
-          </p>
-          <div class="shop-subtabs" style="margin-top:14px;">
-            <button type="button" class="creator-tab-btn ${shopViewTab === 'catalog' ? 'active' : ''}" data-shop-tab="catalog">
-              <i class="ph-duotone ph-shopping-bag pv-duotone"></i> <span>Cửa hàng sinh học</span>
-            </button>
-            <button type="button" class="creator-tab-btn ${shopViewTab === 'orders' ? 'active' : ''}" data-shop-tab="orders">
-              <i class="ph-duotone ph-package pv-duotone"></i> <span>Đơn hàng của tôi</span>
-            </button>
-          </div>
+      <!-- Compact Anti-Box Editorial Header (<= 130px) -->
+      <section class="editorial-page-header">
+        <div class="editorial-page-header-left">
+          <span class="eyebrow-tag">BỘ SƯU TẬP LÀM SẠCH SINH HỌC</span>
+          <h1 class="editorial-h1">Cửa hàng</h1>
+          <p class="editorial-sub">Dung dịch lau rửa, nước rửa chén enzyme và xịt khử mùi từ vỏ trái cây.</p>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-          <div class="hud-pill">🛒 Giỏ hiện tại: ${totalQty} món • ${formatVND(totalAmount)}</div>
-          <button class="btn btn-primary" id="openCartFromShop">Mở giỏ hàng &amp; đặt mua →</button>
+        <div class="editorial-underline-tabs" role="tablist">
+          <button type="button" class="underline-tab-btn ${shopViewTab === 'catalog' ? 'active' : ''}" data-shop-tab="catalog" role="tab">
+            Cửa hàng sinh học
+          </button>
+          <button type="button" class="underline-tab-btn ${shopViewTab === 'orders' ? 'active' : ''}" data-shop-tab="orders" role="tab">
+            Đơn hàng của tôi
+          </button>
         </div>
       </section>
 
       ${
         shopViewTab === 'orders'
-          ? `<div id="buyerOrdersMount"></div>`
+          ? `<div id="buyerOrdersMount" style="margin-top:20px;"></div>`
           : `
-      <div class="source-filter-bar">
-        <span style="font-size:0.8rem;font-weight:700;color:var(--text-muted);">Nguồn sản phẩm:</span>
-        <div class="filter-pills">
-          ${sources
-            .map(
-              (src) => `
-            <button type="button" class="filter-pill ${shopSourceFilter === src ? 'active' : ''}" data-shop-source="${src}">
-              ${src}
-            </button>
-          `
-            )
-            .join('')}
-        </div>
-      </div>
-
-      <div class="filter-bar">
-        <div class="filter-pills">
+      <!-- Single Unified Hairline Filter Bar -->
+      <div class="unified-filter-bar">
+        <div class="filter-text-links" role="tablist" aria-label="Danh mục sản phẩm">
           ${categories
             .map(
               (cat) => `
-            <button class="filter-pill ${shopCategory === cat.key ? 'active' : ''}" data-shop-cat="${cat.key}">
-              <span>${cat.icon}</span> ${cat.key}
+            <button type="button" class="filter-text-link ${shopCategory === cat.key ? 'active' : ''}" data-shop-cat="${cat.key}">
+              ${cat.label}
             </button>
           `
             )
             .join('')}
         </div>
 
-        <div class="shop-select-row">
-          <select id="shopPriceFilter" class="sort-select" aria-label="Lọc theo mức giá">
+        <div class="unified-selects">
+          <select id="shopSourceSelect" class="inline-ghost-select" aria-label="Nguồn sản phẩm">
+            <option value="Tất cả" ${shopSourceFilter === 'Tất cả' ? 'selected' : ''}>Nguồn: Tất cả</option>
+            <option value="Chính hãng PEELVERSE" ${shopSourceFilter === 'Chính hãng PEELVERSE' ? 'selected' : ''}>PEELVERSE</option>
+            <option value="Cộng đồng Nhà sáng tạo" ${shopSourceFilter === 'Cộng đồng Nhà sáng tạo' ? 'selected' : ''}>Nhà sáng tạo</option>
+          </select>
+
+          <select id="shopPriceFilter" class="inline-ghost-select" aria-label="Lọc theo mức giá">
             <option value="all" ${shopPriceRange === 'all' ? 'selected' : ''}>Giá: Tất cả</option>
             <option value="under60" ${shopPriceRange === 'under60' ? 'selected' : ''}>Dưới 60.000đ</option>
             <option value="60to120" ${shopPriceRange === '60to120' ? 'selected' : ''}>60.000đ – 120.000đ</option>
             <option value="over120" ${shopPriceRange === 'over120' ? 'selected' : ''}>Trên 120.000đ</option>
           </select>
 
-          <select id="shopSortSelect" class="sort-select" aria-label="Sắp xếp sản phẩm">
+          <select id="shopSortSelect" class="inline-ghost-select" aria-label="Sắp xếp sản phẩm">
             <option value="default" ${shopSort === 'default' ? 'selected' : ''}>Sắp xếp: Gợi ý</option>
             <option value="price-asc" ${shopSort === 'price-asc' ? 'selected' : ''}>Giá thấp → cao</option>
             <option value="price-desc" ${shopSort === 'price-desc' ? 'selected' : ''}>Giá cao → thấp</option>
@@ -2096,38 +2110,46 @@
         !communityLoaded && communityLoading && window.PEELVERSE_CREATOR
           ? window.PEELVERSE_CREATOR.renderSkeletonCards(3)
           : list.length === 0
-          ? `<div class="info-box" style="text-align:center;padding:36px;">Không có sản phẩm làm sạch nào khớp bộ lọc hiện tại. Hãy thử chọn nguồn, mức giá hoặc danh mục khác nhé!</div>`
+          ? `<div class="editorial-empty">Không có sản phẩm nào khớp bộ lọc hiện tại.</div>`
           : `
-      <section class="shop-grid">
+      <section class="lookbook-grid">
         ${list
           .map((p) => {
             const inCart = cart.find((c) => c.id === p.id);
             const isCreatorProd = p.source === 'creator';
             const outOfStock = isCreatorProd && Number(p.stock) <= 0;
+            const shortCat =
+              p.category === 'Lau bề mặt & Bếp'
+                ? 'LAU BỀ MẶT'
+                : p.category === 'Rửa chén & Lau sàn'
+                ? 'RỬA CHÉN & SÀN'
+                : p.category === 'Xịt thơm & Khử mùi'
+                ? 'XỊT THƠM'
+                : p.category === 'Combo tiết kiệm'
+                ? 'COMBO'
+                : p.category.toUpperCase();
+            const rawVol = String((p.specs && p.specs.volume) || '').replace(/^(Dung tích|Tổng dung tích):\s*/i, '').trim();
+            const shortPeel = String((p.specs && p.specs.peel) || '').trim();
+            const cornerTag = isCreatorProd
+              ? `${p.shopName} • AI ✓`
+              : p.badge === 'Bán chạy' || p.badge === 'Tiết kiệm nhất'
+              ? p.badge
+              : '';
+
             return `
-            <article class="product-card" data-product-id="${p.id}">
-              <div class="product-media">
+            <article class="lookbook-item" data-product-id="${p.id}">
+              <div class="lookbook-media" data-quickview="${p.id}" role="button" tabindex="0" aria-label="Xem nhanh ${p.name}">
                 <img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='assets/images/prod-table-spray.jpg';" />
-                <span class="core-badge ${isCreatorProd ? 'creator-shop-badge' : ''}">${p.badge}</span>
-                <span class="progress-badge">${p.category}</span>
+                ${cornerTag ? `<span class="lookbook-tag">${cornerTag}</span>`: ''}
               </div>
-              <div class="product-body">
-                ${
-                  isCreatorProd
-                    ? `<span class="ai-verified-pill"><i class="ph-duotone ph-seal-check pv-duotone" style="font-size:14px;"></i> Đã kiểm duyệt AI ✓</span>`
-                    : ''
-                }
-                <h3 class="product-title">${p.name}</h3>
-                <p class="product-desc">${p.desc}</p>
-                <div class="care-pills">
-                  <span class="care-pill">${p.specs.volume}</span>
-                  <span class="care-pill">${p.specs.peel}</span>
-                  <span class="care-pill">${p.specs.benefit}</span>
-                </div>
-                <div class="product-foot">
-                  <span class="product-price">${formatVND(p.price)}</span>
-                  <button class="btn ${inCart ? 'btn-primary' : 'btn-orange'} btn-sm" data-add-cart="${p.id}" ${outOfStock ? 'disabled' : ''}>
-                    ${outOfStock ? 'Tạm hết hàng' : inCart ? `+ Thêm (${inCart.qty})` : '+ Thêm vào giỏ'}
+              <div class="lookbook-info">
+                <div class="lookbook-meta">${shortCat}${rawVol ? `• ${rawVol}`: ''}</div>
+                <h3 class="lookbook-title" data-quickview="${p.id}">${p.name}</h3>
+                <p class="lookbook-ing">${shortPeel || 'Chiết xuất tinh dầu vỏ trái cây tự nhiên'}</p>
+                <div class="lookbook-foot">
+                  <span class="lookbook-price">${formatVND(p.price)}</span>
+                  <button type="button" class="lookbook-add-btn ${inCart ? 'in-cart' : ''}" data-add-cart="${p.id}" ${outOfStock ? 'disabled' : ''}>
+                    ${outOfStock ? 'Hết hàng' : inCart ? `Thêm (${inCart.qty})`: 'Thêm vào giỏ'}
                   </button>
                 </div>
               </div>
@@ -2139,12 +2161,10 @@
       }`
       }
 
-      <div style="margin-top:24px;">
+      <div style="margin-top:44px;">
         ${renderCartSupportBoxHtml()}
       </div>
     `;
-
-    view.querySelector('#openCartFromShop').addEventListener('click', openCartDrawer);
 
     view.querySelectorAll('[data-shop-tab]').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -2162,7 +2182,6 @@
       return;
     }
 
-    // Load Supabase community products once
     if (!communityLoaded && !communityLoading) {
       refreshCommunityProducts().then(() => {
         if (currentRoute === 'shop' && shopViewTab === 'catalog') {
@@ -2171,19 +2190,20 @@
       });
     }
 
-    view.querySelectorAll('[data-shop-source]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        shopSourceFilter = btn.dataset.shopSource;
-        renderShop(view);
-      });
-    });
-
     view.querySelectorAll('[data-shop-cat]').forEach((btn) => {
       btn.addEventListener('click', () => {
         shopCategory = btn.dataset.shopCat;
         renderShop(view);
       });
     });
+
+    const sourceSelectEl = view.querySelector('#shopSourceSelect');
+    if (sourceSelectEl) {
+      sourceSelectEl.addEventListener('change', (e) => {
+        shopSourceFilter = e.target.value;
+        renderShop(view);
+      });
+    }
 
     const priceFilterEl = view.querySelector('#shopPriceFilter');
     if (priceFilterEl) {
@@ -2200,6 +2220,10 @@
         renderShop(view);
       });
     }
+
+    view.querySelectorAll('[data-quickview]').forEach((el) => {
+      el.addEventListener('click', () => openProductQuickView(el.dataset.quickview));
+    });
 
     view.querySelectorAll('[data-add-cart]').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -2257,7 +2281,7 @@
               <h4 style="margin-bottom:6px;">${b.title}</h4>
               <p style="font-size:0.82rem;color:var(--text-muted);">${b.desc}</p>
               <div class="badge-status-pill ${isUnlocked ? 'unlocked' : 'locked'}">
-                ${isUnlocked ? `${PVIcon('check-circle', 15)} <span>Đã mở khóa</span>` : `${PVIcon('lock', 14)} <span>Chưa mở khóa</span>`}
+                ${isUnlocked ? `${PVIcon('check-circle', 15)} <span>Đã mở khóa</span>`: `${PVIcon('lock', 14)} <span>Chưa mở khóa</span>`}
               </div>
             </article>
           `;
@@ -2327,14 +2351,14 @@
     }
 
     const navEntries = [
-      { title: '🏠 Trang chủ', desc: 'Tổng quan dự án PEELVERSE, tiến độ và lối tắt nhanh', group: 'Điều hướng', action: () => navigate('home') },
-      { title: '🌱 Về dự án', desc: 'Câu chuyện PEELVERSE từ cuộc sống nội trú, Sứ mệnh & Tầm nhìn', group: 'Điều hướng', action: () => navigate('about') },
-      { title: '🍊 Khám phá nguyên liệu', desc: 'Danh sách 6 nguyên liệu nghiên cứu và đặc tính', group: 'Điều hướng', action: () => navigate('ingredients') },
-      { title: '🔬 Quy trình thực hiện', desc: '6 bước thu gom, làm sạch, sơ chế, chiết xuất, lọc & đánh giá', group: 'Điều hướng', action: () => navigate('process') },
-      { title: '📖 Kiến thức khoa học', desc: '7 bài học về tinh dầu, limonene, độ pH, chiết xuất, kinh tế tuần hoàn', group: 'Điều hướng', action: () => navigate('science') },
-      { title: '🎮 Trò chơi (Mini Game)', desc: '6 màn chơi mô phỏng tạo dung dịch lau bàn', group: 'Điều hướng', action: () => navigate('game') },
-      { title: '🛒 Giỏ hàng & Sản phẩm sinh học', desc: 'Nước lau rửa, nước rửa chén enzyme & xịt khử mùi từ vỏ trái cây', group: 'Điều hướng', action: () => navigate('shop') },
-      { title: '📊 Tiến trình khám phá', desc: 'Xem phần trăm hoàn thành và 8 huy hiệu xanh', group: 'Điều hướng', action: () => navigate('progress') }
+      { title: ' Trang chủ', desc: 'Tổng quan dự án PEELVERSE, tiến độ và lối tắt nhanh', group: 'Điều hướng', action: () => navigate('home') },
+      { title: ' Về dự án', desc: 'Câu chuyện PEELVERSE từ cuộc sống nội trú, Sứ mệnh & Tầm nhìn', group: 'Điều hướng', action: () => navigate('about') },
+      { title: ' Khám phá nguyên liệu', desc: 'Danh sách 6 nguyên liệu nghiên cứu và đặc tính', group: 'Điều hướng', action: () => navigate('ingredients') },
+      { title: ' Quy trình thực hiện', desc: '6 bước thu gom, làm sạch, sơ chế, chiết xuất, lọc & đánh giá', group: 'Điều hướng', action: () => navigate('process') },
+      { title: ' Kiến thức khoa học', desc: '7 bài học về tinh dầu, limonene, độ pH, chiết xuất, kinh tế tuần hoàn', group: 'Điều hướng', action: () => navigate('science') },
+      { title: ' Trò chơi (Mini Game)', desc: '6 màn chơi mô phỏng tạo dung dịch lau bàn', group: 'Điều hướng', action: () => navigate('game') },
+      { title: ' Giỏ hàng & Sản phẩm sinh học', desc: 'Nước lau rửa, nước rửa chén enzyme & xịt khử mùi từ vỏ trái cây', group: 'Điều hướng', action: () => navigate('shop') },
+      { title: ' Tiến trình khám phá', desc: 'Xem phần trăm hoàn thành và 8 huy hiệu xanh', group: 'Điều hướng', action: () => navigate('progress') }
     ];
 
     const index = [
@@ -2380,7 +2404,7 @@
         action: () => navigate('game-play', g.id)
       })),
       ...getAllShopProducts().map((sp) => ({
-        title: `🧴 ${sp.name}`,
+        title: `${sp.name}`,
         desc: `${formatVND(sp.price)} • ${sp.category}`,
         group: 'Sản phẩm sinh học',
         searchBlob: normalizeVi(`nuoc lau rua tay rua chen lau san xit khu mui sinh hoc gio hang ${sp.name} ${sp.category} ${sp.desc}`),
@@ -2394,14 +2418,14 @@
         }
       })),
       {
-        title: `💬 Liên hệ Zalo: ${CONTACT.zalo}`,
+        title: `Liên hệ Zalo: ${CONTACT.zalo}`,
         desc: 'Mở hộp thoại liên hệ nhanh hoặc nhắn Zalo hỗ trợ PEELVERSE',
         group: 'Liên hệ',
         searchBlob: normalizeVi(`lien he contact zalo ${CONTACT.zalo} ho tro tu van`),
         action: () => openContactModal()
       },
       {
-        title: `✉️ Email: ${CONTACT.email}`,
+        title: `Email: ${CONTACT.email}`,
         desc: 'Gửi email hoặc sao chép địa chỉ liên hệ dự án PEELVERSE',
         group: 'Liên hệ',
         searchBlob: normalizeVi(`lien he contact email ${CONTACT.email} gmail`),
@@ -2450,7 +2474,7 @@
               <button type="button" class="text-btn" id="clearRecentSearchBtn">Xóa</button>
             </div>
             <div class="search-chips-wrap">
-              ${recents.map((r) => `<button type="button" class="search-quick-chip" data-chip="${r}">🕘 ${r}</button>`).join('')}
+              ${recents.map((r) => `<button type="button" class="search-quick-chip" data-chip="${r}"> ${r}</button>`).join('')}
             </div>`
               : ''
           }
@@ -2759,7 +2783,7 @@
         sidebarPrefs.width = SIDEBAR_DEFAULT_WIDTH;
         saveSidebarPrefs();
         applySidebarLayout();
-        showToast('↔️ Đã đặt lại độ rộng thanh điều hướng mặc định (260px)');
+        showToast('↔ Đã đặt lại độ rộng thanh điều hướng mặc định (260px)');
       });
     }
 
@@ -2804,8 +2828,8 @@
         btn.dataset.origHtml = btn.innerHTML;
       }
       btn.classList.add('copied');
-      btn.innerHTML = isTextMode ? `${PVIcon('check', 15)} <span>Đã sao chép!</span>` : PVIcon('check', 15);
-      showToast(`✅ Đã sao chép ${label}: ${text}`);
+      btn.innerHTML = isTextMode ? `${PVIcon('check', 15)} <span>Đã sao chép!</span>`: PVIcon('check', 15);
+      showToast(`Đã sao chép ${label}: ${text}`);
       clearTimeout(Number(btn.dataset.copyTimer || 0));
       const t = setTimeout(() => {
         btn.classList.remove('copied');
@@ -2868,10 +2892,21 @@
         if (e.target === contactOverlay) closeContactModal();
       });
     }
+    // Quick-View Modal close triggers
+    const closeQvBtn = document.getElementById('closeQuickViewBtn');
+    const qvOverlay = document.getElementById('productQuickViewOverlay');
+    if (closeQvBtn) closeQvBtn.addEventListener('click', closeProductQuickView);
+    if (qvOverlay) {
+      qvOverlay.addEventListener('click', (e) => {
+        if (e.target === qvOverlay) closeProductQuickView();
+      });
+    }
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeContactModal();
         closeCartDrawer();
+        closeProductQuickView();
       }
     });
 

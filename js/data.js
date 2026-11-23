@@ -10,7 +10,7 @@ window.PEELVERSE_DATA = {
     {
       id: 'citrus-peel',
       name: 'Vỏ cam, chanh, quýt',
-      emoji: '🍊',
+      emoji: '',
       category: 'Trái cây',
       isCore: true,
       image: 'assets/images/ing-citrus.jpg',
@@ -36,7 +36,7 @@ window.PEELVERSE_DATA = {
     {
       id: 'white-vinegar',
       name: 'Giấm trắng',
-      emoji: '🧪',
+      emoji: '',
       category: 'Chất lỏng',
       isCore: true,
       image: 'assets/images/ing-vinegar.jpg',
@@ -62,7 +62,7 @@ window.PEELVERSE_DATA = {
     {
       id: 'water',
       name: 'Nước',
-      emoji: '💧',
+      emoji: '',
       category: 'Chất lỏng',
       isCore: true,
       image: 'assets/images/ing-water.jpg',
@@ -87,7 +87,7 @@ window.PEELVERSE_DATA = {
     {
       id: 'cinnamon',
       name: 'Quế',
-      emoji: '🌿',
+      emoji: '',
       category: 'Gia vị',
       isCore: true,
       image: 'assets/images/ing-cinnamon.jpg',
@@ -112,7 +112,7 @@ window.PEELVERSE_DATA = {
     {
       id: 'banana-peel',
       name: 'Vỏ chuối',
-      emoji: '🍌',
+      emoji: '',
       category: 'Thực vật',
       isCore: false,
       image: 'assets/images/ing-banana.jpg',
@@ -137,7 +137,7 @@ window.PEELVERSE_DATA = {
     {
       id: 'apple-peel',
       name: 'Vỏ táo',
-      emoji: '🍎',
+      emoji: '',
       category: 'Trái cây',
       isCore: false,
       image: 'assets/images/ing-apple.jpg',
@@ -165,7 +165,7 @@ window.PEELVERSE_DATA = {
     {
       step: 1,
       title: 'Thu gom nguyên liệu',
-      emoji: '🧺',
+      emoji: '',
       image: 'assets/images/step-1-collect.jpg',
       summary: 'Thu gom vỏ trái cây, phân loại và ghi nhận tình trạng nguyên liệu.',
       details: 'Sau mỗi bữa ăn tại khu nội trú, vỏ cam, chanh, quýt được thu gom riêng khỏi rác thải sinh hoạt thông thường. Nhóm tiến hành phân loại để loại bỏ những phần bị dập sâu, nấm mốc hoặc lẫn tạp chất.',
@@ -174,7 +174,7 @@ window.PEELVERSE_DATA = {
     {
       step: 2,
       title: 'Làm sạch',
-      emoji: '🫧',
+      emoji: '',
       image: 'assets/images/step-2-wash.jpg',
       summary: 'Loại bỏ bụi bẩn và các phần không phù hợp, chuẩn bị nguyên liệu.',
       details: 'Rửa nhẹ nhàng vỏ trái cây dưới dòng nước sạch để cuốn trôi bụi bám, đất cát và lớp sáp mỏng ngoài vỏ. Sau đó để ráo nước tự nhiên nhằm tránh làm loãng môi trường chiết xuất không kiểm soát.',
@@ -183,7 +183,7 @@ window.PEELVERSE_DATA = {
     {
       step: 3,
       title: 'Sơ chế',
-      emoji: '✂️',
+      emoji: '',
       image: 'assets/images/step-3-prep.jpg',
       summary: 'Chuẩn bị nguyên liệu với kích thước tương đối đồng đều để thuận tiện nghiên cứu.',
       details: 'Cắt vỏ trái cây thành các miếng nhỏ kích thước khoảng 1.5 – 2 cm. Việc tăng diện tích bề mặt tiếp xúc giúp dung môi dễ dàng thấm vào các túi tinh dầu và đẩy nhanh quá trình khuếch tán hợp chất.',
@@ -192,7 +192,7 @@ window.PEELVERSE_DATA = {
     {
       step: 4,
       title: 'Nghiên cứu chiết xuất',
-      emoji: '⚗️',
+      emoji: '',
       image: 'assets/images/step-4-extract.jpg',
       summary: 'Quan sát sự chuyển dịch của một số hợp chất từ nguyên liệu thực vật sang môi trường dung dịch.',
       details: 'Cho vỏ trái cây đã sơ chế cùng thanh quế vào bình thủy tinh sạch, thêm giấm trắng ngập nguyên liệu và đậy kín nắp. Đặt nơi thoáng mát, tránh ánh nắng trực tiếp và quan sát sự thay đổi màu sắc, mùi hương theo từng ngày.',
@@ -201,7 +201,7 @@ window.PEELVERSE_DATA = {
     {
       step: 5,
       title: 'Lọc',
-      emoji: '🫖',
+      emoji: '',
       image: 'assets/images/step-5-filter.jpg',
       summary: 'Tách phần nguyên liệu rắn khỏi dung dịch thu được.',
       details: 'Sử dụng rây lọc mịn hoặc vải lọc sạch để tách hoàn toàn bã vỏ trái cây, cặn quế và các hạt lơ lửng khỏi phần dịch chiết lỏng. Bã vỏ sau khi lọc có thể tiếp tục mang đi ủ phân hữu cơ.',
@@ -210,7 +210,7 @@ window.PEELVERSE_DATA = {
     {
       step: 6,
       title: 'Hoàn thiện và đánh giá mẫu thử',
-      emoji: '✨',
+      emoji: '',
       image: 'assets/images/step-6-evaluate.jpg',
       summary: 'Pha loãng theo tỉ lệ phù hợp, bảo quản và đánh giá hiệu quả thực tế.',
       details: 'Pha dịch chiết thu được với nước sạch theo tỉ lệ nghiên cứu, chiết vào chai xịt có nhãn ghi ngày thực hiện. Tiến hành kiểm tra cảm quan (màu sắc, mùi hương), đo độ pH và thử nghiệm lau các vết bẩn nhẹ trên bàn ăn.',
@@ -224,7 +224,7 @@ window.PEELVERSE_DATA = {
       category: 'Hoạt chất & Tinh dầu',
       title: 'Tinh dầu và hợp chất tự nhiên',
       subtitle: 'Vì sao vỏ cam, chanh có mùi đặc trưng?',
-      emoji: '🍊',
+      emoji: '',
       color: '#FCE7D6',
       summary: 'Khám phá những túi tinh dầu siêu nhỏ nằm ngay dưới bề mặt vỏ các loại quả có múi.',
       content: [
@@ -249,7 +249,7 @@ window.PEELVERSE_DATA = {
       category: 'Hoạt chất & Tinh dầu',
       title: 'Limonene',
       subtitle: 'Một hợp chất phổ biến trong tinh dầu của nhiều loại quả có múi',
-      emoji: '🧬',
+      emoji: '',
       color: '#E2EAD1',
       summary: 'Tìm hiểu về D-Limonene — "người hùng" giúp hòa tan vết dầu mỡ nhẹ trong vỏ cam quýt.',
       content: [
@@ -274,7 +274,7 @@ window.PEELVERSE_DATA = {
       category: 'Cơ chế làm sạch',
       title: 'Độ pH',
       subtitle: 'Axit, bazơ và cách hiểu thang đo pH',
-      emoji: '📊',
+      emoji: '',
       color: '#E2F0FA',
       hasPhWidget: true,
       summary: 'Thang đo từ 0 đến 14 giúp ta hiểu tính axit của giấm trắng và độ an toàn khi làm sạch.',
@@ -300,7 +300,7 @@ window.PEELVERSE_DATA = {
       category: 'Cơ chế làm sạch',
       title: 'Dung môi',
       subtitle: 'Vì sao các chất có thể hòa tan trong những môi trường khác nhau?',
-      emoji: '🧪',
+      emoji: '',
       color: '#FDF3D8',
       summary: 'Hiểu cơ chế hòa tan giữa nước, giấm và tinh dầu trong mẫu thử PEELVERSE.',
       content: [
@@ -325,7 +325,7 @@ window.PEELVERSE_DATA = {
       category: 'Cơ chế làm sạch',
       title: 'Chiết xuất',
       subtitle: 'Quá trình chuyển các hợp chất từ nguyên liệu vào môi trường',
-      emoji: '⚗️',
+      emoji: '',
       color: '#F3E8FD',
       summary: 'Nguyên lý khuếch tán giúp "đánh thức" tinh chất từ vỏ trái cây vào dung dịch.',
       content: [
@@ -350,7 +350,7 @@ window.PEELVERSE_DATA = {
       category: 'Cơ chế làm sạch',
       title: 'Lọc',
       subtitle: 'Cách tách các thành phần rắn và lỏng',
-      emoji: '🫖',
+      emoji: '',
       color: '#E5F6EE',
       summary: 'Kỹ thuật tách pha vật lý đơn giản giúp dung dịch trong sạch và sẵn sàng sử dụng.',
       content: [
@@ -375,7 +375,7 @@ window.PEELVERSE_DATA = {
       category: 'So sánh & An toàn',
       title: 'Kinh tế tuần hoàn',
       subtitle: 'Tận dụng tài nguyên và giảm lãng phí thông qua tư duy tái sử dụng',
-      emoji: '♻️',
+      emoji: '',
       color: '#E2EAD1',
       summary: 'Khi rác thải của hoạt động này trở thành nguyên liệu đầu vào cho một giải pháp hữu ích mới.',
       content: [
@@ -402,7 +402,7 @@ window.PEELVERSE_DATA = {
       id: 'first-peel',
       icon: 'citrus',
       theme: 'amber',
-      emoji: '🍊',
+      emoji: '',
       title: 'Nhà thám hiểm vỏ quả',
       desc: 'Khám phá ít nhất 3 nguyên liệu trong phòng thí nghiệm.'
     },
@@ -410,7 +410,7 @@ window.PEELVERSE_DATA = {
       id: 'all-ingredients',
       icon: 'flask',
       theme: 'emerald',
-      emoji: '🧪',
+      emoji: '',
       title: 'Chuyên gia nguyên liệu',
       desc: 'Khám phá đầy đủ 4 nguyên liệu cốt lõi của PEELVERSE.'
     },
@@ -418,7 +418,7 @@ window.PEELVERSE_DATA = {
       id: 'science-spark',
       icon: 'lightbulb',
       theme: 'amber',
-      emoji: '💡',
+      emoji: '',
       title: 'Tia sáng khoa học',
       desc: 'Hoàn thành ít nhất 3 bài học trong Thư viện kiến thức.'
     },
@@ -426,7 +426,7 @@ window.PEELVERSE_DATA = {
       id: 'master-chemist',
       icon: 'beaker',
       theme: 'emerald',
-      emoji: '🔬',
+      emoji: '',
       title: 'Bậc thầy quy trình',
       desc: 'Hoàn thành toàn bộ 6 bước quy trình thực hiện.'
     },
@@ -434,7 +434,7 @@ window.PEELVERSE_DATA = {
       id: 'game-starter',
       icon: 'gamepad',
       theme: 'amber',
-      emoji: '🎮',
+      emoji: '',
       title: 'Người chơi tập sự',
       desc: 'Vượt qua ít nhất 2 màn chơi mô phỏng.'
     },
@@ -442,7 +442,7 @@ window.PEELVERSE_DATA = {
       id: 'peelserve-champion',
       icon: 'trophy',
       theme: 'amber',
-      emoji: '🏆',
+      emoji: '',
       title: 'Đại sứ PEELVERSE',
       desc: 'Chinh phục toàn bộ 6 thử thách trong Mini Game.'
     },
@@ -450,7 +450,7 @@ window.PEELVERSE_DATA = {
       id: 'eco-scholar',
       icon: 'sprout',
       theme: 'emerald',
-      emoji: '🌿',
+      emoji: '',
       title: 'Học giả xanh',
       desc: 'Hoàn thành toàn bộ 7 chủ đề Kiến thức khoa học.'
     },
@@ -458,7 +458,7 @@ window.PEELVERSE_DATA = {
       id: 'peelverse-legend',
       icon: 'crown',
       theme: 'emerald',
-      emoji: '✨',
+      emoji: '',
       title: 'Huyền thoại PEELVERSE',
       desc: 'Đạt 100% tiến trình khám phá trên toàn website.'
     }
@@ -474,9 +474,9 @@ window.PEELVERSE_DATA = {
       image: 'assets/images/prod-table-spray.jpg',
       desc: 'Dung dịch lau bàn ăn, mặt kính và bàn học chiết xuất tinh dầu vỏ cam kết hợp sả tươi giúp đánh bay vết bẩn nhẹ, khử mùi thức ăn tức thì.',
       specs: {
-        volume: '🧴 Dung tích: 250ml',
-        peel: '🍊 Vỏ cam ngọt & sả tươi',
-        benefit: '✨ Lành tính, dịu nhẹ da tay'
+        volume: 'Dung tích: 250ml',
+        peel: 'Vỏ cam ngọt & sả tươi',
+        benefit: 'Lành tính, dịu nhẹ da tay'
       }
     },
     {
@@ -488,9 +488,9 @@ window.PEELVERSE_DATA = {
       image: 'assets/images/prod-kitchen-degreaser.jpg',
       desc: 'Công thức giàu D-Limonene tự nhiên từ vỏ bưởi và vỏ chanh giúp làm lỏng mảng bám dầu mỡ trên bếp gas, máy hút mùi mà không gây mùi hóa chất hắc.',
       specs: {
-        volume: '🧴 Dung tích: 500ml',
-        peel: '🍋 Vỏ bưởi & chanh tươi',
-        benefit: '✨ Không tồn dư hóa chất độc hại'
+        volume: 'Dung tích: 500ml',
+        peel: 'Vỏ bưởi & chanh tươi',
+        benefit: 'Không tồn dư hóa chất độc hại'
       }
     },
     {
@@ -502,9 +502,9 @@ window.PEELVERSE_DATA = {
       image: 'assets/images/prod-dish-wash.jpg',
       desc: 'Lên men enzyme sinh học từ vỏ dứa và vỏ cam ngọt, tạo bọt dịu nhẹ, rửa sạch dầu mỡ và khử mùi tanh chén bát mà vẫn giữ ẩm da tay.',
       specs: {
-        volume: '🧴 Dung tích: 500ml',
-        peel: '🍍 Enzyme vỏ dứa & cam ngọt',
-        benefit: '✨ Dễ tráng sạch, an toàn cho bé'
+        volume: 'Dung tích: 500ml',
+        peel: 'Enzyme vỏ dứa & cam ngọt',
+        benefit: 'Dễ tráng sạch, an toàn cho bé'
       }
     },
     {
@@ -516,9 +516,9 @@ window.PEELVERSE_DATA = {
       image: 'assets/images/prod-floor-cleaner.jpg',
       desc: 'Chiết xuất tinh dầu vỏ cam sấy kết hợp hương quế ấm áp giúp sàn nhà sạch bóng, nhanh khô, không bết dính và hỗ trợ xua đuổi côn trùng nhẹ.',
       specs: {
-        volume: '🧴 Dung tích: 1000ml',
-        peel: '🌿 Vỏ quế & vỏ cam sấy',
-        benefit: '✨ Khô nhanh, an toàn cho thú cưng'
+        volume: 'Dung tích: 1000ml',
+        peel: 'Vỏ quế & vỏ cam sấy',
+        benefit: 'Khô nhanh, an toàn cho thú cưng'
       }
     },
     {
@@ -530,9 +530,9 @@ window.PEELVERSE_DATA = {
       image: 'assets/images/prod-room-mist.jpg',
       desc: 'Tia sương siêu mịn chiết xuất từ tinh dầu vỏ bưởi tự nhiên giúp khử mùi ẩm mốc trong phòng nội trú, tủ quần áo và giày dép cực kỳ thanh mát.',
       specs: {
-        volume: '🧴 Dung tích: 150ml',
-        peel: '🍊 Tinh dầu vỏ bưởi nguyên chất',
-        benefit: '✨ Không cồn công nghiệp, thơm thanh'
+        volume: 'Dung tích: 150ml',
+        peel: 'Tinh dầu vỏ bưởi nguyên chất',
+        benefit: 'Không cồn công nghiệp, thơm thanh'
       }
     },
     {
@@ -544,9 +544,9 @@ window.PEELVERSE_DATA = {
       image: 'assets/images/prod-clean-combo.jpg',
       desc: 'Trọn bộ 3 sản phẩm chăm sóc nhà cửa sinh học từ vỏ trái cây: Xịt Lau Bàn 250ml + Nước Rửa Chén Enzyme 500ml + Xịt Khử Mùi Vỏ Bưởi 150ml.',
       specs: {
-        volume: '🎁 Tổng dung tích: 900ml (3 chai)',
-        peel: '🍊 Vỏ cam, vỏ dứa & vỏ bưởi',
-        benefit: '✨ Giải pháp toàn diện, thân thiện môi trường'
+        volume: 'Tổng dung tích: 900ml (3 chai)',
+        peel: 'Vỏ cam, vỏ dứa & vỏ bưởi',
+        benefit: 'Giải pháp toàn diện, thân thiện môi trường'
       }
     }
   ]

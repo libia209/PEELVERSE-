@@ -74,7 +74,7 @@
     if (loading) {
       btn.disabled = true;
       btn.dataset.origText = btn.textContent;
-      btn.innerHTML = '<span class="auth-spinner" aria-hidden="true"></span> Đang xử lý...';
+      btn.innerHTML = '<span class="auth-spinner" aria-hidden="true"></span>Đang xử lý...';
     } else {
       btn.disabled = false;
       btn.textContent = defaultText || btn.dataset.origText || 'Tiếp tục';
@@ -127,7 +127,7 @@
       ? 'Bạn đã hủy đăng nhập bằng Google. Bạn có thể thử lại bất cứ lúc nào!'
       : translateAuthError({ message: errDesc || err });
     setAlert('error', msg);
-    showAuthToast(`⚠️ ${msg}`, 'warning');
+    showAuthToast(`${msg}`, 'warning');
     cleanOAuthUrlParams();
   }
 
@@ -541,7 +541,7 @@
         const shopName = (getEl('onboardShopName').value || '').trim();
         const phone = (getEl('onboardPhone').value || '').trim();
         if (role === 'creator' && (!shopName || !phone)) {
-          showAuthToast('⚠️ Vui lòng nhập Tên gian hàng và Số điện thoại liên hệ!', 'warning');
+          showAuthToast('Vui lòng nhập Tên gian hàng và Số điện thoại liên hệ!', 'warning');
           return;
         }
         const btn = getEl('onboardSubmitBtn');
@@ -560,19 +560,19 @@
           applyRoleUi(currentProfile);
           showAuthToast(
             role === 'creator'
-              ? '🎉 Chào mừng Nhà sáng tạo! Kênh Nhà sáng tạo đã sẵn sàng trên Sidebar.'
-              : '🌿 Đã lưu hồ sơ Người dùng PEELVERSE!',
+              ? 'Chào mừng Nhà sáng tạo! Kênh Nhà sáng tạo đã sẵn sàng trên Sidebar.'
+              : 'Đã lưu hồ sơ Người dùng PEELVERSE!',
             'success'
           );
         } catch (err) {
-          showAuthToast(`⚠️ ${window.PEELVERSE_CREATOR.translateDbError(err)}`, 'warning');
+          showAuthToast(`${window.PEELVERSE_CREATOR.translateDbError(err)}`, 'warning');
         } finally {
           setButtonLoading(btn, false, 'Lưu vai trò & Vào PEELVERSE →');
         }
       });
     }
 
-    // Upgrade User -> Creator Modal
+    // Upgrade User ->Creator Modal
     const openUpgradeBtn = getEl('openUpgradeCreatorBtn');
     const closeUpgradeBtn = getEl('closeUpgradeCreatorBtn');
     const upgradeOverlay = getEl('upgradeCreatorOverlay');
@@ -593,7 +593,7 @@
         const shopName = (getEl('upgradeShopName').value || '').trim();
         const phone = (getEl('upgradePhone').value || '').trim();
         if (!shopName || !phone) {
-          showAuthToast('⚠️ Vui lòng nhập đầy đủ Tên gian hàng và SĐT!', 'warning');
+          showAuthToast('Vui lòng nhập đầy đủ Tên gian hàng và SĐT!', 'warning');
           return;
         }
         const btn = getEl('upgradeCreatorSubmitBtn');
@@ -610,16 +610,16 @@
           currentProfile = saved;
           closeUpgradeCreatorModal();
           applyRoleUi(currentProfile);
-          showAuthToast('🎉 Nâng cấp thành công! Bạn đã là Nhà sáng tạo PEELVERSE.', 'success');
+          showAuthToast('Nâng cấp thành công! Bạn đã là Nhà sáng tạo PEELVERSE.', 'success');
         } catch (err) {
-          showAuthToast(`⚠️ ${window.PEELVERSE_CREATOR.translateDbError(err)}`, 'warning');
+          showAuthToast(`${window.PEELVERSE_CREATOR.translateDbError(err)}`, 'warning');
         } finally {
           setButtonLoading(btn, false, 'Kích hoạt Kênh Nhà sáng tạo →');
         }
       });
     }
 
-    // 2. SIGNUP SUBMIT -> SEND 6-DIGIT EMAIL OTP
+    // 2. SIGNUP SUBMIT ->SEND 6-DIGIT EMAIL OTP
     const signupForm = getEl('authSignupForm');
     if (signupForm) {
       signupForm.addEventListener('submit', async (e) => {
@@ -800,14 +800,14 @@
           if (error) {
             const msg = translateAuthError(error);
             setAlert('error', msg);
-            showAuthToast(`⚠️ ${msg}`, 'warning');
+            showAuthToast(`${msg}`, 'warning');
             googleAuthBtn.disabled = false;
             googleAuthBtn.innerHTML = origHtml;
           }
         } catch (err) {
           const msg = translateAuthError(err);
           setAlert('error', msg);
-          showAuthToast(`⚠️ ${msg}`, 'warning');
+          showAuthToast(`${msg}`, 'warning');
           googleAuthBtn.disabled = false;
           googleAuthBtn.innerHTML = origHtml;
         }

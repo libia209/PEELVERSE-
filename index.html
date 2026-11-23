@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>PEELVERSE — From Peel to Purpose | Khám Phá Giá Trị Mới Từ Vỏ Trái Cây</title>
-  <meta name="description" content="PEELVERSE — Dự án nghiên cứu và sáng tạo biến vỏ trái cây thành nước lau rửa sinh học, chăm sóc nhà cửa thân thiện môi trường và trò chơi tương tác." />
-  <meta name="theme-color" content="#FBF8F1" />
+  <title>PEELVERSE — From Peel to Purpose | Botanical Bio-Cleaning &amp; Science</title>
+  <meta name="description" content="PEELVERSE — Dự án nghiên cứu và sáng tạo biến vỏ trái cây thành nước lau rửa sinh học, chăm sóc nhà cửa thân thiện môi trường và phòng lab tương tác." />
+  <meta name="theme-color" content="#F6F4EE" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -15,28 +15,24 @@
   <link rel="apple-touch-icon" href="assets/images/ing-citrus.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Quicksand:wght@600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css" />
-  <link rel="stylesheet" href="css/styles.css?v=20" />
+  <link rel="stylesheet" href="css/styles.css?v=21" />
 </head>
 <body class="auth-locked">
-  <!-- Auth Gate Overlay (Supabase Auth + 6-Digit Email OTP) -->
+  <!-- Auth Gate Overlay (Supabase Auth Email OTP + Google OAuth) -->
   <div id="authGate" class="auth-gate" role="dialog" aria-modal="true" aria-labelledby="authGateHeading">
     <div class="auth-gate-card">
       <div class="auth-gate-brand">
-        <div class="brand-logo" style="width:48px;height:48px;" aria-hidden="true">
-          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="24" cy="27" r="17" fill="#F49326" />
-            <circle cx="24" cy="27" r="13.5" fill="#FFA940" />
-            <path d="M24 14.5V39.5M11.5 27H36.5M15.2 18.2L32.8 35.8M32.8 18.2L15.2 35.8" stroke="#FFF4E0" stroke-width="2" stroke-linecap="round" />
-            <circle cx="24" cy="27" r="3" fill="#FFF4E0" />
-            <path d="M24 11C24 6.5 29 3 34 4.5C33.5 9.5 29.5 12.5 24 11Z" fill="#5D8C3E" />
-            <path d="M24 11C21.5 8 18 7.5 16 9C17.5 11.5 21 12.5 24 11Z" fill="#7AAE4B" />
+        <span class="brand-monogram" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 3v18M3 12h18M5.64 5.64l12.72 12.72M18.36 5.64 5.64 18.36"/>
           </svg>
-        </div>
+        </span>
         <div>
-          <h2 id="authGateHeading" class="brand-name" style="font-size:1.45rem;">PEELVERSE</h2>
-          <p class="brand-sub">From Peel to Purpose • Khám phá giá trị từ vỏ trái cây</p>
+          <h2 id="authGateHeading" class="brand-wordmark">PEELVERSE</h2>
+          <p class="brand-eyebrow">FROM PEEL TO PURPOSE • BOTANICAL APOTHECARY</p>
         </div>
       </div>
 
@@ -54,7 +50,7 @@
         <div class="auth-field">
           <label for="loginEmail">Email</label>
           <div class="auth-input-wrap">
-            <i class="ph-duotone ph-envelope-simple auth-input-icon pv-duotone" style="font-size:18px;"></i>
+            <svg class="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
             <input id="loginEmail" type="email" required autocomplete="email" placeholder="ban@example.com" />
           </div>
         </div>
@@ -64,10 +60,10 @@
             <button type="button" id="openForgotBtn" class="auth-link-btn">Quên mật khẩu?</button>
           </div>
           <div class="auth-input-wrap">
-            <i class="ph-duotone ph-lock-simple auth-input-icon pv-duotone" style="font-size:18px;"></i>
+            <svg class="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/></svg>
             <input id="loginPassword" type="password" required minlength="6" autocomplete="current-password" placeholder="Tối thiểu 6 ký tự" />
             <button type="button" class="auth-pw-toggle" data-toggle-pw="loginPassword" aria-label="Hiện/ẩn mật khẩu">
-              <i class="ph-duotone ph-eye pv-duotone" style="font-size:18px;"></i>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
         </div>
@@ -80,12 +76,10 @@
           <label>Chọn vai trò tài khoản</label>
           <div class="role-selector-grid" role="radiogroup" aria-label="Chọn vai trò tài khoản">
             <button type="button" class="role-choice-card active" data-signup-role="user" aria-pressed="true">
-              <span class="role-choice-icon nature"><i class="ph-duotone ph-plant pv-duotone" style="font-size:20px;"></i></span>
               <strong>Người dùng</strong>
-              <span>Khám phá kiến thức, chơi game &amp; mua sản phẩm sinh học</span>
+              <span>Khám phá khoa học, mô phỏng &amp; mua sản phẩm sinh học</span>
             </button>
             <button type="button" class="role-choice-card" data-signup-role="creator" aria-pressed="false">
-              <span class="role-choice-icon citrus"><i class="ph-duotone ph-storefront pv-duotone" style="font-size:20px;"></i></span>
               <strong>Nhà sáng tạo</strong>
               <span>Đăng sản phẩm xanh, quản lý gian hàng &amp; nhận đơn</span>
             </button>
@@ -96,24 +90,23 @@
         <div class="auth-field">
           <label for="signupName">Họ và tên</label>
           <div class="auth-input-wrap">
-            <i class="ph-duotone ph-user auth-input-icon pv-duotone" style="font-size:18px;"></i>
+            <svg class="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6"/></svg>
             <input id="signupName" type="text" required autocomplete="name" placeholder="VD: Nguyễn Minh Anh" />
           </div>
         </div>
 
-        <!-- Extra Creator fields (shown only when role === 'creator') -->
         <div id="signupCreatorFields" class="creator-extra-fields hidden">
           <div class="auth-field">
             <label for="signupShopName">Tên gian hàng / Thương hiệu *</label>
             <div class="auth-input-wrap">
-              <i class="ph-duotone ph-storefront auth-input-icon pv-duotone" style="font-size:18px;"></i>
+              <svg class="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9 4.5 4h15L21 9"/><path d="M5 12v8h14v-8"/></svg>
               <input id="signupShopName" type="text" placeholder="VD: Tiệm Xanh Vỏ Cam" />
             </div>
           </div>
           <div class="auth-field">
             <label for="signupPhone">Số điện thoại liên hệ *</label>
             <div class="auth-input-wrap">
-              <i class="ph-duotone ph-phone auth-input-icon pv-duotone" style="font-size:18px;"></i>
+              <svg class="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
               <input id="signupPhone" type="tel" placeholder="VD: 0355 415 501" />
             </div>
           </div>
@@ -122,28 +115,28 @@
         <div class="auth-field">
           <label for="signupEmail">Email</label>
           <div class="auth-input-wrap">
-            <i class="ph-duotone ph-envelope-simple auth-input-icon pv-duotone" style="font-size:18px;"></i>
+            <svg class="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
             <input id="signupEmail" type="email" required autocomplete="email" placeholder="ban@example.com" />
           </div>
         </div>
         <div class="auth-field">
           <label for="signupPassword">Mật khẩu</label>
           <div class="auth-input-wrap">
-            <i class="ph-duotone ph-lock-simple auth-input-icon pv-duotone" style="font-size:18px;"></i>
+            <svg class="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/></svg>
             <input id="signupPassword" type="password" required minlength="6" autocomplete="new-password" placeholder="Tối thiểu 6 ký tự" />
             <button type="button" class="auth-pw-toggle" data-toggle-pw="signupPassword" aria-label="Hiện/ẩn mật khẩu">
-              <i class="ph-duotone ph-eye pv-duotone" style="font-size:18px;"></i>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
         </div>
-        <button type="submit" id="signupSubmitBtn" class="btn btn-orange auth-submit-btn">Đăng ký &amp; Nhận mã 6 số</button>
+        <button type="submit" id="signupSubmitBtn" class="btn btn-primary auth-submit-btn">Đăng ký &amp; Nhận mã 6 số</button>
       </form>
 
-      <!-- GOOGLE OAUTH DIVIDER & BUTTON (shown on Login & Signup tabs) -->
+      <!-- GOOGLE OAUTH DIVIDER & BUTTON -->
       <div id="authOauthSection" class="auth-oauth-section">
         <div class="auth-divider"><span>hoặc tiếp tục với</span></div>
         <button type="button" id="googleAuthBtn" class="btn btn-google auth-submit-btn">
-          <svg class="google-logo-svg" width="19" height="19" viewBox="0 0 48 48" aria-hidden="true">
+          <svg class="google-logo-svg" width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
             <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
             <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
             <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
@@ -156,7 +149,6 @@
       <!-- 6-DIGIT EMAIL OTP VERIFY VIEW -->
       <div id="authOtpView" class="auth-form hidden">
         <div class="auth-otp-head">
-          <span class="auth-otp-badge"><i class="ph-duotone ph-shield-check pv-duotone" style="font-size:26px;color:#2D6A4F;"></i></span>
           <h3>Xác thực Email bằng mã 6 số</h3>
           <p>Nhập mã OTP gồm 6 chữ số đã gửi tới <strong id="otpEmailDisplay"></strong></p>
         </div>
@@ -186,7 +178,7 @@
         <div class="auth-field">
           <label for="forgotEmail">Email tài khoản</label>
           <div class="auth-input-wrap">
-            <i class="ph-duotone ph-envelope-simple auth-input-icon pv-duotone" style="font-size:18px;"></i>
+            <svg class="auth-input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
             <input id="forgotEmail" type="email" required autocomplete="email" placeholder="ban@example.com" />
           </div>
         </div>
@@ -200,172 +192,50 @@
 
   <!-- Slim Top Route Progress Bar -->
   <div id="routeProgressBar" class="route-progress-bar" aria-hidden="true"></div>
-  <!-- Eco Confetti Layer -->
+  <!-- Subtle Celebration Layer -->
   <div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
 
-  <div class="app-shell">
-    <!-- Mobile Sidebar Overlay -->
-    <div id="sidebarOverlay" class="sidebar-overlay" aria-hidden="true"></div>
+  <!-- LUXURY EDITORIAL SHELL (NO CLUTTERED SIDEBAR) -->
+  <div class="editorial-shell">
+    <!-- Minimal Sticky Top Navigation Bar (68px desktop / 56px mobile) -->
+    <header id="topbar" class="luxury-header">
+      <div class="header-inner">
+        <!-- Brand Wordmark -->
+        <a href="#home" class="brand-lockup" data-route="home" aria-label="PEELVERSE — Trang chủ">
+          <svg class="brand-mark-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 3v18M3 12h18M5.64 5.64l12.72 12.72"/>
+          </svg>
+          <span class="brand-wordmark">PEELVERSE</span>
+        </a>
 
-    <!-- Left Sidebar -->
-    <aside id="sidebar" class="sidebar" aria-label="Điều hướng chính">
-      <div class="sidebar-top">
-        <div class="sidebar-header-row">
-          <a href="#home" class="brand" data-route="home" title="PEELVERSE — Trang chủ">
-            <div class="brand-logo" aria-hidden="true">
-              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="24" cy="27" r="17" fill="#F49326" />
-                <circle cx="24" cy="27" r="13.5" fill="#FFA940" />
-                <path d="M24 14.5V39.5M11.5 27H36.5M15.2 18.2L32.8 35.8M32.8 18.2L15.2 35.8" stroke="#FFF4E0" stroke-width="2" stroke-linecap="round" />
-                <circle cx="24" cy="27" r="3" fill="#FFF4E0" />
-                <path d="M24 11C24 6.5 29 3 34 4.5C33.5 9.5 29.5 12.5 24 11Z" fill="#5D8C3E" />
-                <path d="M24 11C21.5 8 18 7.5 16 9C17.5 11.5 21 12.5 24 11Z" fill="#7AAE4B" />
-              </svg>
-            </div>
-            <div class="brand-text">
-              <span class="brand-name">PEELVERSE</span>
-              <span class="brand-sub">Explore • Learn • Recreate</span>
-            </div>
-          </a>
-          <button id="sidebarCollapseBtn" class="sidebar-collapse-btn" aria-label="Thu gọn hoặc mở rộng thanh điều hướng" title="Thu gọn thanh bên (⌘B / Ctrl+B)">
-            <i class="ph-duotone ph-caret-left pv-duotone" style="font-size:16px;" aria-hidden="true"></i>
-          </button>
-        </div>
-
-        <nav class="nav-menu">
-          <button class="nav-item active" data-route="home" data-tooltip="Trang chủ">
-            <span class="nav-icon icon-nature" aria-hidden="true">
-              <i class="ph-duotone ph-house pv-duotone"></i>
-            </span>
-            <span class="nav-label">Trang chủ</span>
-          </button>
-          <button class="nav-item" data-route="about" data-tooltip="Về dự án">
-            <span class="nav-icon icon-nature" aria-hidden="true">
-              <i class="ph-duotone ph-plant pv-duotone"></i>
-            </span>
-            <span class="nav-label">Về dự án</span>
-          </button>
-          <button class="nav-item" data-route="ingredients" data-tooltip="Khám phá nguyên liệu">
-            <span class="nav-icon icon-citrus" aria-hidden="true">
-              <i class="ph-duotone ph-orange-slice pv-duotone"></i>
-            </span>
-            <span class="nav-label">Khám phá nguyên liệu</span>
-          </button>
-          <button class="nav-item" data-route="process" data-tooltip="Quy trình thực hiện">
-            <span class="nav-icon icon-science" aria-hidden="true">
-              <i class="ph-duotone ph-flask pv-duotone"></i>
-            </span>
-            <span class="nav-label">Quy trình thực hiện</span>
-          </button>
-          <button class="nav-item" data-route="science" data-tooltip="Kiến thức khoa học">
-            <span class="nav-icon icon-science-sky" aria-hidden="true">
-              <i class="ph-duotone ph-book-open-text pv-duotone"></i>
-            </span>
-            <span class="nav-label">Kiến thức khoa học</span>
-          </button>
-          <button class="nav-item" data-route="game" data-tooltip="Trò chơi (6 màn)">
-            <span class="nav-icon icon-citrus" aria-hidden="true">
-              <i class="ph-duotone ph-game-controller pv-duotone"></i>
-            </span>
-            <span class="nav-label">Trò chơi</span>
-            <span class="nav-pill">6 màn</span>
-          </button>
+        <!-- Center 4 Refined Navigation Tabs (Desktop) -->
+        <nav class="primary-nav" aria-label="Điều hướng chính">
+          <button type="button" class="primary-nav-link active" data-route="home">Khám phá</button>
+          <button type="button" class="primary-nav-link" data-route="shop">Cửa hàng</button>
+          <button type="button" class="primary-nav-link" data-route="lab">Phòng Lab</button>
+          <button type="button" class="primary-nav-link" data-route="game">Mô phỏng</button>
         </nav>
 
-        <div class="sidebar-divider">Không gian cá nhân</div>
-        <nav class="nav-menu nav-menu-secondary">
-          <button id="sidebarCreatorItem" class="nav-item hidden" data-route="creator" data-tooltip="Kênh Nhà sáng tạo">
-            <span class="nav-icon icon-citrus" aria-hidden="true">
-              <i class="ph-duotone ph-storefront pv-duotone"></i>
-            </span>
-            <span class="nav-label">Kênh Nhà sáng tạo</span>
-          </button>
-          <button class="nav-item" data-route="shop" data-tooltip="Giỏ hàng">
-            <span class="nav-icon icon-nature" aria-hidden="true">
-              <i class="ph-duotone ph-shopping-cart pv-duotone"></i>
-            </span>
-            <span class="nav-label">Giỏ hàng</span>
-            <span id="sidebarCartBadge" class="nav-pill nav-pill-green hidden">0</span>
-          </button>
-          <button class="nav-item" data-route="progress" data-tooltip="Tiến trình khám phá">
-            <span class="nav-icon icon-amber" aria-hidden="true">
-              <i class="ph-duotone ph-chart-line-up pv-duotone"></i>
-            </span>
-            <span class="nav-label">Tiến trình khám phá</span>
-            <span id="sidebarProgressPct" class="nav-pill nav-pill-green mobile-only-pill">0%</span>
-          </button>
-          <button id="sidebarContactBtn" class="nav-item" data-tooltip="Liên hệ">
-            <span class="nav-icon icon-science" aria-hidden="true">
-              <i class="ph-duotone ph-chat-circle-dots pv-duotone"></i>
-            </span>
-            <span class="nav-label">Liên hệ</span>
-          </button>
-        </nav>
-      </div>
-
-      <!-- Decorative botanical footer in sidebar -->
-      <div class="sidebar-botanical" aria-hidden="true">
-        <div class="botanical-blob"></div>
-        <div class="botanical-card">
-          <span class="botanical-tag">PEELVERSE Lab</span>
-          <p>From Peel to Purpose</p>
-        </div>
-        <img src="assets/images/ing-citrus.jpg" alt="" class="sidebar-orange-img" onerror="this.style.display='none'" />
-      </div>
-
-      <!-- Desktop Resize Handle -->
-      <div id="sidebarResizeHandle" class="sidebar-resize-handle" title="Kéo để thay đổi độ rộng • Nhấp đúp để đặt lại"></div>
-    </aside>
-
-    <!-- Main Content Area -->
-    <div class="main-wrapper">
-      <!-- Top Header -->
-      <header id="topbar" class="topbar">
-        <div class="topbar-left">
-          <button id="menuToggleBtn" class="icon-btn mobile-only" aria-label="Mở menu">
-            <i class="ph-duotone ph-list pv-duotone" style="font-size:21px;" aria-hidden="true"></i>
+        <!-- Right 3 Minimal Touchpoints: Search, Cart, Account -->
+        <div class="header-actions">
+          <button type="button" id="searchTriggerBtn" class="header-search-trigger" aria-label="Tìm kiếm trong PEELVERSE" title="Tìm kiếm (⌘K)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="7.5"/>
+              <line x1="20" y1="20" x2="16.4" y2="16.4"/>
+            </svg>
+            <kbd id="searchShortcutKbd" class="search-kbd-inline">⌘K</kbd>
           </button>
 
-          <span class="topbar-mobile-brand mobile-only inline-icon-heading" data-route="home">
-            <i class="ph-duotone ph-orange-slice pv-duotone" style="font-size:18px;color:#EA580C;" aria-hidden="true"></i>
-            <span>PEELVERSE</span>
-          </span>
-
-          <div class="search-box" id="searchBox">
-            <i class="ph-duotone ph-magnifying-glass search-icon pv-duotone" style="font-size:18px;" aria-hidden="true"></i>
-            <input type="text" id="globalSearch" placeholder="Tìm nguyên liệu, khoa học, nước lau rửa..." autocomplete="off" aria-label="Tìm kiếm trong PEELVERSE" />
-            <kbd id="searchShortcutKbd" class="search-kbd" aria-hidden="true">⌘K</kbd>
-            <div id="searchDropdown" class="search-dropdown hidden" role="listbox" aria-label="Kết quả tìm kiếm"></div>
-          </div>
-        </div>
-
-        <div class="topbar-right">
-          <button id="mobileSearchToggle" class="icon-btn mobile-only" aria-label="Mở tìm kiếm" title="Tìm kiếm">
-            <i class="ph-duotone ph-magnifying-glass pv-duotone" style="font-size:19px;" aria-hidden="true"></i>
-          </button>
-
-          <button id="cartToggleBtn" class="icon-btn cart-icon-btn" aria-label="Mở giỏ hàng" title="Giỏ hàng">
-            <i class="ph-duotone ph-shopping-bag pv-duotone" style="font-size:20px;color:#2D6A4F;" aria-hidden="true"></i>
+          <button type="button" id="cartToggleBtn" class="header-icon-btn cart-icon-btn" aria-label="Mở giỏ hàng" title="Giỏ hàng">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 7h12l-1 13H7L6 7Z"/>
+              <path d="M9 7V6a3 3 0 0 1 6 0v1"/>
+            </svg>
             <span id="headerCartCount" class="cart-count-badge hidden">0</span>
           </button>
 
-          <button id="notifBtn" class="icon-btn notif-btn" aria-label="Thông báo">
-            <i class="ph-duotone ph-bell pv-duotone" style="font-size:20px;color:#D97706;" aria-hidden="true"></i>
-            <span id="notifDot" class="notif-dot"></span>
-          </button>
-
-          <button class="avatar-pill" data-route="progress" title="Xem tiến trình khám phá">
-            <span class="progress-ring-wrap" aria-hidden="true">
-              <svg class="progress-ring-svg" width="32" height="32" viewBox="0 0 36 36">
-                <circle class="progress-ring-bg" cx="18" cy="18" r="15" />
-                <circle id="headerProgressRing" class="progress-ring-fill" cx="18" cy="18" r="15" stroke-dasharray="94.25" stroke-dashoffset="94.25" />
-              </svg>
-              <i class="ph-duotone ph-leaf progress-ring-leaf pv-duotone" style="font-size:15px;"></i>
-            </span>
-            <span class="avatar-xp" id="headerXp">0%</span>
-          </button>
-
-          <!-- Authenticated User Account Pill & Dropdown -->
+          <!-- Authenticated User Account Menu -->
           <div id="userAccountWrap" class="user-account-wrap hidden">
             <button id="userAccountBtn" class="user-account-btn" type="button" aria-label="Tài khoản người dùng">
               <span class="user-avatar-frame">
@@ -373,8 +243,8 @@
                 <span id="userAvatarInitial" class="user-avatar-initial">P</span>
               </span>
               <span id="userDisplayName" class="user-display-name">Thành viên</span>
-              <i class="ph-duotone ph-caret-down pv-duotone" style="font-size:13px;color:var(--text-muted);" aria-hidden="true"></i>
             </button>
+
             <div id="userAccountMenu" class="user-account-menu hidden" role="menu">
               <div class="user-menu-head">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
@@ -383,100 +253,110 @@
                 </div>
                 <span id="userMenuEmail"></span>
               </div>
+
               <button type="button" id="userMenuCreatorLink" class="user-menu-item hidden" data-route="creator">
-                <i class="ph-duotone ph-storefront pv-duotone" style="font-size:17px;color:#EA580C;"></i>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9 4.5 4h15L21 9"/><path d="M5 12v8h14v-8"/></svg>
                 <span>Kênh Nhà sáng tạo</span>
               </button>
+
               <button type="button" id="openUpgradeCreatorBtn" class="user-menu-item hidden">
-                <i class="ph-duotone ph-sparkle pv-duotone" style="font-size:17px;color:#EA580C;"></i>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/></svg>
                 <span>Đăng ký làm Nhà sáng tạo</span>
               </button>
+
+              <button type="button" class="user-menu-item" data-route="progress">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="21 7 13.5 14.5 9 10 3 16"/><polyline points="16 7 21 7 21 12"/></svg>
+                <span>Tiến trình &amp; Huy hiệu</span>
+                <span id="headerXp" class="menu-pct-tag">0%</span>
+              </button>
+
               <button type="button" id="openMyOrdersMenuBtn" class="user-menu-item" data-route="my-orders">
-                <i class="ph-duotone ph-package pv-duotone" style="font-size:17px;color:#2D6A4F;"></i>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3Z"/><path d="M12 12 4 7.5M12 12l8-4.5M12 12v9"/></svg>
                 <span>Đơn hàng của tôi</span>
               </button>
-              <button type="button" class="user-menu-item" data-route="progress">
-                <i class="ph-duotone ph-chart-line-up pv-duotone" style="font-size:17px;color:#D97706;"></i>
-                <span>Tiến trình khám phá</span>
+
+              <button type="button" id="menuContactBtn" class="user-menu-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12a8.5 8.5 0 0 1-12.3 7.6L3 21l1.4-5.7A8.5 8.5 0 1 1 21 12Z"/></svg>
+                <span>Liên hệ</span>
               </button>
+
+              <div class="user-menu-divider"></div>
               <button type="button" id="userSignOutBtn" class="user-menu-item danger">
-                <i class="ph-duotone ph-sign-out pv-duotone" style="font-size:17px;"></i>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                 <span>Đăng xuất</span>
               </button>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Notification Popover -->
-        <div id="notifPopover" class="notif-popover hidden">
-          <div class="notif-header">
-            <strong>Hoạt động khám phá</strong>
-            <button id="resetProgressBtn" class="text-btn">Đặt lại tiến trình</button>
-          </div>
-          <div id="notifList" class="notif-list"></div>
+      <!-- Command Palette / Smart Live Search Bar (drops cleanly below header) -->
+      <div id="searchBarPanel" class="search-bar-panel hidden">
+        <div class="search-box" id="searchBox">
+          <svg class="search-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7.5"/>
+            <line x1="20" y1="20" x2="16.4" y2="16.4"/>
+          </svg>
+          <input type="text" id="globalSearch" placeholder="Tìm nguyên liệu, khoa học, nước lau rửa, mô phỏng..." autocomplete="off" aria-label="Tìm kiếm trong PEELVERSE" />
+          <button type="button" id="closeSearchPanelBtn" class="search-close-btn" aria-label="Đóng tìm kiếm">Esc</button>
+          <div id="searchDropdown" class="search-dropdown hidden" role="listbox" aria-label="Kết quả tìm kiếm"></div>
         </div>
-      </header>
+      </div>
+    </header>
 
-      <!-- Dynamic Route View Container -->
-      <main id="appView" class="app-view" tabindex="-1"></main>
+    <!-- Dynamic Route View Container -->
+    <main id="appView" class="app-view" tabindex="-1"></main>
 
-      <!-- Site Footer -->
-      <footer class="site-footer" aria-label="Thông tin liên hệ PEELVERSE">
-        <div class="footer-inner">
-          <div class="footer-brand">
-            <strong class="inline-icon-heading">
-              <i class="ph-duotone ph-orange-slice pv-duotone" style="font-size:18px;color:#EA580C;" aria-hidden="true"></i>
-              <span>PEELVERSE — From Peel to Purpose</span>
-            </strong>
-            <span>Khám phá vỏ trái cây • Khoa học tự nhiên • Tái sinh bền vững</span>
+    <!-- Minimal Luxury Editorial Footer -->
+    <footer class="site-footer" aria-label="Thông tin liên hệ PEELVERSE">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="footer-eyebrow">BOTANICAL APOTHECARY &amp; SCIENCE</span>
+          <strong class="brand-wordmark" style="font-size:1.15rem;">PEELVERSE</strong>
+          <span class="footer-tagline">From Peel to Purpose — Nghiên cứu vỏ trái cây &amp; giải pháp làm sạch sinh học.</span>
+        </div>
+        <div class="footer-contacts">
+          <div class="contact-chip-group">
+            <a href="https://zalo.me/0355415501" target="_blank" rel="noopener noreferrer" class="contact-link-pill">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12a8.5 8.5 0 0 1-12.3 7.6L3 21l1.4-5.7A8.5 8.5 0 1 1 21 12Z"/></svg>
+              <span>Zalo: <strong>0355415501</strong></span>
+            </a>
+            <button type="button" class="copy-btn" data-copy="0355415501" data-copy-label="số Zalo" aria-label="Sao chép số Zalo 0355415501" title="Sao chép số Zalo">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
           </div>
-          <div class="footer-contacts">
-            <div class="contact-chip-group">
-              <a href="https://zalo.me/0355415501" target="_blank" rel="noopener noreferrer" class="contact-link-pill">
-                <i class="ph-duotone ph-chat-circle-dots pv-duotone" style="font-size:17px;color:#0F766E;" aria-hidden="true"></i>
-                <span>Zalo: <strong>0355415501</strong></span>
-              </a>
-              <button type="button" class="copy-btn" data-copy="0355415501" data-copy-label="số Zalo" aria-label="Sao chép số Zalo 0355415501" title="Sao chép số Zalo">
-                <i class="ph-duotone ph-copy pv-duotone" style="font-size:16px;" aria-hidden="true"></i>
-              </button>
-            </div>
-            <div class="contact-chip-group">
-              <a href="mailto:peelverse.official@gmail.com" class="contact-link-pill">
-                <i class="ph-duotone ph-envelope-simple pv-duotone" style="font-size:17px;color:#EA580C;" aria-hidden="true"></i>
-                <span><strong>peelverse.official@gmail.com</strong></span>
-              </a>
-              <button type="button" class="copy-btn" data-copy="peelverse.official@gmail.com" data-copy-label="Email" aria-label="Sao chép Email peelverse.official@gmail.com" title="Sao chép Email">
-                <i class="ph-duotone ph-copy pv-duotone" style="font-size:16px;" aria-hidden="true"></i>
-              </button>
-            </div>
+          <div class="contact-chip-group">
+            <a href="mailto:peelverse.official@gmail.com" class="contact-link-pill">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+              <span><strong>peelverse.official@gmail.com</strong></span>
+            </a>
+            <button type="button" class="copy-btn" data-copy="peelverse.official@gmail.com" data-copy-label="Email" aria-label="Sao chép Email peelverse.official@gmail.com" title="Sao chép Email">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
           </div>
         </div>
-      </footer>
-    </div>
+      </div>
+    </footer>
   </div>
 
-  <!-- Mobile Bottom Navigation Bar -->
+  <!-- Mobile 4-Tab Bottom Navigation Bar (Khám phá • Cửa hàng • Phòng Lab • Mô phỏng) -->
   <nav id="bottomNav" class="bottom-nav" aria-label="Điều hướng nhanh di động">
-    <button class="bottom-nav-item active" data-route="home">
-      <span class="bottom-nav-icon" aria-hidden="true"><i class="ph-duotone ph-house pv-duotone" style="font-size:21px;"></i></span>
-      <span>Trang chủ</span>
+    <button type="button" class="bottom-nav-item active" data-route="home">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="15.5 8.5 13.5 13.5 8.5 15.5 10.5 10.5 15.5 8.5"/></svg>
+      <span>Khám phá</span>
     </button>
-    <button class="bottom-nav-item" data-route="ingredients">
-      <span class="bottom-nav-icon" aria-hidden="true"><i class="ph-duotone ph-orange-slice pv-duotone" style="font-size:21px;"></i></span>
-      <span>Nguyên liệu</span>
-    </button>
-    <button class="bottom-nav-item" data-route="game">
-      <span class="bottom-nav-icon" aria-hidden="true"><i class="ph-duotone ph-game-controller pv-duotone" style="font-size:21px;"></i></span>
-      <span>Trò chơi</span>
-    </button>
-    <button class="bottom-nav-item" data-route="shop">
-      <span class="bottom-nav-icon" aria-hidden="true"><i class="ph-duotone ph-shopping-cart pv-duotone" style="font-size:21px;"></i></span>
-      <span>Giỏ hàng</span>
+    <button type="button" class="bottom-nav-item" data-route="shop">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7V6a3 3 0 0 1 6 0v1"/></svg>
+      <span>Cửa hàng</span>
       <span id="bottomCartBadge" class="bottom-cart-badge hidden">0</span>
     </button>
-    <button id="bottomMenuBtn" class="bottom-nav-item" aria-label="Mở toàn bộ menu">
-      <span class="bottom-nav-icon" aria-hidden="true"><i class="ph-duotone ph-list pv-duotone" style="font-size:21px;"></i></span>
-      <span>Menu</span>
+    <button type="button" class="bottom-nav-item" data-route="lab">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.5L4.7 19.5a1.5 1.5 0 0 0 1.3 2.25h12a1.5 1.5 0 0 0 1.3-2.25L14 9.5V2"/><path d="M8.5 2h7"/><path d="M7 15.5h10"/></svg>
+      <span>Phòng Lab</span>
+    </button>
+    <button type="button" class="bottom-nav-item" data-route="game">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="9" cy="6" r="2"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="11" cy="18" r="2"/></svg>
+      <span>Mô phỏng</span>
     </button>
   </nav>
 
@@ -486,11 +366,11 @@
     <div class="cart-sheet-handle" aria-hidden="true"></div>
     <div class="cart-drawer-header">
       <div>
-        <h3 class="inline-icon-heading"><i class="ph-duotone ph-shopping-bag pv-duotone" style="font-size:22px;color:#2D6A4F;" aria-hidden="true"></i> <span>Giỏ hàng</span></h3>
+        <h3 class="serif-heading" style="font-size:1.45rem;">Giỏ hàng</h3>
         <span id="cartDrawerSub" class="cart-drawer-sub">0 sản phẩm đã chọn</span>
       </div>
       <button id="closeCartBtn" class="icon-btn" aria-label="Đóng giỏ hàng">
-        <i class="ph-duotone ph-x pv-duotone" style="font-size:18px;" aria-hidden="true"></i>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div id="cartDrawerBody" class="cart-drawer-body"></div>
@@ -501,14 +381,11 @@
     <div id="contactModal" class="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle">
       <div class="contact-modal-header">
         <div>
-          <span class="botanical-tag" style="margin-bottom:4px;">HỖ TRỢ & KẾT NỐI</span>
-          <h3 id="contactModalTitle" class="inline-icon-heading">
-            <i class="ph-duotone ph-chat-circle-dots pv-duotone" style="font-size:22px;color:#0F766E;" aria-hidden="true"></i>
-            <span>Liên hệ PEELVERSE</span>
-          </h3>
+          <span class="eyebrow-tag">HỖ TRỢ &amp; KẾT NỐI</span>
+          <h3 id="contactModalTitle" class="serif-heading" style="font-size:1.65rem;">Liên hệ PEELVERSE</h3>
         </div>
         <button id="closeContactBtn" class="icon-btn" aria-label="Đóng hộp thoại liên hệ">
-          <i class="ph-duotone ph-x pv-duotone" style="font-size:18px;" aria-hidden="true"></i>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
       <p class="contact-modal-desc">
@@ -518,8 +395,8 @@
       <div class="contact-modal-cards">
         <div class="contact-modal-card">
           <div class="contact-modal-card-top">
-            <span class="contact-modal-icon zalo">
-              <i class="ph-duotone ph-chat-circle-dots pv-duotone" style="font-size:24px;color:#0F766E;" aria-hidden="true"></i>
+            <span class="contact-modal-icon">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12a8.5 8.5 0 0 1-12.3 7.6L3 21l1.4-5.7A8.5 8.5 0 1 1 21 12Z"/></svg>
             </span>
             <div>
               <div class="contact-modal-label">Zalo hỗ trợ nhanh</div>
@@ -528,17 +405,14 @@
           </div>
           <div class="contact-modal-actions">
             <a href="https://zalo.me/0355415501" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">Nhắn Zalo →</a>
-            <button type="button" class="btn btn-secondary btn-sm copy-btn-text" data-copy="0355415501" data-copy-label="số Zalo" data-copy-mode="text">
-              <i class="ph-duotone ph-copy pv-duotone" style="font-size:16px;" aria-hidden="true"></i>
-              <span>Sao chép</span>
-            </button>
+            <button type="button" class="btn btn-secondary btn-sm copy-btn-text" data-copy="0355415501" data-copy-label="số Zalo" data-copy-mode="text">Sao chép</button>
           </div>
         </div>
 
         <div class="contact-modal-card">
           <div class="contact-modal-card-top">
-            <span class="contact-modal-icon email">
-              <i class="ph-duotone ph-envelope-simple pv-duotone" style="font-size:24px;color:#EA580C;" aria-hidden="true"></i>
+            <span class="contact-modal-icon">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
             </span>
             <div style="min-width:0;">
               <div class="contact-modal-label">Email dự án</div>
@@ -546,36 +420,31 @@
             </div>
           </div>
           <div class="contact-modal-actions">
-            <a href="mailto:peelverse.official@gmail.com" class="btn btn-orange btn-sm">Gửi Email →</a>
-            <button type="button" class="btn btn-secondary btn-sm copy-btn-text" data-copy="peelverse.official@gmail.com" data-copy-label="Email" data-copy-mode="text">
-              <i class="ph-duotone ph-copy pv-duotone" style="font-size:16px;" aria-hidden="true"></i>
-              <span>Sao chép</span>
-            </button>
+            <a href="mailto:peelverse.official@gmail.com" class="btn btn-accent btn-sm">Gửi Email →</a>
+            <button type="button" class="btn btn-secondary btn-sm copy-btn-text" data-copy="peelverse.official@gmail.com" data-copy-label="Email" data-copy-mode="text">Sao chép</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Role Onboarding Modal (for Google OAuth / existing accounts without profiles row) -->
+  <!-- Role Onboarding Modal (Google OAuth / accounts without profiles row) -->
   <div id="roleOnboardingOverlay" class="contact-modal-overlay" aria-hidden="true">
     <div class="contact-modal" role="dialog" aria-modal="true" aria-labelledby="roleOnboardingTitle">
       <div class="contact-modal-header">
         <div>
-          <span class="botanical-tag" style="margin-bottom:4px;">HOÀN THIỆN HỒ SƠ PEELVERSE</span>
-          <h3 id="roleOnboardingTitle">Chọn vai trò của bạn</h3>
+          <span class="eyebrow-tag">HOÀN THIỆN HỒ SƠ</span>
+          <h3 id="roleOnboardingTitle" class="serif-heading" style="font-size:1.6rem;">Chọn vai trò của bạn</h3>
         </div>
       </div>
       <p class="contact-modal-desc">Bạn muốn tham gia PEELVERSE với tư cách Người dùng hay Nhà sáng tạo sản phẩm xanh?</p>
       <form id="roleOnboardingForm" class="auth-form">
         <div class="role-selector-grid">
           <button type="button" class="role-choice-card active" data-onboard-role="user">
-            <span class="role-choice-icon nature"><i class="ph-duotone ph-plant pv-duotone" style="font-size:20px;"></i></span>
             <strong>Người dùng</strong>
-            <span>Học khoa học, chơi game &amp; mua sắm</span>
+            <span>Học khoa học, mô phỏng &amp; mua sắm</span>
           </button>
           <button type="button" class="role-choice-card" data-onboard-role="creator">
-            <span class="role-choice-icon citrus"><i class="ph-duotone ph-storefront pv-duotone" style="font-size:20px;"></i></span>
             <strong>Nhà sáng tạo</strong>
             <span>Đăng bán sản phẩm &amp; nhận đơn hàng</span>
           </button>
@@ -601,17 +470,14 @@
     <div class="contact-modal" role="dialog" aria-modal="true" aria-labelledby="upgradeCreatorTitle">
       <div class="contact-modal-header">
         <div>
-          <span class="botanical-tag" style="margin-bottom:4px;">NÂNG CẤP TÀI KHOẢN</span>
-          <h3 id="upgradeCreatorTitle" class="inline-icon-heading">
-            <i class="ph-duotone ph-storefront pv-duotone" style="font-size:22px;color:#EA580C;"></i>
-            <span>Đăng ký làm Nhà sáng tạo</span>
-          </h3>
+          <span class="eyebrow-tag">NÂNG CẤP TÀI KHOẢN</span>
+          <h3 id="upgradeCreatorTitle" class="serif-heading" style="font-size:1.6rem;">Đăng ký làm Nhà sáng tạo</h3>
         </div>
         <button type="button" id="closeUpgradeCreatorBtn" class="icon-btn" aria-label="Đóng">
-          <i class="ph-duotone ph-x pv-duotone" style="font-size:18px;"></i>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-      <p class="contact-modal-desc">Điền tên gian hàng và số điện thoại liên hệ để mở khóa ngay <strong>Kênh Nhà sáng tạo</strong> trên thanh điều hướng.</p>
+      <p class="contact-modal-desc">Điền tên gian hàng và số điện thoại liên hệ để mở khóa ngay <strong>Kênh Nhà sáng tạo</strong> trong menu tài khoản.</p>
       <form id="upgradeCreatorForm" class="auth-form">
         <div class="form-field">
           <label for="upgradeShopName">Tên gian hàng / Thương hiệu *</label>
@@ -621,29 +487,28 @@
           <label for="upgradePhone">Số điện thoại liên hệ *</label>
           <input id="upgradePhone" type="tel" required placeholder="VD: 0355 415 501" />
         </div>
-        <button type="submit" id="upgradeCreatorSubmitBtn" class="btn btn-orange" style="width:100%;">Kích hoạt Kênh Nhà sáng tạo →</button>
+        <button type="submit" id="upgradeCreatorSubmitBtn" class="btn btn-primary" style="width:100%;">Kích hoạt Kênh Nhà sáng tạo →</button>
       </form>
     </div>
   </div>
 
   <!-- Back to Top Button -->
   <button id="backToTopBtn" class="back-to-top" aria-label="Lên đầu trang" title="Lên đầu trang">
-    <i class="ph-duotone ph-caret-up pv-duotone" style="font-size:20px;" aria-hidden="true"></i>
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18 15 12 9 6 15"/>
+    </svg>
   </button>
-
-  <!-- Floating Sidebar Tooltip (for collapsed mini mode) -->
-  <div id="sidebarTooltip" class="sidebar-tooltip" role="tooltip" aria-hidden="true"></div>
 
   <!-- Toast Container -->
   <div id="toastContainer" class="toast-container" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="auth-config.js?v=20"></script>
-  <script src="js/icons.js?v=20"></script>
-  <script src="js/data.js?v=20"></script>
-  <script src="js/games.js?v=20"></script>
-  <script src="js/creator.js?v=20"></script>
-  <script src="js/app.js?v=20"></script>
-  <script src="js/auth.js?v=20"></script>
+  <script src="auth-config.js?v=21"></script>
+  <script src="js/icons.js?v=21"></script>
+  <script src="js/data.js?v=21"></script>
+  <script src="js/games.js?v=21"></script>
+  <script src="js/creator.js?v=21"></script>
+  <script src="js/app.js?v=21"></script>
+  <script src="js/auth.js?v=21"></script>
 </body>
 </html>

@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css" />
-  <link rel="stylesheet" href="css/styles.css?v=29" />
+  <link rel="stylesheet" href="css/styles.css?v=30" />
 </head>
 <body class="auth-locked">
   <!-- Fine Botanical Paper Grain Overlay (GPU-friendly, pointer-events: none) -->
@@ -221,7 +221,7 @@
           <button type="button" class="primary-nav-link active" data-route="home">Khám phá</button>
           <button type="button" class="primary-nav-link" data-route="shop">Cửa hàng</button>
           <button type="button" class="primary-nav-link" data-route="lab">Phòng Lab</button>
-          <button type="button" class="primary-nav-link" data-route="game">Mô phỏng</button>
+          <a class="primary-nav-link" href="./seller-register.html">Đăng ký bán hàng</a>
         </nav>
 
         <!-- Right 3 Minimal Touchpoints: Search, Cart, Account -->
@@ -266,16 +266,10 @@
                 <span>Kênh Nhà sáng tạo</span>
               </button>
 
-              <button type="button" id="openUpgradeCreatorBtn" class="user-menu-item hidden">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/></svg>
-                <span>Đăng ký làm Nhà sáng tạo</span>
-              </button>
-
-              <button type="button" class="user-menu-item" data-route="progress">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="21 7 13.5 14.5 9 10 3 16"/><polyline points="16 7 21 7 21 12"/></svg>
-                <span>Tiến trình &amp; Huy hiệu</span>
-                <span id="headerXp" class="menu-pct-tag">0%</span>
-              </button>
+              <a href="./seller-register.html" id="userMenuSellerRegisterLink" class="user-menu-item hidden">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+                <span id="userMenuSellerStatusText">Đăng ký bán hàng</span>
+              </a>
 
               <button type="button" id="openMyOrdersMenuBtn" class="user-menu-item" data-route="my-orders">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3Z"/><path d="M12 12 4 7.5M12 12l8-4.5M12 12v9"/></svg>
@@ -308,7 +302,7 @@
                   <line x1="20" y1="20" x2="16.4" y2="16.4"/>
                 </svg>
               </span>
-              <input type="search" id="globalSearch" class="psearch__input" placeholder="Tìm nguyên liệu, khoa học, nước lau rửa, mô phỏng..." autocomplete="off" aria-label="Tìm kiếm trong PEELVERSE" />
+              <input type="search" id="globalSearch" class="psearch__input" placeholder="Tìm nguyên liệu, khoa học, nước lau rửa..." autocomplete="off" aria-label="Tìm kiếm trong PEELVERSE" />
               <kbd class="psearch__kbd">Esc</kbd>
               <button type="button" id="closeSearchPanelBtn" class="psearch__close" aria-label="Đóng tìm kiếm">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -330,7 +324,7 @@
     <footer class="site-footer" aria-label="Thông tin liên hệ PEELVERSE">
       <div class="footer-inner">
         <div class="footer-brand">
-          <span class="footer-eyebrow">BOTANICAL APOTHECARY &amp; SCIENCE</span>
+          <span class="footer-eyebrow">BOTANICAL RESEARCH &amp; BIO-CLEANING</span>
           <strong class="brand-wordmark" style="font-size:1.15rem;">PEELVERSE</strong>
           <span class="footer-tagline">From Peel to Purpose — Nghiên cứu vỏ trái cây &amp; giải pháp làm sạch sinh học.</span>
         </div>
@@ -364,7 +358,7 @@
     <span class="floating-cart-cta">Xem giỏ hàng →</span>
   </button>
 
-  <!-- Mobile 4-Tab Bottom Navigation Bar (Khám phá • Cửa hàng • Phòng Lab • Mô phỏng) -->
+  <!-- Mobile 4-Tab Bottom Navigation Bar (Khám phá • Cửa hàng • Phòng Lab • Đăng ký bán hàng) -->
   <nav id="bottomNav" class="bottom-nav" aria-label="Điều hướng nhanh di động">
     <button type="button" class="bottom-nav-item active" data-route="home">
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="15.5 8.5 13.5 13.5 8.5 15.5 10.5 10.5 15.5 8.5"/></svg>
@@ -379,10 +373,10 @@
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.5L4.7 19.5a1.5 1.5 0 0 0 1.3 2.25h12a1.5 1.5 0 0 0 1.3-2.25L14 9.5V2"/><path d="M8.5 2h7"/><path d="M7 15.5h10"/></svg>
       <span>Phòng Lab</span>
     </button>
-    <button type="button" class="bottom-nav-item" data-route="game">
-      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><circle cx="9" cy="6" r="2"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="11" cy="18" r="2"/></svg>
-      <span>Mô phỏng</span>
-    </button>
+    <a class="bottom-nav-item" href="./seller-register.html">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+      <span>Bán hàng</span>
+    </a>
   </nav>
 
   <!-- Slide-over Cart Drawer / Mobile Bottom Sheet -->
@@ -538,13 +532,12 @@
   <div id="toastContainer" class="toast-container" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="auth-config.js?v=29"></script>
-  <script src="js/icons.js?v=29"></script>
-  <script src="js/data.js?v=29"></script>
-  <script src="js/games.js?v=29"></script>
-  <script src="js/motion.js?v=29"></script>
-  <script src="js/creator.js?v=29"></script>
-  <script src="js/app.js?v=29"></script>
-  <script src="js/auth.js?v=29"></script>
+  <script src="auth-config.js?v=30"></script>
+  <script src="js/icons.js?v=30"></script>
+  <script src="js/data.js?v=30"></script>
+  <script src="js/motion.js?v=30"></script>
+  <script src="js/creator.js?v=30"></script>
+  <script src="js/app.js?v=30"></script>
+  <script src="js/auth.js?v=30"></script>
 </body>
 </html>

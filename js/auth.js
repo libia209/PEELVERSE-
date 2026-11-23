@@ -249,19 +249,35 @@
   }
 
   function applyRoleUi(profile) {
-    const isCreator = Boolean(profile && profile.role === 'creator');
+    const verStatus = (profile && profile.seller_verification_status) || 'none';
+    const isCreator = Boolean(profile && (profile.role === 'creator' || verStatus === 'verified'));
     const roleBadge = getEl('userRoleBadge');
     const sidebarCreatorItem = getEl('sidebarCreatorItem');
     const userMenuCreatorLink = getEl('userMenuCreatorLink');
-    const upgradeBtn = getEl('openUpgradeCreatorBtn');
+    const sellerRegisterLink = getEl('userMenuSellerRegisterLink');
+    const sellerStatusText = getEl('userMenuSellerStatusText');
 
     if (roleBadge) {
-      roleBadge.textContent = isCreator ? 'Nhà sáng tạo' : 'Người dùng';
+      roleBadge.textContent = isCreator
+        ? 'Nhà sáng tạo'
+        : verStatus === 'pending'
+        ? 'Chờ xác minh'
+        : 'Người dùng';
       roleBadge.className = `user-role-badge ${isCreator ? 'role-creator' : 'role-user'}`;
     }
     if (sidebarCreatorItem) sidebarCreatorItem.classList.toggle('hidden', !isCreator);
     if (userMenuCreatorLink) userMenuCreatorLink.classList.toggle('hidden', !isCreator);
-    if (upgradeBtn) upgradeBtn.classList.toggle('hidden', isCreator);
+    if (sellerRegisterLink) {
+      sellerRegisterLink.classList.toggle('hidden', isCreator);
+      if (sellerStatusText) {
+        sellerStatusText.textContent =
+          verStatus === 'pending'
+            ? 'Đang chờ xác minh bán hàng'
+            : verStatus === 'rejected'
+            ? 'Xác minh lại bán hàng'
+            : 'Đăng ký bán hàng';
+      }
+    }
 
     window.dispatchEvent(
       new CustomEvent('peelverse:auth-ready', {
@@ -865,6 +881,8 @@
     supabase: sb,
     getUser: () => currentUser,
     getProfile: () => currentProfile,
-    openUpgradeModal: openUpgradeCreatorModal
+    openUpgradeModal: () => {
+      window.location.href = './seller-register.html';
+    }
   };
 })();

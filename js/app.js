@@ -1,6 +1,5 @@
 (() => {
   const DATA = window.PEELVERSE_DATA;
-  const GAMES = window.PEELVERSE_GAMES;
   const STORAGE_KEY = 'peelverse_progress_v1';
   const CART_STORAGE_KEY = 'peelverse_cart_v1';
 
@@ -82,17 +81,18 @@
   let cart = loadCart(); // [{ id, qty }]
   let lastOrderSummary = null;
 
-  let currentRoute = 'home';
+  const initialRouteParam = new URLSearchParams(window.location.search).get('route');
+  const allowedInitialRoutes = new Set(['home', 'about', 'shop', 'my-orders', 'lab', 'ingredients', 'process', 'science', 'creator']);
+  let currentRoute = allowedInitialRoutes.has(initialRouteParam) ? initialRouteParam : 'home';
   let activeLabTab = 'ingredients'; // 'ingredients' | 'process' | 'science'
   let activeIngredientId = null;
   let activeScienceId = null;
-  let activeGameStageId = null;
   let ingredientFilter = 'Tất cả';
   let ingredientSort = 'default';
   let scienceFilter = 'Tất cả';
   let shopCategory = 'Tất cả';
   let shopPriceRange = 'all';
-  let shopSort = 'default';
+  let shopSort = 'rating-desc';
 
   function formatVND(amount) {
     return `${amount.toLocaleString('vi-VN')}đ`;
@@ -540,35 +540,15 @@
     }
   }
 
-  function getUnlockedBadges() {
-    const coreIds = DATA.ingredients.filter((i) => i.isCore).map((i) => i.id);
-    const allCoreDone = coreIds.every((id) => state.exploredIngredients.includes(id));
-    const gameCount = Object.keys(state.clearedGames).length;
-    const overallPct = getOverallProgress();
-
-    const unlocked = new Set();
-    if (state.exploredIngredients.length >= 3) unlocked.add('first-peel');
-    if (allCoreDone) unlocked.add('all-ingredients');
-    if (state.completedScience.length >= 3) unlocked.add('science-spark');
-    if (state.completedSteps.length >= DATA.processSteps.length) unlocked.add('master-chemist');
-    if (gameCount >= 2) unlocked.add('game-starter');
-    if (gameCount >= 6) unlocked.add('peelserve-champion');
-    if (state.completedScience.length >= DATA.scienceTopics.length) unlocked.add('eco-scholar');
-    if (overallPct >= 100) unlocked.add('peelverse-legend');
-    return unlocked;
-  }
-
   function getOverallProgress() {
     const total =
       DATA.ingredients.length +
       DATA.processSteps.length +
-      DATA.scienceTopics.length +
-      GAMES.stages.length;
+      DATA.scienceTopics.length;
     const done =
       state.exploredIngredients.length +
       state.completedSteps.length +
-      state.completedScience.length +
-      Object.keys(state.clearedGames).length;
+      state.completedScience.length;
     return Math.min(100, Math.round((done / total) * 100));
   }
 
@@ -707,7 +687,6 @@
   }
 
   function navigate(route, param = null) {
-    GAMES.cleanup();
     const resolvedRoute = route === 'lab' ? activeLabTab : route;
     if (resolvedRoute === 'ingredients' || resolvedRoute === 'process' || resolvedRoute === 'science') {
       activeLabTab = resolvedRoute;
@@ -715,8 +694,7 @@
     currentRoute = resolvedRoute;
     activeIngredientId = resolvedRoute === 'ingredient-detail' ? param : null;
     activeScienceId = resolvedRoute === 'science-detail' ? param : null;
-    activeGameStageId = resolvedRoute === 'game-play' ? param : null;
-    document.body.classList.toggle('in-game-play', resolvedRoute === 'game-play');
+    document.body.classList.remove('in-game-play');
 
     const topNavKey =
       resolvedRoute === 'home' || resolvedRoute === 'about'
@@ -729,8 +707,6 @@
           resolvedRoute === 'science' ||
           resolvedRoute === 'science-detail'
         ? 'lab'
-        : resolvedRoute === 'game' || resolvedRoute === 'game-play'
-        ? 'game'
         : '';
 
     document.querySelectorAll('.primary-nav-link, .bottom-nav-item[data-route]').forEach((btn) => {
@@ -768,32 +744,26 @@
     else if (currentRoute === 'process') renderProcess(view);
     else if (currentRoute === 'science') renderScience(view);
     else if (currentRoute === 'science-detail') renderScienceDetail(view, activeScienceId);
-    else if (currentRoute === 'game') renderGameHub(view);
-    else if (currentRoute === 'game-play') renderGamePlay(view, activeGameStageId);
     else if (currentRoute === 'shop') renderShop(view);
     else if (currentRoute === 'my-orders') {
       shopViewTab = 'orders';
       renderShop(view);
     } else if (currentRoute === 'creator') renderCreatorRoute(view);
-    else if (currentRoute === 'progress') renderProgress(view);
+    else renderHome(view);
     bindNavTriggers(view);
     triggerViewTransition(view);
   }
 
-  // ===== 01. HOME VIEW (LUXURY BOTANICAL EDITORIAL + INTEGRATED BRAND STORY) =====
+  // ===== 01. HOME VIEW (STREAMLINED BOTANICAL EDITORIAL) =====
   function renderHome(view) {
-    const badgesCount = getUnlockedBadges().size;
-    const gamesCount = Object.keys(state.clearedGames).length;
-    const next = getSmartNextStep();
-
     view.innerHTML = `
       <!-- Asymmetric Editorial Magazine Hero -->
       <section class="editorial-hero">
         <div class="editorial-hero-copy">
-          <span class="eyebrow-tag">BOTANICAL ARCHIVE • FROM PEEL TO PURPOSE</span>
-          <h1 class="editorial-hero-title">Từ vỏ trái cây, kiến tạo giá trị bền vững.</h1>
+          <span class="eyebrow-tag">PEELVERSE • FROM PEEL TO PURPOSE</span>
+          <h1 class="editorial-hero-title">Tận dụng vỏ trái cây cho giải pháp làm sạch hằng ngày.</h1>
           <p class="editorial-hero-desc">
-            PEELVERSE khám phá tiềm năng khoa học trong những lớp vỏ cam, chanh, bưởi thường bị bỏ đi — chuyển hóa thành công thức làm sạch sinh học lành tính và không gian thực nghiệm mở.
+            PEELVERSE nghiên cứu và thử nghiệm chiết xuất tinh dầu từ vỏ cam, chanh, bưởi sẵn có trong đời sống — hướng tới dung dịch hỗ trợ làm sạch dầu mỡ nhẹ trên bề mặt và giảm mùi hóa chất nồng.
           </p>
           <div class="editorial-hero-actions">
             <button type="button" class="btn btn-primary" data-nav="shop">Khám phá Cửa hàng</button>
@@ -813,129 +783,26 @@
         </figure>
       </section>
 
-      <!-- Hairline Typographic Progress Strip (4 Columns) -->
-      <section class="editorial-metrics" aria-label="Chỉ số khám phá">
-        <button type="button" class="editorial-metric-cell" data-nav="ingredients">
-          <span class="eyebrow-tag">01 / NGUYÊN LIỆU</span>
-          <strong class="metric-serif stat-value">${state.exploredIngredients.length}/${DATA.ingredients.length}</strong>
-          <span class="metric-sub">Đã khám phá</span>
-        </button>
-        <button type="button" class="editorial-metric-cell" data-nav="science">
-          <span class="eyebrow-tag">02 / KHOA HỌC</span>
-          <strong class="metric-serif stat-value">${state.completedScience.length}/${DATA.scienceTopics.length}</strong>
-          <span class="metric-sub">Bài học hoàn tất</span>
-        </button>
-        <button type="button" class="editorial-metric-cell" data-nav="game">
-          <span class="eyebrow-tag">03 / MÔ PHỎNG</span>
-          <strong class="metric-serif stat-value">${gamesCount}/${GAMES.stages.length}</strong>
-          <span class="metric-sub">Công đoạn vượt qua</span>
-        </button>
-        <button type="button" class="editorial-metric-cell" data-nav="progress">
-          <span class="eyebrow-tag">04 / HUY HIỆU</span>
-          <strong class="metric-serif stat-value">${badgesCount}/${DATA.badges.length}</strong>
-          <span class="metric-sub">Thành tựu đạt được</span>
-        </button>
-      </section>
-
-      <!-- Smart Next Step Strip -->
-      <section class="next-step-card">
-        <div class="next-step-left">
-          <span class="next-step-monogram">${PVIcon('compass', 18)}</span>
-          <div>
-            <div class="eyebrow-tag">${next.kicker}</div>
-            <div class="next-step-title">${next.title}</div>
-          </div>
-        </div>
-        <button type="button" class="btn btn-secondary btn-sm" id="smartNextStepBtn">${next.cta}</button>
-      </section>
-
-      <!-- Editorial Curated Access Grid -->
-      <div class="editorial-section-head">
-        <div>
-          <span class="eyebrow-tag">DANH MỤC NỔI BẬT</span>
-          <h2 class="serif-heading">Hành trình khám phá PEELVERSE</h2>
-        </div>
-        <button type="button" class="editorial-text-link" data-nav="process">Xem quy trình 6 bước →</button>
-      </div>
-
-      <section class="explore-grid">
-        <article class="explore-card" data-nav="ingredients">
-          <div class="explore-card-media">
-            <span class="explore-media-badge">${String(DATA.ingredients.length).padStart(2, '0')} Nguyên liệu</span>
-            <img src="assets/images/ing-citrus.jpg" alt="Khám phá nguyên liệu vỏ cam chanh quýt" />
-          </div>
-          <div class="explore-card-body">
-            <div class="explore-card-top">
-              <span class="explore-card-title">Thư viện Nguyên liệu</span>
-              <span class="circle-arrow">→</span>
-            </div>
-            <p class="explore-card-desc">Đặc tính tinh dầu vỏ cam, chanh, giấm trắng, nước sạch, quế và lá bạc hà.</p>
-          </div>
-        </article>
-
-        <article class="explore-card" data-nav="science">
-          <div class="explore-card-media">
-            <span class="explore-media-badge">07 Chủ đề &amp; pH</span>
-            <img src="assets/images/explore-science.jpg" alt="Chiết xuất tinh dầu limonene và kiến thức khoa học" />
-          </div>
-          <div class="explore-card-body">
-            <div class="explore-card-top">
-              <span class="explore-card-title">Khoa học &amp; Thang pH</span>
-              <span class="circle-arrow">→</span>
-            </div>
-            <p class="explore-card-desc">Cơ chế D-Limonene tách dầu mỡ, chiết xuất thực vật và kinh tế tuần hoàn.</p>
-          </div>
-        </article>
-
-        <article class="explore-card" data-nav="game">
-          <div class="explore-card-media">
-            <span class="explore-media-badge">06 Công đoạn</span>
-            <img src="assets/images/explore-game.jpg" alt="Mô phỏng quy trình chiết xuất PEELVERSE" />
-          </div>
-          <div class="explore-card-body">
-            <div class="explore-card-top">
-              <span class="explore-card-title">Mô phỏng chiết xuất</span>
-              <span class="circle-arrow">→</span>
-            </div>
-            <p class="explore-card-desc">Trải nghiệm tương tác 6 công đoạn biến vỏ quả thành dung dịch lau bề mặt.</p>
-          </div>
-        </article>
-
-        <article class="explore-card" data-nav="shop">
-          <div class="explore-card-media">
-            <span class="explore-media-badge">Sinh học</span>
-            <img src="assets/images/prod-clean-combo.jpg" alt="Cửa hàng nước lau rửa sinh học PEELVERSE" />
-          </div>
-          <div class="explore-card-body">
-            <div class="explore-card-top">
-              <span class="explore-card-title">Cửa hàng sinh học</span>
-              <span class="circle-arrow">→</span>
-            </div>
-            <p class="explore-card-desc">Dung dịch lau bàn, nước rửa chén enzyme và xịt khử mùi từ vỏ trái cây.</p>
-          </div>
-        </article>
-      </section>
-
-      <!-- Integrated Brand Story (About Project) -->
+      <!-- Integrated Brand Story (Khởi nguồn • Sứ mệnh • Tầm nhìn) -->
       <section class="editorial-story-section">
         <div class="editorial-story-grid">
           <div class="editorial-story-copy">
-            <span class="eyebrow-tag">VỀ DỰ ÁN • KHỞI NGUỒN</span>
-            <h2 class="serif-heading" style="font-size:clamp(1.7rem,3vw,2.3rem);margin:6px 0 14px;">Một thế giới mới từ những điều bị lãng quên.</h2>
+            <span class="eyebrow-tag">KHỞI NGUỒN • SỨ MỆNH • TẦM NHÌN</span>
+            <h2 class="serif-heading" style="font-size:clamp(1.7rem,3vw,2.3rem);margin:6px 0 14px;">Giải pháp làm sạch từ những điều quen thuộc.</h2>
             <p>
-              PEELVERSE bắt đầu từ những điều rất quen thuộc trong cuộc sống nội trú. Sau mỗi bữa ăn, vỏ cam, chanh, quýt thường bị bỏ đi khá nhiều, trong khi mặt bàn ăn lại thiếu một dung dịch làm sạch lành tính, không mùi hóa chất hắc.
+              PEELVERSE bắt đầu từ những điều rất quen thuộc trong cuộc sống nội trú. Sau mỗi bữa ăn, vỏ cam, chanh, quýt thường bị bỏ đi khá nhiều, trong khi mặt bàn ăn lại cần một dung dịch hỗ trợ làm sạch dịu nhẹ, giảm mùi hóa chất nồng.
             </p>
             <p class="editorial-quote">
-              “Liệu những vỏ trái cây thường bị bỏ đi có thể được nghiên cứu và tái sinh thành một giải pháp làm sạch an toàn cho đời sống hằng ngày?”
+              “Dự án đang được nghiên cứu và thử nghiệm trong đời sống để tận dụng nguồn vỏ trái cây sẵn có một cách thiết thực và tiết kiệm.”
             </p>
             <div class="editorial-mv-row">
               <div>
                 <span class="eyebrow-tag">SỨ MỆNH</span>
-                <p style="margin-top:6px;">Tận dụng nguồn rác hữu cơ sẵn có, ứng dụng khoa học tự nhiên vào đời sống và lan tỏa tư duy sáng tạo bền vững.</p>
+                <p style="margin-top:6px;">Tận dụng nguồn vỏ trái cây sẵn có, ứng dụng kiến thức khoa học tự nhiên vào việc làm sạch bề mặt hằng ngày.</p>
               </div>
               <div>
                 <span class="eyebrow-tag">TẦM NHÌN</span>
-                <p style="margin-top:6px;">Biến những thứ tưởng chừng vô giá trị thành nguồn cảm hứng cho các sản phẩm chăm sóc nhà cửa thân thiện môi trường.</p>
+                <p style="margin-top:6px;">Kết nối người nghiên cứu và cộng đồng sáng tạo sản phẩm xanh minh bạch, an toàn và thân thiện môi trường.</p>
               </div>
             </div>
           </div>
@@ -947,12 +814,19 @@
           </figure>
         </div>
       </section>
-    `;
 
-    const smartBtn = view.querySelector('#smartNextStepBtn');
-    if (smartBtn) {
-      smartBtn.addEventListener('click', next.action);
-    }
+      <!-- Sleek Seller Invitation Strip -->
+      <section class="next-step-card seller-invite-strip">
+        <div class="next-step-left">
+          <span class="next-step-monogram">${PVIcon('store', 18)}</span>
+          <div>
+            <div class="eyebrow-tag">CỘNG ĐỒNG BÁN HÀNG XANH</div>
+            <div class="next-step-title">Bạn làm sản phẩm từ vỏ trái cây và muốn mở gian hàng trên PEELVERSE?</div>
+          </div>
+        </div>
+        <a href="./seller-register.html" class="btn btn-secondary btn-sm">Đăng ký bán hàng →</a>
+      </section>
+    `;
 
     bindNavTriggers(view);
   }
@@ -1085,8 +959,8 @@
 
         <select id="ingredientSortSelect" class="sort-select" aria-label="Sắp xếp nguyên liệu">
           <option value="default" ${ingredientSort === 'default' ? 'selected' : ''}>Sắp xếp: Mặc định</option>
-          <option value="core" ${ingredientSort === 'core' ? 'selected' : ''}>Ưu tiên nguyên liệu cốt lõi</option>
-          <option value="explored" ${ingredientSort === 'explored' ? 'selected' : ''}>Đã khám phá trước</option>
+          <option value="core" ${ingredientSort === 'core' ? 'selected' : ''}>Nguyên liệu cốt lõi trước</option>
+          <option value="explored" ${ingredientSort === 'explored' ? 'selected' : ''}>Đã xem trước</option>
         </select>
       </div>
 
@@ -1885,127 +1759,7 @@
     update();
   }
 
-  // ===== 06. GAME HUB & PLAY (REDESIGNED LAB HERO + 6 COLORED STAGE CARDS) =====
-  function getPlayerRank(clearedCount, totalScore) {
-    if (clearedCount >= 6 || totalScore >= 900) {
-      return { title: 'Bậc thầy PEELVERSE', icon: 'ph-crown', color: '#D97706', bg: '#FEF3C7' };
-    }
-    if (clearedCount >= 3 || totalScore >= 350) {
-      return { title: 'Chuyên gia Chiết xuất', icon: 'ph-flask', color: '#059669', bg: '#D1FAE5' };
-    }
-    return { title: 'Tân binh Tái sinh', icon: 'ph-plant', color: '#2D6A4F', bg: '#E6F4E8' };
-  }
-
-  function renderGameHub(view) {
-    const clearedCount = Object.keys(state.clearedGames).length;
-    const totalScore = Object.values(state.clearedGames).reduce((a, b) => a + b, 0);
-    const rank = getPlayerRank(clearedCount, totalScore);
-    const ringCircumference = 201.06; // 2 * PI * 32
-    const ringOffset = ringCircumference * (1 - clearedCount / GAMES.stages.length);
-
-    view.innerHTML = `
-      <section class="editorial-page-header">
-        <div class="editorial-page-header-left">
-          <span class="eyebrow-tag">MÔ PHỎNG TƯƠNG TÁC • 06 CÔNG ĐOẠN</span>
-          <h1 class="editorial-h1">Mô phỏng chiết xuất</h1>
-          <p class="editorial-sub">Thực hành 6 công đoạn phòng lab biến vỏ trái cây thành dung dịch làm sạch sinh học.</p>
-        </div>
-        <div class="editorial-page-header-right">
-          <div class="sim-inline-summary">
-            <span><strong>${clearedCount}/6</strong> công đoạn</span>
-            <span class="hairline-sep">|</span>
-            <span><strong>${totalScore}</strong> điểm</span>
-            <span class="hairline-sep">|</span>
-            <span>${rank.title}</span>
-          </div>
-          <button class="btn btn-primary btn-sm" id="startFirstStageBtn">Bắt đầu mô phỏng →</button>
-        </div>
-      </section>
-
-      <section class="game-stages-grid">
-        ${GAMES.stages
-          .map((st) => {
-            const best = state.clearedGames[st.id] || 0;
-            const isCleared = best > 0;
-            const stars = GAMES.getStarsForScore(st, best);
-            const pct = Math.min(100, Math.round((best / (st.maxScore || 200)) * 100));
-            const starsHtml = [1, 2, 3]
-              .map(
-                (i) =>
-                  `<span class="editorial-star ${i <= stars ? 'lit' : ''}" aria-hidden="true">★</span>`
-              )
-              .join('');
-
-            return `
-            <article class="stage-card-v2 stage-editorial ${isCleared ? 'cleared' : ''}">
-              <div class="stage-editorial-media" data-stage="${st.id}" role="button" tabindex="0" aria-label="Mở công đoạn ${st.num}: ${st.title}">
-                <img src="${st.image || 'assets/images/explore-game.jpg'}" alt="Công đoạn ${st.num}: ${st.title}" loading="lazy" />
-                <span class="stage-media-num">${st.num}</span>
-                <span class="stage-media-status ${isCleared ? 'done' : ''}">
-                  ${isCleared ? 'Hoàn thành' : 'Chưa thực hiện'}
-                </span>
-              </div>
-
-              <div class="stage-card-v2-body">
-                <div class="stage-card-meta-row">
-                  <span class="eyebrow-tag">CÔNG ĐOẠN ${st.num}</span>
-                  <div class="stage-stars-row" aria-label="${stars}/3 sao">${starsHtml}</div>
-                </div>
-                <h3 class="serif-heading" style="font-size:1.35rem;">${st.title}</h3>
-                <p class="stage-desc-v2">${st.desc}</p>
-
-                <div class="stage-score-meter">
-                  <div class="stage-score-labels">
-                    <span>Điểm cao nhất</span>
-                    <strong>${best} / ${st.maxScore}</strong>
-                  </div>
-                  <div class="stage-mini-track">
-                    <div class="stage-mini-fill" style="width:${pct}%;"></div>
-                  </div>
-                </div>
-
-                <button class="btn ${isCleared ? 'btn-secondary' : 'btn-primary'} btn-sm" style="width:100%;margin-top:8px;" data-stage="${st.id}">
-                  ${isCleared ? 'Thực hành lại' : 'Mở công đoạn →'}
-                </button>
-              </div>
-            </article>
-          `;
-          })
-          .join('')}
-      </section>
-    `;
-
-    view.querySelector('#startFirstStageBtn').addEventListener('click', () => {
-      const nextStage = GAMES.stages.find((s) => !state.clearedGames[s.id])?.id || 1;
-      navigate('game-play', nextStage);
-    });
-
-    view.querySelectorAll('[data-stage]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        navigate('game-play', Number(btn.dataset.stage));
-      });
-    });
-  }
-
-  function renderGamePlay(view, stageId) {
-    GAMES.mountStage(
-      stageId,
-      view,
-      (completedId, score) => {
-        const prev = state.clearedGames[completedId] || 0;
-        if (score > prev) {
-          state.clearedGames[completedId] = score;
-        }
-        addNotification(`Hoàn thành Màn ${completedId} với ${score} điểm!`);
-        showToast(`Màn ${completedId} hoàn tất (+${score} điểm)`);
-        triggerEcoConfetti();
-        saveState();
-      },
-      () => navigate('game')
-    );
-  }
-
-  // ===== 07. BIO-CLEANING SHOP + COMMUNITY CREATORS + MY ORDERS =====
+  // ===== 06. CREATOR STUDIO ROUTE =====
   function renderCreatorRoute(view) {
     const auth = window.PEELVERSE_AUTH;
     const user = auth && auth.getUser ? auth.getUser() : null;
@@ -2109,14 +1863,22 @@
       return matchSource && matchCat && matchPrice;
     });
 
-    if (shopSort === 'price-asc') list = [...list].sort((a, b) => a.price - b.price);
-    else if (shopSort === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
+    if (shopSort === 'rating-desc') {
+      list = [...list].sort(
+        (a, b) => Number(b.rating ?? 4.8) - Number(a.rating ?? 4.8) || Number(b.review_count ?? 0) - Number(a.review_count ?? 0)
+      );
+    } else if (shopSort === 'price-asc') {
+      list = [...list].sort((a, b) => a.price - b.price);
+    } else if (shopSort === 'price-desc') {
+      list = [...list].sort((a, b) => b.price - a.price);
+    } else if (shopSort === 'newest') {
+      list = [...list].sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+    }
 
     view.innerHTML = `
       <!-- Compact Anti-Box Editorial Header + Liquid Gooey Tabs -->
       <section class="editorial-page-header">
         <div class="editorial-page-header-left">
-          <span class="eyebrow-tag">BỘ SƯU TẬP LÀM SẠCH SINH HỌC</span>
           <h1 class="editorial-h1">Cửa hàng</h1>
           <p class="editorial-sub">Dung dịch lau rửa, nước rửa chén enzyme và xịt khử mùi từ vỏ trái cây.</p>
         </div>
@@ -2174,9 +1936,10 @@
           </select>
 
           <select id="shopSortSelect" class="inline-ghost-select" aria-label="Sắp xếp sản phẩm">
-            <option value="default" ${shopSort === 'default' ? 'selected' : ''}>Sắp xếp: Gợi ý</option>
-            <option value="price-asc" ${shopSort === 'price-asc' ? 'selected' : ''}>Giá thấp → cao</option>
-            <option value="price-desc" ${shopSort === 'price-desc' ? 'selected' : ''}>Giá cao → thấp</option>
+            <option value="rating-desc" ${shopSort === 'rating-desc' ? 'selected' : ''}>Đánh giá: Cao đến thấp</option>
+            <option value="price-asc" ${shopSort === 'price-asc' ? 'selected' : ''}>Giá: Thấp đến cao</option>
+            <option value="price-desc" ${shopSort === 'price-desc' ? 'selected' : ''}>Giá: Cao đến thấp</option>
+            <option value="newest" ${shopSort === 'newest' ? 'selected' : ''}>Mới nhất</option>
           </select>
         </div>
       </div>
@@ -2205,6 +1968,7 @@
                 : p.category.toUpperCase();
             const rawVol = String((p.specs && p.specs.volume) || '').replace(/^(Dung tích|Tổng dung tích):\s*/i, '').trim();
             const shortPeel = String((p.specs && p.specs.peel) || '').trim();
+            const ratingNum = Number(p.rating ?? 4.8).toFixed(1);
             const cornerTag = isCreatorProd
               ? `${p.shopName} • AI ✓`
               : p.badge === 'Bán chạy' || p.badge === 'Tiết kiệm nhất'
@@ -2216,9 +1980,10 @@
               <div class="lookbook-media" data-quickview="${p.id}" role="button" tabindex="0" aria-label="Xem nhanh ${p.name}">
                 <img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='assets/images/prod-table-spray.jpg';" />
                 ${cornerTag ? `<span class="lookbook-tag">${cornerTag}</span>`: ''}
+                <span class="lookbook-rating-pill" aria-label="Đánh giá ${ratingNum} sao">★ ${ratingNum}</span>
               </div>
               <div class="lookbook-info">
-                <div class="lookbook-meta">${shortCat}${rawVol ? ` • ${rawVol}` : ''}</div>
+                <div class="lookbook-meta">${shortCat}${rawVol ? ` • ${rawVol}` : ''} • ★ ${ratingNum}</div>
                 <h3 class="lookbook-title" data-quickview="${p.id}">${p.name}</h3>
                 <p class="lookbook-ing">${shortPeel || 'Chiết xuất tinh dầu vỏ trái cây tự nhiên'}</p>
                 <div class="lookbook-foot">
@@ -2236,10 +2001,6 @@
       }`
       }
 
-      </div>
-
-      <div style="margin-top:44px;">
-        ${renderCartSupportBoxHtml()}
       </div>
     `;
 
@@ -2314,64 +2075,6 @@
     });
   }
 
-  // ===== 08. PROGRESS & ACHIEVEMENTS VIEW =====
-  function renderProgress(view) {
-    const pct = getOverallProgress();
-    const unlocked = getUnlockedBadges();
-
-    view.innerHTML = `
-      ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Tiến trình khám phá' }])}
-      <div class="page-hero-header">
-        <h1 class="page-title">${PVIcon('trending-up', 26)} <span>Tiến trình khám phá & Huy hiệu</span></h1>
-      </div>
-
-      <section class="progress-overview">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-          <div>
-            <h2>Hành trình PEELVERSE của bạn</h2>
-            <p style="color:var(--text-muted);font-size:0.9rem;">Hoàn thành khám phá nguyên liệu, quy trình, bài học khoa học và 6 màn chơi để đạt 100%!</p>
-          </div>
-          <div data-countup="true" style="font-size:2rem;font-weight:800;color:var(--green-dark);">${pct}%</div>
-        </div>
-        <div class="progress-bar-track">
-          <div class="progress-bar-fill" style="width:${pct}%;"></div>
-        </div>
-        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:0.86rem;color:var(--text-muted);">
-          <span class="inline-icon-heading">${PVIcon('citrus', 15)} Nguyên liệu: <strong>${state.exploredIngredients.length}/${DATA.ingredients.length}</strong></span>
-          <span class="inline-icon-heading">${PVIcon('flask', 15)} Quy trình: <strong>${state.completedSteps.length}/${DATA.processSteps.length}</strong></span>
-          <span class="inline-icon-heading">${PVIcon('book-open', 15)} Khoa học: <strong>${state.completedScience.length}/${DATA.scienceTopics.length}</strong></span>
-          <span class="inline-icon-heading">${PVIcon('gamepad', 15)} Mini Game: <strong>${Object.keys(state.clearedGames).length}/${GAMES.stages.length}</strong></span>
-        </div>
-      </section>
-
-      <div class="section-head">
-        <h2 class="inline-icon-heading">${PVIcon('trophy', 22)} <span>Bộ sưu tập Huy hiệu (${unlocked.size}/${DATA.badges.length})</span></h2>
-      </div>
-
-      <section class="badges-grid">
-        ${DATA.badges
-          .map((b) => {
-            const isUnlocked = unlocked.has(b.id);
-            const themeClass = b.theme === 'amber' ? 'theme-amber' : 'theme-emerald';
-            return `
-            <article class="badge-card ${isUnlocked ? 'unlocked' : ''}">
-              <div class="badge-emblem ${themeClass}">
-                ${PVIcon(b.icon || 'award', 36)}
-                ${isUnlocked ? '' : `<span class="badge-lock-pin" aria-hidden="true">${PVIcon('lock', 13)}</span>`}
-              </div>
-              <h4 style="margin-bottom:6px;">${b.title}</h4>
-              <p style="font-size:0.82rem;color:var(--text-muted);">${b.desc}</p>
-              <div class="badge-status-pill ${isUnlocked ? 'unlocked' : 'locked'}">
-                ${isUnlocked ? `${PVIcon('check-circle', 15)} <span>Đã mở khóa</span>`: `${PVIcon('lock', 14)} <span>Chưa mở khóa</span>`}
-              </div>
-            </article>
-          `;
-          })
-          .join('')}
-      </section>
-    `;
-  }
-
   function bindNavTriggers(root) {
     root.querySelectorAll('[data-nav]').forEach((el) => {
       el.addEventListener('click', () => navigate(el.dataset.nav));
@@ -2432,14 +2135,12 @@
     }
 
     const navEntries = [
-      { title: ' Trang chủ', desc: 'Tổng quan dự án PEELVERSE, tiến độ và lối tắt nhanh', group: 'Điều hướng', action: () => navigate('home') },
-      { title: ' Về dự án', desc: 'Câu chuyện PEELVERSE từ cuộc sống nội trú, Sứ mệnh & Tầm nhìn', group: 'Điều hướng', action: () => navigate('about') },
+      { title: ' Khám phá (Trang chủ)', desc: 'Tổng quan dự án PEELVERSE, khởi nguồn, sứ mệnh & tầm nhìn', group: 'Điều hướng', action: () => navigate('home') },
       { title: ' Khám phá nguyên liệu', desc: `Danh sách ${DATA.ingredients.length} nguyên liệu nghiên cứu và đặc tính`, group: 'Điều hướng', action: () => navigate('ingredients') },
       { title: ' Quy trình thực hiện', desc: '6 bước thu gom, làm sạch, sơ chế, chiết xuất, lọc & đánh giá', group: 'Điều hướng', action: () => navigate('process') },
       { title: ' Kiến thức khoa học', desc: '7 bài học về tinh dầu, limonene, độ pH, chiết xuất, kinh tế tuần hoàn', group: 'Điều hướng', action: () => navigate('science') },
-      { title: ' Trò chơi (Mini Game)', desc: '6 màn chơi mô phỏng tạo dung dịch lau bàn', group: 'Điều hướng', action: () => navigate('game') },
-      { title: ' Giỏ hàng & Sản phẩm sinh học', desc: 'Nước lau rửa, nước rửa chén enzyme & xịt khử mùi từ vỏ trái cây', group: 'Điều hướng', action: () => navigate('shop') },
-      { title: ' Tiến trình khám phá', desc: 'Xem phần trăm hoàn thành và 8 huy hiệu xanh', group: 'Điều hướng', action: () => navigate('progress') }
+      { title: ' Cửa hàng sinh học', desc: 'Nước lau rửa, nước rửa chén enzyme & xịt khử mùi từ vỏ trái cây', group: 'Điều hướng', action: () => navigate('shop') },
+      { title: ' Đăng ký bán hàng', desc: 'Xác minh độ tuổi (18+) & CCCD để mở gian hàng trên PEELVERSE', group: 'Điều hướng', action: () => { window.location.href = './seller-register.html'; } }
     ];
 
     const index = [
@@ -2477,13 +2178,6 @@
           focusElementWithPulse(`[data-step-card="${p.step}"]`);
         }
       })),
-      ...GAMES.stages.map((g) => ({
-        title: `${g.emoji} Màn ${g.id}: ${g.title}`,
-        desc: g.desc,
-        group: 'Mini Game',
-        searchBlob: normalizeVi(`man ${g.id} mini game tro choi ${g.title} ${g.desc}`),
-        action: () => navigate('game-play', g.id)
-      })),
       ...getAllShopProducts().map((sp) => ({
         title: `${sp.name}`,
         desc: `${formatVND(sp.price)} • ${sp.category}`,
@@ -2514,7 +2208,7 @@
       }
     ];
 
-    const quickChips = ['Vỏ cam', 'Lá bạc hà', 'Limonene', 'Độ pH', 'Nước lau rửa', 'Mô phỏng'];
+    const quickChips = ['Vỏ cam', 'Lá bạc hà', 'Limonene', 'Độ pH', 'Nước lau rửa', 'Đăng ký bán hàng'];
     let flatMatches = [];
     let activeIdx = -1;
 
@@ -2562,7 +2256,7 @@
         <div class="psearch__chips" aria-label="Từ khóa gợi ý">
           <button type="button" class="psearch__chip psearch__chip--lead" data-reset-search>
             <span class="psearch__count">${count}</span>
-            <span>Gợi ý nhanh</span>
+            <span>Từ khóa phổ biến</span>
           </button>
           ${quickChips
             .map(

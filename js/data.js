@@ -15,7 +15,7 @@ window.PEELVERSE_DATA = {
       isCore: true,
       image: 'assets/images/ing-citrus.jpg',
       shortRole: 'Nguồn nguyên liệu thực vật chứa các hợp chất tạo mùi và tinh dầu',
-      description: 'Vỏ các loại quả có múi (cam, chanh, quýt) thường chiếm 20–30% trọng lượng quả và bị bỏ đi sau mỗi bữa ăn. Tuy nhiên, lớp vỏ ngoài (flavedo) chứa rất nhiều túi tinh dầu tự nhiên giàu hợp chất thơm.',
+      description: 'Vỏ cam, chanh, quýt sau bữa ăn chứa nhiều túi tinh dầu tự nhiên ở lớp vỏ ngoài (flavedo). Khi nghiên cứu và chiết xuất đúng cách, chúng có thể được tận dụng cho dung dịch làm sạch bề mặt hằng ngày.',
       composition: [
         'D-Limonene (chiếm tới 70–95% thành phần tinh dầu vỏ cam quýt)',
         'Các terpene tự nhiên như myrcene, alpha-pinene, linalool',
@@ -80,7 +80,7 @@ window.PEELVERSE_DATA = {
       ],
       researchRole: 'Làm môi trường pha loãng mẫu thử sau chiết xuất và hỗ trợ quá trình rửa sạch nguyên liệu đầu vào.',
       notes: [
-        'Ưu tiên dùng nước sạch hoặc nước lọc để tránh tạp chất và cặn khoáng làm đục dung dịch.',
+        'Nên dùng nước sạch hoặc nước lọc để hạn chế tạp chất và cặn khoáng làm đục dung dịch.',
         'Kiểm soát tỉ lệ pha loãng hợp lý để cân bằng giữa mùi hương và hiệu quả làm sạch.'
       ]
     },
@@ -280,9 +280,9 @@ window.PEELVERSE_DATA = {
       color: '#FDF3D8',
       summary: 'Hiểu cơ chế hòa tan giữa nước, giấm và tinh dầu trong mẫu thử PEELVERSE.',
       content: [
-        'Dung môi là chất (thường ở thể lỏng) có khả năng hòa tan chất khác (chất tan) để tạo thành dung dịch. Nước được mệnh danh là "dung môi vạn năng" vì phân tử nước có tính phân cực mạnh.',
+        'Dung môi là chất (thường ở thể lỏng) có khả năng hòa tan chất khác (chất tan) để tạo thành dung dịch. Nước là dung môi phân cực phổ biến và an toàn trong đời sống.',
         'Trong quy trình PEELVERSE, hỗn hợp giấm và nước đóng vai trò môi trường tiếp xúc giúp hòa tan các hợp chất phân cực từ vỏ trái cây và quế, đồng thời mang theo các giọt tinh dầu siêu nhỏ phân tán trong dung dịch.',
-        'Bởi tinh dầu không tan hoàn toàn trong nước, việc lắc nhẹ chai xịt trước khi dùng giúp phân tán đều tinh dầu trong dung dịch.'
+        'Bởi tinh dầu không tan hết trong nước, việc lắc nhẹ chai xịt trước khi dùng giúp phân tán đều tinh dầu trong dung dịch.'
       ],
       keyTakeaway: 'Mỗi dung môi hòa tan tốt những chất có tính phân cực tương đồng với nó.',
       quiz: {
@@ -446,83 +446,101 @@ window.PEELVERSE_DATA = {
       name: 'Xịt Lau Bàn & Bề Mặt Đa Năng Vỏ Cam Sả (250ml)',
       category: 'Lau bề mặt & Bếp',
       price: 49000,
+      rating: 4.9,
+      review_count: 128,
+      createdAt: '2026-10-12T08:00:00Z',
       badge: 'Bán chạy',
       image: 'assets/images/prod-table-spray.jpg',
-      desc: 'Dung dịch lau bàn ăn, mặt kính và bàn học chiết xuất tinh dầu vỏ cam kết hợp sả tươi giúp đánh bay vết bẩn nhẹ, khử mùi thức ăn tức thì.',
+      desc: 'Dung dịch lau bàn ăn, mặt kính và bàn học chiết xuất từ tinh dầu vỏ cam kết hợp sả tươi, hỗ trợ làm sạch vết bẩn nhẹ và giảm mùi thức ăn.',
       specs: {
         volume: 'Dung tích: 250ml',
         peel: 'Vỏ cam ngọt & sả tươi',
-        benefit: 'Lành tính, dịu nhẹ da tay'
+        benefit: 'Dịu nhẹ khi sử dụng hằng ngày'
       }
     },
     {
       id: 'bio-kitchen-degreaser',
-      name: 'Dung Dịch Tẩy Dầu Mỡ Nhà Bếp Tinh Dầu Vỏ Bưởi & Chanh (500ml)',
+      name: 'Dung Dịch Làm Sạch Dầu Mỡ Bếp Vỏ Bưởi & Chanh (500ml)',
       category: 'Lau bề mặt & Bếp',
       price: 69000,
-      badge: 'Tẩy dầu nhanh',
+      rating: 4.8,
+      review_count: 94,
+      createdAt: '2026-10-18T08:00:00Z',
+      badge: 'Hỗ trợ tách dầu',
       image: 'assets/images/prod-kitchen-degreaser.jpg',
-      desc: 'Công thức giàu D-Limonene tự nhiên từ vỏ bưởi và vỏ chanh giúp làm lỏng mảng bám dầu mỡ trên bếp gas, máy hút mùi mà không gây mùi hóa chất hắc.',
+      desc: 'Công thức chứa D-Limonene tự nhiên từ vỏ bưởi và vỏ chanh giúp hỗ trợ làm mềm vết dầu mỡ nhẹ trên bếp và giảm mùi hóa chất nồng.',
       specs: {
         volume: 'Dung tích: 500ml',
         peel: 'Vỏ bưởi & chanh tươi',
-        benefit: 'Không tồn dư hóa chất độc hại'
+        benefit: 'Giảm mùi hóa chất nồng'
       }
     },
     {
       id: 'bio-dish-wash',
-      name: 'Nước Rửa Chén Sinh Học Enzyme Vỏ Dứa & Cam Ngọt (500ml)',
+      name: 'Nước Rửa Chén Enzyme Vỏ Dứa & Cam Ngọt (500ml)',
       category: 'Rửa chén & Lau sàn',
       price: 59000,
-      badge: 'Enzyme tự nhiên',
+      rating: 4.9,
+      review_count: 156,
+      createdAt: '2026-10-25T08:00:00Z',
+      badge: 'Enzyme thực vật',
       image: 'assets/images/prod-dish-wash.jpg',
-      desc: 'Lên men enzyme sinh học từ vỏ dứa và vỏ cam ngọt, tạo bọt dịu nhẹ, rửa sạch dầu mỡ và khử mùi tanh chén bát mà vẫn giữ ẩm da tay.',
+      desc: 'Lên men enzyme từ vỏ dứa và vỏ cam ngọt, tạo bọt dịu nhẹ, hỗ trợ làm sạch dầu mỡ nhẹ trên chén bát và dễ tráng sạch.',
       specs: {
         volume: 'Dung tích: 500ml',
         peel: 'Enzyme vỏ dứa & cam ngọt',
-        benefit: 'Dễ tráng sạch, an toàn cho bé'
+        benefit: 'Dễ tráng sạch, dịu nhẹ da tay'
       }
     },
     {
       id: 'bio-floor-cleaner',
-      name: 'Nước Lau Sàn Kháng Khuẩn Hương Vỏ Quế & Cam Sấy (1000ml)',
+      name: 'Nước Lau Sàn Hương Vỏ Quế & Cam Sấy (1000ml)',
       category: 'Rửa chén & Lau sàn',
       price: 85000,
+      rating: 4.7,
+      review_count: 72,
+      createdAt: '2026-11-01T08:00:00Z',
       badge: 'Thơm ấm tự nhiên',
       image: 'assets/images/prod-floor-cleaner.jpg',
-      desc: 'Chiết xuất tinh dầu vỏ cam sấy kết hợp hương quế ấm áp giúp sàn nhà sạch bóng, nhanh khô, không bết dính và hỗ trợ xua đuổi côn trùng nhẹ.',
+      desc: 'Chiết xuất từ vỏ cam sấy kết hợp hương quế ấm áp giúp lau sạch sàn nhà thông thường, khô thoáng và hạn chế mùi nồng khó chịu.',
       specs: {
         volume: 'Dung tích: 1000ml',
         peel: 'Vỏ quế & vỏ cam sấy',
-        benefit: 'Khô nhanh, an toàn cho thú cưng'
+        benefit: 'Khô thoáng, mùi hương dịu nhẹ'
       }
     },
     {
       id: 'bio-room-mist',
-      name: 'Xịt Khử Mùi Phòng & Giày Tinh Dầu Vỏ Bưởi Tự Nhiên (150ml)',
+      name: 'Xịt Khử Mùi Phòng & Giày Vỏ Bưởi Tự Nhiên (150ml)',
       category: 'Xịt thơm & Khử mùi',
       price: 55000,
+      rating: 4.8,
+      review_count: 83,
+      createdAt: '2026-11-08T08:00:00Z',
       badge: 'Nhỏ gọn tiện lợi',
       image: 'assets/images/prod-room-mist.jpg',
-      desc: 'Tia sương siêu mịn chiết xuất từ tinh dầu vỏ bưởi tự nhiên giúp khử mùi ẩm mốc trong phòng nội trú, tủ quần áo và giày dép cực kỳ thanh mát.',
+      desc: 'Tia sương mịn từ tinh dầu vỏ bưởi giúp làm dịu mùi ẩm trong phòng, tủ quần áo và giày dép với hương cam chanh thanh mát.',
       specs: {
         volume: 'Dung tích: 150ml',
-        peel: 'Tinh dầu vỏ bưởi nguyên chất',
-        benefit: 'Không cồn công nghiệp, thơm thanh'
+        peel: 'Tinh dầu vỏ bưởi tự nhiên',
+        benefit: 'Không mùi cồn gắt, nhỏ gọn'
       }
     },
     {
       id: 'bio-clean-combo',
-      name: 'Combo Nhà Sạch Xanh PEELVERSE (Xịt Lau Bàn + Nước Rửa Chén + Xịt Khử Mùi)',
+      name: 'Combo Chăm Sóc Nhà Cửa PEELVERSE (3 Chai)',
       category: 'Combo tiết kiệm',
       price: 145000,
+      rating: 5.0,
+      review_count: 64,
+      createdAt: '2026-11-15T08:00:00Z',
       badge: 'Tiết kiệm nhất',
       image: 'assets/images/prod-clean-combo.jpg',
-      desc: 'Trọn bộ 3 sản phẩm chăm sóc nhà cửa sinh học từ vỏ trái cây: Xịt Lau Bàn 250ml + Nước Rửa Chén Enzyme 500ml + Xịt Khử Mùi Vỏ Bưởi 150ml.',
+      desc: 'Bộ 3 sản phẩm từ vỏ trái cây: Xịt Lau Bàn 250ml + Nước Rửa Chén Enzyme 500ml + Xịt Khử Mùi Vỏ Bưởi 150ml phục vụ nhu cầu hằng ngày.',
       specs: {
         volume: 'Tổng dung tích: 900ml (3 chai)',
         peel: 'Vỏ cam, vỏ dứa & vỏ bưởi',
-        benefit: 'Giải pháp toàn diện, thân thiện môi trường'
+        benefit: 'Tận dụng nguồn vỏ trái cây sẵn có'
       }
     }
   ]

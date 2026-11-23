@@ -223,6 +223,9 @@
       name: row.name || 'Sản phẩm xanh',
       category: row.category || 'Thủ công từ vỏ quả',
       price: Number(row.price || 0),
+      rating: Number(row.rating ?? 4.8),
+      review_count: Number(row.review_count ?? 12),
+      createdAt: row.created_at || '',
       stock: Number(row.stock ?? 0),
       isActive: row.is_active !== false,
       badge: `${shopName}`,
@@ -429,21 +432,19 @@
   let activeCreatorTab = 'publish'; // 'publish' | 'products' | 'orders'
 
   function renderCreatorStudio(view, { user, profile, onProductsChanged }) {
-    if (!user || !profile || profile.role !== 'creator') {
+    const isVerifiedSeller = Boolean(
+      profile && (profile.role === 'creator' || profile.seller_verification_status === 'verified')
+    );
+    if (!user || !isVerifiedSeller) {
       view.innerHTML = `
-        <div class="info-box" style="text-align:center;padding:38px 22px;border-radius:24px;">
-          <div style="margin-bottom:10px;color:#EA580C;"><i class="ph-duotone ph-storefront pv-duotone" style="font-size:44px;"></i></div>
-          <h2 style="margin-bottom:8px;">Kênh Nhà sáng tạo dành riêng cho Creator</h2>
-          <p style="color:var(--text-muted);max-width:460px;margin:0 auto 18px;">
-            Nâng cấp tài khoản của bạn lên vai trò <strong>Nhà sáng tạo</strong>để đăng bán sản phẩm sinh học từ vỏ trái cây và quản lý đơn hàng trực tiếp trên PEELVERSE!
+        <div class="info-box" style="text-align:center;padding:38px 22px;border-radius:16px;">
+          <h2 style="margin-bottom:8px;">Kênh Nhà sáng tạo dành cho người bán đã xác minh</h2>
+          <p style="color:var(--text-muted);max-width:480px;margin:0 auto 18px;">
+            Để đảm bảo minh bạch, tài khoản bán hàng cần hoàn tất xác minh độ tuổi (đủ 18 tuổi trở lên) và CCCD trước khi đăng bán sản phẩm trên PEELVERSE.
           </p>
-          <button type="button" class="btn btn-orange" id="promptUpgradeCreatorBtn">Đăng ký làm Nhà sáng tạo ngay →</button>
+          <a href="./seller-register.html" class="btn btn-primary">Đi tới trang Đăng ký bán hàng →</a>
         </div>
       `;
-      const btn = view.querySelector('#promptUpgradeCreatorBtn');
-      if (btn && window.PEELVERSE_AUTH && window.PEELVERSE_AUTH.openUpgradeModal) {
-        btn.addEventListener('click', window.PEELVERSE_AUTH.openUpgradeModal);
-      }
       return;
     }
 

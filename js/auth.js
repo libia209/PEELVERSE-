@@ -9,7 +9,10 @@
   }
 
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let currentUser = null;
+  let currentProfile = null;
   let pendingSignupEmail = '';
+  let pendingSignupMeta = null;
   let resendCountdownTimer = null;
   let resendSecondsLeft = 0;
 
@@ -245,13 +248,124 @@
     wrap.classList.remove('hidden');
   }
 
+  function applyRoleUi(profile) {
+    const isCreator = Boolean(profile && profile.role === 'creator');
+    const roleBadge = getEl('userRoleBadge');
+    const sidebarCreatorItem = getEl('sidebarCreatorItem');
+    const userMenuCreatorLink = getEl('userMenuCreatorLink');
+    const upgradeBtn = getEl('openUpgradeCreatorBtn');
+
+    if (roleBadge) {
+      roleBadge.textContent = isCreator ? 'Nhà sáng tạo' : 'Người dùng';
+      roleBadge.className = `user-role-badge ${isCreator ? 'role-creator' : 'role-user'}`;
+    }
+    if (sidebarCreatorItem) sidebarCreatorItem.classList.toggle('hidden', !isCreator);
+    if (userMenuCreatorLink) userMenuCreatorLink.classList.toggle('hidden', !isCreator);
+    if (upgradeBtn) upgradeBtn.classList.toggle('hidden', isCreator);
+
+    window.dispatchEvent(
+      new CustomEvent('peelverse:auth-ready', {
+        detail: { user: currentUser, profile: currentProfile }
+      })
+    );
+  }
+
+  function openRoleOnboardingModal() {
+    const ov = getEl('roleOnboardingOverlay');
+    if (!ov) return;
+    ov.classList.add('open');
+    ov.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeRoleOnboardingModal() {
+    const ov = getEl('roleOnboardingOverlay');
+    if (!ov) return;
+    ov.classList.remove('open');
+    ov.setAttribute('aria-hidden', 'true');
+  }
+
+  function openUpgradeCreatorModal() {
+    const ov = getEl('upgradeCreatorOverlay');
+    const menu = getEl('userAccountMenu');
+    if (menu) menu.classList.add('hidden');
+    if (!ov) return;
+    ov.classList.add('open');
+    ov.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeUpgradeCreatorModal() {
+    const ov = getEl('upgradeCreatorOverlay');
+    if (!ov) return;
+    ov.classList.remove('open');
+    ov.setAttribute('aria-hidden', 'true');
+  }
+
+  async function syncUserProfile(user) {
+    const creatorApi = window.PEELVERSE_CREATOR;
+    if (!user || !creatorApi) return;
+
+    try {
+      let profile = await creatorApi.fetchProfile(user.id);
+      const meta = user.user_metadata || {};
+
+      // If user just signed up with explicit role metadata, auto-create profile row
+      if (!profile && (pendingSignupMeta || meta.role)) {
+        const src = pendingSignupMeta || meta;
+        profile = await creatorApi.upsertProfile({
+          id: user.id,
+          full_name: src.full_name || meta.full_name || meta.name || (user.email || '').split('@')[0],
+          role: src.role === 'creator' ? 'creator' : 'user',
+          shop_name: src.shop_name || '',
+          phone: src.phone || ''
+        });
+        pendingSignupMeta = null;
+      }
+
+      if (!profile) {
+        // First-time Google OAuth or legacy account without profiles row -> prompt role onboarding
+        currentProfile = {
+          id: user.id,
+          full_name: meta.full_name || meta.name || (user.email || '').split('@')[0],
+          role: 'user'
+        };
+        applyRoleUi(currentProfile);
+        openRoleOnboardingModal();
+      } else {
+        currentProfile = profile;
+        closeRoleOnboardingModal();
+        applyRoleUi(currentProfile);
+      }
+    } catch (err) {
+      console.warn('[PEELVERSE Auth] Profile sync warning:', err);
+      const meta = user.user_metadata || {};
+      currentProfile = {
+        id: user.id,
+        full_name: meta.full_name || meta.name || (user.email || '').split('@')[0],
+        role: meta.role === 'creator' ? 'creator' : 'user',
+        shop_name: meta.shop_name || '',
+        phone: meta.phone || ''
+      };
+      applyRoleUi(currentProfile);
+    }
+  }
+
   function applySession(session) {
     if (session && session.user) {
+      const sameUser = currentUser && currentUser.id === session.user.id;
+      currentUser = session.user;
       updateHeaderUser(session.user);
       hideAuthGate();
       cleanOAuthUrlParams();
+      if (!sameUser || !currentProfile) {
+        syncUserProfile(session.user);
+      }
     } else {
+      currentUser = null;
+      currentProfile = null;
       updateHeaderUser(null);
+      applyRoleUi(null);
+      closeRoleOnboardingModal();
+      closeUpgradeCreatorModal();
       showAuthGate();
     }
   }
@@ -388,18 +502,142 @@
       });
     }
 
+    // Role selector on Signup Form
+    document.querySelectorAll('[data-signup-role]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const chosen = btn.dataset.signupRole;
+        const hiddenRole = getEl('signupRole');
+        const creatorFields = getEl('signupCreatorFields');
+        if (hiddenRole) hiddenRole.value = chosen;
+        document.querySelectorAll('[data-signup-role]').forEach((b) => {
+          const active = b.dataset.signupRole === chosen;
+          b.classList.toggle('active', active);
+          b.setAttribute('aria-pressed', String(active));
+        });
+        if (creatorFields) creatorFields.classList.toggle('hidden', chosen !== 'creator');
+      });
+    });
+
+    // Role selector on Onboarding Modal (for Google OAuth / existing accounts)
+    document.querySelectorAll('[data-onboard-role]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const chosen = btn.dataset.onboardRole;
+        const hiddenRole = getEl('onboardRoleValue');
+        const creatorFields = getEl('onboardCreatorFields');
+        if (hiddenRole) hiddenRole.value = chosen;
+        document.querySelectorAll('[data-onboard-role]').forEach((b) => {
+          b.classList.toggle('active', b.dataset.onboardRole === chosen);
+        });
+        if (creatorFields) creatorFields.classList.toggle('hidden', chosen !== 'creator');
+      });
+    });
+
+    const onboardForm = getEl('roleOnboardingForm');
+    if (onboardForm) {
+      onboardForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!currentUser || !window.PEELVERSE_CREATOR) return;
+        const role = getEl('onboardRoleValue').value === 'creator' ? 'creator' : 'user';
+        const shopName = (getEl('onboardShopName').value || '').trim();
+        const phone = (getEl('onboardPhone').value || '').trim();
+        if (role === 'creator' && (!shopName || !phone)) {
+          showAuthToast('⚠️ Vui lòng nhập Tên gian hàng và Số điện thoại liên hệ!', 'warning');
+          return;
+        }
+        const btn = getEl('onboardSubmitBtn');
+        setButtonLoading(btn, true);
+        try {
+          const meta = currentUser.user_metadata || {};
+          const saved = await window.PEELVERSE_CREATOR.upsertProfile({
+            id: currentUser.id,
+            full_name: meta.full_name || meta.name || (currentUser.email || '').split('@')[0],
+            role,
+            shop_name: shopName,
+            phone
+          });
+          currentProfile = saved;
+          closeRoleOnboardingModal();
+          applyRoleUi(currentProfile);
+          showAuthToast(
+            role === 'creator'
+              ? '🎉 Chào mừng Nhà sáng tạo! Kênh Nhà sáng tạo đã sẵn sàng trên Sidebar.'
+              : '🌿 Đã lưu hồ sơ Người dùng PEELVERSE!',
+            'success'
+          );
+        } catch (err) {
+          showAuthToast(`⚠️ ${window.PEELVERSE_CREATOR.translateDbError(err)}`, 'warning');
+        } finally {
+          setButtonLoading(btn, false, 'Lưu vai trò & Vào PEELVERSE →');
+        }
+      });
+    }
+
+    // Upgrade User -> Creator Modal
+    const openUpgradeBtn = getEl('openUpgradeCreatorBtn');
+    const closeUpgradeBtn = getEl('closeUpgradeCreatorBtn');
+    const upgradeOverlay = getEl('upgradeCreatorOverlay');
+    const upgradeForm = getEl('upgradeCreatorForm');
+
+    if (openUpgradeBtn) openUpgradeBtn.addEventListener('click', openUpgradeCreatorModal);
+    if (closeUpgradeBtn) closeUpgradeBtn.addEventListener('click', closeUpgradeCreatorModal);
+    if (upgradeOverlay) {
+      upgradeOverlay.addEventListener('click', (e) => {
+        if (e.target === upgradeOverlay) closeUpgradeCreatorModal();
+      });
+    }
+
+    if (upgradeForm) {
+      upgradeForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!currentUser || !window.PEELVERSE_CREATOR) return;
+        const shopName = (getEl('upgradeShopName').value || '').trim();
+        const phone = (getEl('upgradePhone').value || '').trim();
+        if (!shopName || !phone) {
+          showAuthToast('⚠️ Vui lòng nhập đầy đủ Tên gian hàng và SĐT!', 'warning');
+          return;
+        }
+        const btn = getEl('upgradeCreatorSubmitBtn');
+        setButtonLoading(btn, true);
+        try {
+          const meta = currentUser.user_metadata || {};
+          const saved = await window.PEELVERSE_CREATOR.upsertProfile({
+            id: currentUser.id,
+            full_name: (currentProfile && currentProfile.full_name) || meta.full_name || meta.name || (currentUser.email || '').split('@')[0],
+            role: 'creator',
+            shop_name: shopName,
+            phone
+          });
+          currentProfile = saved;
+          closeUpgradeCreatorModal();
+          applyRoleUi(currentProfile);
+          showAuthToast('🎉 Nâng cấp thành công! Bạn đã là Nhà sáng tạo PEELVERSE.', 'success');
+        } catch (err) {
+          showAuthToast(`⚠️ ${window.PEELVERSE_CREATOR.translateDbError(err)}`, 'warning');
+        } finally {
+          setButtonLoading(btn, false, 'Kích hoạt Kênh Nhà sáng tạo →');
+        }
+      });
+    }
+
     // 2. SIGNUP SUBMIT -> SEND 6-DIGIT EMAIL OTP
     const signupForm = getEl('authSignupForm');
     if (signupForm) {
       signupForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         setAlert('', '');
+        const role = (getEl('signupRole') && getEl('signupRole').value) === 'creator' ? 'creator' : 'user';
         const fullName = getEl('signupName').value.trim();
+        const shopName = getEl('signupShopName') ? getEl('signupShopName').value.trim() : '';
+        const phone = getEl('signupPhone') ? getEl('signupPhone').value.trim() : '';
         const email = getEl('signupEmail').value.trim();
         const password = getEl('signupPassword').value;
 
         if (fullName.length < 2) {
           setAlert('error', 'Vui lòng nhập Họ và tên (tối thiểu 2 ký tự).');
+          return;
+        }
+        if (role === 'creator' && (!shopName || !phone)) {
+          setAlert('error', 'Với vai trò Nhà sáng tạo, vui lòng nhập Tên gian hàng và Số điện thoại liên hệ.');
           return;
         }
         if (!isValidEmail(email)) {
@@ -414,11 +652,12 @@
         const submitBtn = getEl('signupSubmitBtn');
         setButtonLoading(submitBtn, true);
         try {
+          pendingSignupMeta = { full_name: fullName, role, shop_name: shopName, phone };
           const { data, error } = await sb.auth.signUp({
             email,
             password,
             options: {
-              data: { full_name: fullName }
+              data: pendingSignupMeta
             }
           });
           if (error) {
@@ -622,5 +861,10 @@
     });
   });
 
-  window.PEELVERSE_AUTH = { supabase: sb };
+  window.PEELVERSE_AUTH = {
+    supabase: sb,
+    getUser: () => currentUser,
+    getProfile: () => currentProfile,
+    openUpgradeModal: openUpgradeCreatorModal
+  };
 })();

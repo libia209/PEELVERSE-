@@ -15,7 +15,23 @@
     ]
   };
 
-  const SHOP_PRODUCTS = (DATA && Array.isArray(DATA.shopProducts)) ? DATA.shopProducts : [];
+  const OFFICIAL_PRODUCTS = ((DATA && Array.isArray(DATA.shopProducts)) ? DATA.shopProducts : []).map((p) => ({
+    ...p,
+    source: 'official',
+    shopName: 'Chính hãng PEELVERSE',
+    creatorId: null,
+    dbId: null
+  }));
+  let communityProducts = [];
+  let communityLoaded = false;
+  let communityLoading = false;
+
+  function getAllShopProducts() {
+    return [...OFFICIAL_PRODUCTS, ...communityProducts];
+  }
+
+  let shopSourceFilter = 'Tất cả'; // 'Tất cả' | 'Chính hãng PEELVERSE' | 'Cộng đồng Nhà sáng tạo'
+  let shopViewTab = 'catalog'; // 'catalog' | 'orders'
 
   function cloneObj(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -37,9 +53,12 @@
       if (!raw) return [];
       const parsed = JSON.parse(raw);
       if (!Array.isArray(parsed)) return [];
-      const validIds = new Set(SHOP_PRODUCTS.map((p) => p.id));
+      const officialIds = new Set(OFFICIAL_PRODUCTS.map((p) => p.id));
       const cleaned = parsed.filter(
-        (entry) => entry && validIds.has(entry.id) && Number(entry.qty) > 0
+        (entry) =>
+          entry &&
+          Number(entry.qty) > 0 &&
+          (officialIds.has(entry.id) || String(entry.id).startsWith('sb_'))
       );
       if (cleaned.length !== parsed.length) {
         localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cleaned));
@@ -84,8 +103,9 @@
   }
 
   function getCartTotalAmount() {
+    const all = getAllShopProducts();
     return cart.reduce((sum, entry) => {
-      const prod = SHOP_PRODUCTS.find((p) => p.id === entry.id);
+      const prod = all.find((p) => p.id === entry.id);
       return sum + (prod ? prod.price * entry.qty : 0);
     }, 0);
   }
@@ -166,7 +186,7 @@
   }
 
   function addToCart(productId) {
-    const prod = SHOP_PRODUCTS.find((p) => p.id === productId);
+    const prod = getAllShopProducts().find((p) => p.id === productId);
     if (!prod) return;
     lastOrderSummary = null;
     const existing = cart.find((c) => c.id === productId);
@@ -306,7 +326,7 @@
       <div style="display:flex;flex-direction:column;gap:10px;">
         ${cart
           .map((entry) => {
-            const p = SHOP_PRODUCTS.find((item) => item.id === entry.id);
+            const p = getAllShopProducts().find((item) => item.id === entry.id);
             if (!p) return '';
             return `
             <div class="cart-item-row">
@@ -343,25 +363,25 @@
       </div>
 
       <form id="ecoOrderForm" class="order-form">
-        <h4>📦 Gửi yêu cầu đặt sản phẩm sinh học</h4>
+        <h4>📦 Xác nhận đặt hàng (Thanh toán khi nhận hàng - COD)</h4>
         <div class="form-field">
           <label for="orderName">Họ và tên *</label>
           <input id="orderName" type="text" required placeholder="VD: Nguyễn Minh Anh" />
         </div>
         <div class="form-field">
-          <label for="orderContact">Số điện thoại hoặc Email *</label>
-          <input id="orderContact" type="text" required placeholder="VD: 0912 345 678 hoặc email@..." />
+          <label for="orderContact">Số điện thoại nhận hàng *</label>
+          <input id="orderContact" type="tel" required placeholder="VD: 0912 345 678" />
         </div>
         <div class="form-field">
-          <label for="orderAddress">Địa chỉ giao / Khu nội trú *</label>
+          <label for="orderAddress">Địa chỉ giao hàng *</label>
           <input id="orderAddress" type="text" required placeholder="VD: Phòng 302, Ký túc xá..." />
         </div>
         <div class="form-field">
           <label for="orderNote">Ghi chú thêm</label>
-          <textarea id="orderNote" rows="2" placeholder="VD: Giao buổi chiều, kèm thiệp chúc mừng..."></textarea>
+          <textarea id="orderNote" rows="2" placeholder="VD: Giao buổi chiều, gọi trước khi đến..."></textarea>
         </div>
-        <button type="submit" class="btn btn-orange" style="width:100%;margin-top:4px;">
-          Xác nhận gửi yêu cầu (${formatVND(totalAmount)})
+        <button type="submit" id="ecoOrderSubmitBtn" class="btn btn-orange" style="width:100%;margin-top:4px;">
+          Xác nhận đặt hàng COD (${formatVND(totalAmount)})
         </button>
       </form>
       ${renderCartSupportBoxHtml()}
@@ -378,26 +398,59 @@
     });
 
     const form = body.querySelector('#ecoOrderForm');
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = form.querySelector('#orderName').value.trim();
       const contact = form.querySelector('#orderContact').value.trim();
       const address = form.querySelector('#orderAddress').value.trim();
+      const note = form.querySelector('#orderNote').value.trim();
       if (!name || !contact || !address) return;
 
-      lastOrderSummary = {
-        code: `PV${Math.floor(1000 + Math.random() * 9000)}`,
-        name,
-        contact,
-        address,
-        qty: getCartTotalQty(),
-        total: getCartTotalAmount()
-      };
-      cart = [];
-      saveCart();
-      addNotification(`🧴 Đã gửi yêu cầu đặt đơn #${lastOrderSummary.code} (${formatVND(lastOrderSummary.total)})!`);
-      showToast(`🎉 Đã gửi yêu cầu đặt hàng #${lastOrderSummary.code}!`);
-      renderCartDrawer();
+      const submitBtn = form.querySelector('#ecoOrderSubmitBtn');
+      const auth = window.PEELVERSE_AUTH;
+      const creatorApi = window.PEELVERSE_CREATOR;
+      const user = auth && auth.getUser ? auth.getUser() : null;
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="auth-spinner"></span> Đang gửi đơn hàng...';
+      }
+
+      try {
+        let createdOrders = [];
+        if (user && creatorApi) {
+          createdOrders = await creatorApi.createOrdersForCart({
+            user,
+            cartItems: cart,
+            allProducts: getAllShopProducts(),
+            customer: { name, phone: contact, address, note }
+          });
+        }
+        const firstId = createdOrders[0] && createdOrders[0].id
+          ? String(createdOrders[0].id).slice(0, 8).toUpperCase()
+          : `PV${Math.floor(1000 + Math.random() * 9000)}`;
+
+        lastOrderSummary = {
+          code: firstId,
+          name,
+          contact,
+          address,
+          qty: getCartTotalQty(),
+          total: getCartTotalAmount()
+        };
+        cart = [];
+        saveCart();
+        addNotification(`🧴 Đã đặt đơn hàng #${lastOrderSummary.code} (${formatVND(lastOrderSummary.total)})!`);
+        showToast(`🎉 Đặt hàng thành công! Mã đơn #${lastOrderSummary.code}`);
+        renderCartDrawer();
+        if (currentRoute === 'shop' || currentRoute === 'my-orders') render();
+      } catch (err) {
+        showToast(`⚠️ ${creatorApi ? creatorApi.translateDbError(err) : 'Không thể lưu đơn hàng.'}`, 'warning');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = `Xác nhận đặt hàng COD (${formatVND(totalAmount)})`;
+        }
+      }
     });
   }
 
@@ -424,6 +477,23 @@
       toast.style.transition = '0.22s ease';
       setTimeout(() => toast.remove(), 230);
     }, 2500);
+  }
+
+  window.PEELVERSE_TOAST = showToast;
+
+  async function refreshCommunityProducts(force = false) {
+    if (!window.PEELVERSE_CREATOR) return;
+    if (communityLoading && !force) return;
+    communityLoading = true;
+    try {
+      communityProducts = await window.PEELVERSE_CREATOR.fetchActiveCommunityProducts();
+      communityLoaded = true;
+    } catch (err) {
+      console.warn('[PEELVERSE Shop] Community products load skipped:', err);
+      communityLoaded = true;
+    } finally {
+      communityLoading = false;
+    }
   }
 
   function getUnlockedBadges() {
@@ -574,6 +644,8 @@
         ? 'science'
         : route === 'game-play'
         ? 'game'
+        : route === 'my-orders'
+        ? 'shop'
         : route;
 
     document.querySelectorAll('.nav-item').forEach((btn) => {
@@ -613,6 +685,10 @@
     else if (currentRoute === 'game') renderGameHub(view);
     else if (currentRoute === 'game-play') renderGamePlay(view, activeGameStageId);
     else if (currentRoute === 'shop') renderShop(view);
+    else if (currentRoute === 'my-orders') {
+      shopViewTab = 'orders';
+      renderShop(view);
+    } else if (currentRoute === 'creator') renderCreatorRoute(view);
     else if (currentRoute === 'progress') renderProgress(view);
     bindNavTriggers(view);
     triggerViewTransition(view);
@@ -1895,23 +1971,54 @@
     );
   }
 
-  // ===== 07. BIO-CLEANING SHOP VIEW =====
+  // ===== 07. BIO-CLEANING SHOP + COMMUNITY CREATORS + MY ORDERS =====
+  function renderCreatorRoute(view) {
+    const auth = window.PEELVERSE_AUTH;
+    const user = auth && auth.getUser ? auth.getUser() : null;
+    const profile = auth && auth.getProfile ? auth.getProfile() : null;
+    view.innerHTML = `
+      ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Kênh Nhà sáng tạo' }])}
+      <div id="creatorStudioMount"></div>
+    `;
+    const mount = view.querySelector('#creatorStudioMount');
+    if (window.PEELVERSE_CREATOR) {
+      window.PEELVERSE_CREATOR.renderCreatorStudio(mount, {
+        user,
+        profile,
+        onProductsChanged: () => {
+          communityLoaded = false;
+          refreshCommunityProducts(true);
+        }
+      });
+    }
+  }
+
   function renderShop(view) {
     const categories = [
       { key: 'Tất cả', icon: '⊞' },
       { key: 'Lau bề mặt & Bếp', icon: '✨' },
       { key: 'Rửa chén & Lau sàn', icon: '🫧' },
       { key: 'Xịt thơm & Khử mùi', icon: '🍊' },
-      { key: 'Combo tiết kiệm', icon: '🎁' }
+      { key: 'Combo tiết kiệm', icon: '🎁' },
+      { key: 'Thủ công từ vỏ quả', icon: '🌿' }
     ];
 
-    let list = SHOP_PRODUCTS.filter((p) => {
+    const sources = ['Tất cả', 'Chính hãng PEELVERSE', 'Cộng đồng Nhà sáng tạo'];
+
+    const allProducts = getAllShopProducts();
+    let list = allProducts.filter((p) => {
+      const matchSource =
+        shopSourceFilter === 'Tất cả'
+          ? true
+          : shopSourceFilter === 'Chính hãng PEELVERSE'
+          ? p.source === 'official'
+          : p.source === 'creator';
       const matchCat = shopCategory === 'Tất cả' ? true : p.category === shopCategory;
       let matchPrice = true;
       if (shopPriceRange === 'under60') matchPrice = p.price < 60000;
       else if (shopPriceRange === '60to120') matchPrice = p.price >= 60000 && p.price <= 120000;
       else if (shopPriceRange === 'over120') matchPrice = p.price > 120000;
-      return matchCat && matchPrice;
+      return matchSource && matchCat && matchPrice;
     });
 
     if (shopSort === 'price-asc') list = [...list].sort((a, b) => a.price - b.price);
@@ -1921,20 +2028,47 @@
     const totalAmount = getCartTotalAmount();
 
     view.innerHTML = `
-      ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: 'Giỏ hàng' }])}
+      ${renderBreadcrumb([{ label: 'Trang chủ', route: 'home' }, { label: shopViewTab === 'orders' ? 'Đơn hàng của tôi' : 'Giỏ hàng' }])}
       <section class="shop-hero">
         <div>
           <span class="hero-badge">SẢN PHẨM LÀM SẠCH SINH HỌC TỪ VỎ QUẢ</span>
           <h1 class="inline-icon-heading" style="font-size:2rem;margin-bottom:6px;">${PVIcon('shopping-cart', 28)} <span>Giỏ hàng PEELVERSE</span></h1>
           <p style="color:var(--text-muted);max-width:620px;font-size:0.94rem;">
-            Các dòng dung dịch lau rửa bề mặt, nước rửa chén enzyme, nước lau sàn và xịt khử mùi lành tính chiết xuất từ tinh dầu và enzyme vỏ cam, bưởi, chanh, dứa — sạch bóng không gian sống, dịu nhẹ da tay.
+            Các dòng dung dịch lau rửa bề mặt, nước rửa chén enzyme, nước lau sàn, xịt khử mùi chính hãng PEELVERSE cùng sản phẩm xanh từ cộng đồng Nhà sáng tạo.
           </p>
+          <div class="shop-subtabs" style="margin-top:14px;">
+            <button type="button" class="creator-tab-btn ${shopViewTab === 'catalog' ? 'active' : ''}" data-shop-tab="catalog">
+              <i class="ph-duotone ph-shopping-bag pv-duotone"></i> <span>Cửa hàng sinh học</span>
+            </button>
+            <button type="button" class="creator-tab-btn ${shopViewTab === 'orders' ? 'active' : ''}" data-shop-tab="orders">
+              <i class="ph-duotone ph-package pv-duotone"></i> <span>Đơn hàng của tôi</span>
+            </button>
+          </div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
           <div class="hud-pill">🛒 Giỏ hiện tại: ${totalQty} món • ${formatVND(totalAmount)}</div>
-          <button class="btn btn-primary" id="openCartFromShop">Mở giỏ hàng & đặt mua →</button>
+          <button class="btn btn-primary" id="openCartFromShop">Mở giỏ hàng &amp; đặt mua →</button>
         </div>
       </section>
+
+      ${
+        shopViewTab === 'orders'
+          ? `<div id="buyerOrdersMount"></div>`
+          : `
+      <div class="source-filter-bar">
+        <span style="font-size:0.8rem;font-weight:700;color:var(--text-muted);">Nguồn sản phẩm:</span>
+        <div class="filter-pills">
+          ${sources
+            .map(
+              (src) => `
+            <button type="button" class="filter-pill ${shopSourceFilter === src ? 'active' : ''}" data-shop-source="${src}">
+              ${src}
+            </button>
+          `
+            )
+            .join('')}
+        </div>
+      </div>
 
       <div class="filter-bar">
         <div class="filter-pills">
@@ -1966,18 +2100,22 @@
       </div>
 
       ${
-        list.length === 0
-          ? `<div class="info-box" style="text-align:center;padding:36px;">Không có sản phẩm làm sạch nào khớp bộ lọc hiện tại. Hãy thử chọn mức giá hoặc danh mục khác nhé!</div>`
+        !communityLoaded && communityLoading && window.PEELVERSE_CREATOR
+          ? window.PEELVERSE_CREATOR.renderSkeletonCards(3)
+          : list.length === 0
+          ? `<div class="info-box" style="text-align:center;padding:36px;">Không có sản phẩm làm sạch nào khớp bộ lọc hiện tại. Hãy thử chọn nguồn, mức giá hoặc danh mục khác nhé!</div>`
           : `
       <section class="shop-grid">
         ${list
           .map((p) => {
             const inCart = cart.find((c) => c.id === p.id);
+            const isCreatorProd = p.source === 'creator';
+            const outOfStock = isCreatorProd && Number(p.stock) <= 0;
             return `
             <article class="product-card" data-product-id="${p.id}">
               <div class="product-media">
                 <img src="${p.image}" alt="${p.name}" />
-                <span class="core-badge">${p.badge}</span>
+                <span class="core-badge ${isCreatorProd ? 'creator-shop-badge' : ''}">${p.badge}</span>
                 <span class="progress-badge">${p.category}</span>
               </div>
               <div class="product-body">
@@ -1990,8 +2128,8 @@
                 </div>
                 <div class="product-foot">
                   <span class="product-price">${formatVND(p.price)}</span>
-                  <button class="btn ${inCart ? 'btn-primary' : 'btn-orange'} btn-sm" data-add-cart="${p.id}">
-                    ${inCart ? `+ Thêm (${inCart.qty})` : '+ Thêm vào giỏ'}
+                  <button class="btn ${inCart ? 'btn-primary' : 'btn-orange'} btn-sm" data-add-cart="${p.id}" ${outOfStock ? 'disabled' : ''}>
+                    ${outOfStock ? 'Tạm hết hàng' : inCart ? `+ Thêm (${inCart.qty})` : '+ Thêm vào giỏ'}
                   </button>
                 </div>
               </div>
@@ -2000,6 +2138,7 @@
           })
           .join('')}
       </section>`
+      }`
       }
 
       <div style="margin-top:24px;">
@@ -2009,6 +2148,38 @@
 
     view.querySelector('#openCartFromShop').addEventListener('click', openCartDrawer);
 
+    view.querySelectorAll('[data-shop-tab]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        shopViewTab = btn.dataset.shopTab;
+        renderShop(view);
+      });
+    });
+
+    if (shopViewTab === 'orders') {
+      const mount = view.querySelector('#buyerOrdersMount');
+      const user = window.PEELVERSE_AUTH && window.PEELVERSE_AUTH.getUser ? window.PEELVERSE_AUTH.getUser() : null;
+      if (mount && window.PEELVERSE_CREATOR) {
+        window.PEELVERSE_CREATOR.renderBuyerOrdersPanel(mount, user);
+      }
+      return;
+    }
+
+    // Load Supabase community products once
+    if (!communityLoaded && !communityLoading) {
+      refreshCommunityProducts().then(() => {
+        if (currentRoute === 'shop' && shopViewTab === 'catalog') {
+          renderShop(view);
+        }
+      });
+    }
+
+    view.querySelectorAll('[data-shop-source]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        shopSourceFilter = btn.dataset.shopSource;
+        renderShop(view);
+      });
+    });
+
     view.querySelectorAll('[data-shop-cat]').forEach((btn) => {
       btn.addEventListener('click', () => {
         shopCategory = btn.dataset.shopCat;
@@ -2016,15 +2187,21 @@
       });
     });
 
-    view.querySelector('#shopPriceFilter').addEventListener('change', (e) => {
-      shopPriceRange = e.target.value;
-      renderShop(view);
-    });
+    const priceFilterEl = view.querySelector('#shopPriceFilter');
+    if (priceFilterEl) {
+      priceFilterEl.addEventListener('change', (e) => {
+        shopPriceRange = e.target.value;
+        renderShop(view);
+      });
+    }
 
-    view.querySelector('#shopSortSelect').addEventListener('change', (e) => {
-      shopSort = e.target.value;
-      renderShop(view);
-    });
+    const sortEl = view.querySelector('#shopSortSelect');
+    if (sortEl) {
+      sortEl.addEventListener('change', (e) => {
+        shopSort = e.target.value;
+        renderShop(view);
+      });
+    }
 
     view.querySelectorAll('[data-add-cart]').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -2204,12 +2381,14 @@
         searchBlob: normalizeVi(`man ${g.id} mini game tro choi ${g.title} ${g.desc}`),
         action: () => navigate('game-play', g.id)
       })),
-      ...SHOP_PRODUCTS.map((sp) => ({
+      ...getAllShopProducts().map((sp) => ({
         title: `🧴 ${sp.name}`,
         desc: `${formatVND(sp.price)} • ${sp.category}`,
         group: 'Sản phẩm sinh học',
         searchBlob: normalizeVi(`nuoc lau rua tay rua chen lau san xit khu mui sinh hoc gio hang ${sp.name} ${sp.category} ${sp.desc}`),
         action: () => {
+          shopViewTab = 'catalog';
+          shopSourceFilter = 'Tất cả';
           shopCategory = 'Tất cả';
           shopPriceRange = 'all';
           navigate('shop');
@@ -2742,6 +2921,15 @@
       saveState();
       render();
       showToast('🔄 Đã đặt lại toàn bộ tiến trình khám phá!');
+    });
+
+    window.addEventListener('peelverse:auth-ready', () => {
+      if (currentRoute === 'creator' || currentRoute === 'shop' || currentRoute === 'my-orders') {
+        render();
+      }
+      if (!communityLoaded && !communityLoading) {
+        refreshCommunityProducts();
+      }
     });
 
     setupSearch();

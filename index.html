@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Quicksand:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css" />
-  <link rel="stylesheet" href="css/styles.css?v=16" />
+  <link rel="stylesheet" href="css/styles.css?v=17" />
 </head>
 <body class="auth-locked">
   <!-- Auth Gate Overlay (Supabase Auth + 6-Digit Email OTP) -->
@@ -74,8 +74,25 @@
         <button type="submit" id="loginSubmitBtn" class="btn btn-primary auth-submit-btn">Đăng nhập vào PEELVERSE</button>
       </form>
 
-      <!-- SIGNUP FORM -->
+      <!-- SIGNUP FORM (WITH 2-ROLE SELECTOR) -->
       <form id="authSignupForm" class="auth-form hidden" novalidate>
+        <div class="auth-field">
+          <label>Chọn vai trò tài khoản</label>
+          <div class="role-selector-grid" role="radiogroup" aria-label="Chọn vai trò tài khoản">
+            <button type="button" class="role-choice-card active" data-signup-role="user" aria-pressed="true">
+              <span class="role-choice-icon nature"><i class="ph-duotone ph-plant pv-duotone" style="font-size:20px;"></i></span>
+              <strong>Người dùng</strong>
+              <span>Khám phá kiến thức, chơi game &amp; mua sản phẩm sinh học</span>
+            </button>
+            <button type="button" class="role-choice-card" data-signup-role="creator" aria-pressed="false">
+              <span class="role-choice-icon citrus"><i class="ph-duotone ph-storefront pv-duotone" style="font-size:20px;"></i></span>
+              <strong>Nhà sáng tạo</strong>
+              <span>Đăng sản phẩm xanh, quản lý gian hàng &amp; nhận đơn</span>
+            </button>
+          </div>
+          <input type="hidden" id="signupRole" value="user" />
+        </div>
+
         <div class="auth-field">
           <label for="signupName">Họ và tên</label>
           <div class="auth-input-wrap">
@@ -83,6 +100,25 @@
             <input id="signupName" type="text" required autocomplete="name" placeholder="VD: Nguyễn Minh Anh" />
           </div>
         </div>
+
+        <!-- Extra Creator fields (shown only when role === 'creator') -->
+        <div id="signupCreatorFields" class="creator-extra-fields hidden">
+          <div class="auth-field">
+            <label for="signupShopName">Tên gian hàng / Thương hiệu *</label>
+            <div class="auth-input-wrap">
+              <i class="ph-duotone ph-storefront auth-input-icon pv-duotone" style="font-size:18px;"></i>
+              <input id="signupShopName" type="text" placeholder="VD: Tiệm Xanh Vỏ Cam" />
+            </div>
+          </div>
+          <div class="auth-field">
+            <label for="signupPhone">Số điện thoại liên hệ *</label>
+            <div class="auth-input-wrap">
+              <i class="ph-duotone ph-phone auth-input-icon pv-duotone" style="font-size:18px;"></i>
+              <input id="signupPhone" type="tel" placeholder="VD: 0355 415 501" />
+            </div>
+          </div>
+        </div>
+
         <div class="auth-field">
           <label for="signupEmail">Email</label>
           <div class="auth-input-wrap">
@@ -238,6 +274,12 @@
 
         <div class="sidebar-divider">Không gian cá nhân</div>
         <nav class="nav-menu nav-menu-secondary">
+          <button id="sidebarCreatorItem" class="nav-item hidden" data-route="creator" data-tooltip="Kênh Nhà sáng tạo">
+            <span class="nav-icon icon-citrus" aria-hidden="true">
+              <i class="ph-duotone ph-storefront pv-duotone"></i>
+            </span>
+            <span class="nav-label">Kênh Nhà sáng tạo</span>
+          </button>
           <button class="nav-item" data-route="shop" data-tooltip="Giỏ hàng">
             <span class="nav-icon icon-nature" aria-hidden="true">
               <i class="ph-duotone ph-shopping-cart pv-duotone"></i>
@@ -334,9 +376,24 @@
             </button>
             <div id="userAccountMenu" class="user-account-menu hidden" role="menu">
               <div class="user-menu-head">
-                <strong id="userMenuName">Thành viên</strong>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                  <strong id="userMenuName">Thành viên</strong>
+                  <span id="userRoleBadge" class="user-role-badge role-user">Người dùng</span>
+                </div>
                 <span id="userMenuEmail"></span>
               </div>
+              <button type="button" id="userMenuCreatorLink" class="user-menu-item hidden" data-route="creator">
+                <i class="ph-duotone ph-storefront pv-duotone" style="font-size:17px;color:#EA580C;"></i>
+                <span>Kênh Nhà sáng tạo</span>
+              </button>
+              <button type="button" id="openUpgradeCreatorBtn" class="user-menu-item hidden">
+                <i class="ph-duotone ph-sparkle pv-duotone" style="font-size:17px;color:#EA580C;"></i>
+                <span>Đăng ký làm Nhà sáng tạo</span>
+              </button>
+              <button type="button" id="openMyOrdersMenuBtn" class="user-menu-item" data-route="my-orders">
+                <i class="ph-duotone ph-package pv-duotone" style="font-size:17px;color:#2D6A4F;"></i>
+                <span>Đơn hàng của tôi</span>
+              </button>
               <button type="button" class="user-menu-item" data-route="progress">
                 <i class="ph-duotone ph-chart-line-up pv-duotone" style="font-size:17px;color:#D97706;"></i>
                 <span>Tiến trình khám phá</span>
@@ -499,6 +556,75 @@
     </div>
   </div>
 
+  <!-- Role Onboarding Modal (for Google OAuth / existing accounts without profiles row) -->
+  <div id="roleOnboardingOverlay" class="contact-modal-overlay" aria-hidden="true">
+    <div class="contact-modal" role="dialog" aria-modal="true" aria-labelledby="roleOnboardingTitle">
+      <div class="contact-modal-header">
+        <div>
+          <span class="botanical-tag" style="margin-bottom:4px;">HOÀN THIỆN HỒ SƠ PEELVERSE</span>
+          <h3 id="roleOnboardingTitle">Chọn vai trò của bạn</h3>
+        </div>
+      </div>
+      <p class="contact-modal-desc">Bạn muốn tham gia PEELVERSE với tư cách Người dùng hay Nhà sáng tạo sản phẩm xanh?</p>
+      <form id="roleOnboardingForm" class="auth-form">
+        <div class="role-selector-grid">
+          <button type="button" class="role-choice-card active" data-onboard-role="user">
+            <span class="role-choice-icon nature"><i class="ph-duotone ph-plant pv-duotone" style="font-size:20px;"></i></span>
+            <strong>Người dùng</strong>
+            <span>Học khoa học, chơi game &amp; mua sắm</span>
+          </button>
+          <button type="button" class="role-choice-card" data-onboard-role="creator">
+            <span class="role-choice-icon citrus"><i class="ph-duotone ph-storefront pv-duotone" style="font-size:20px;"></i></span>
+            <strong>Nhà sáng tạo</strong>
+            <span>Đăng bán sản phẩm &amp; nhận đơn hàng</span>
+          </button>
+        </div>
+        <input type="hidden" id="onboardRoleValue" value="user" />
+        <div id="onboardCreatorFields" class="creator-extra-fields hidden">
+          <div class="form-field">
+            <label for="onboardShopName">Tên gian hàng / Thương hiệu *</label>
+            <input id="onboardShopName" type="text" placeholder="VD: Tiệm Xanh Vỏ Cam" />
+          </div>
+          <div class="form-field">
+            <label for="onboardPhone">Số điện thoại liên hệ *</label>
+            <input id="onboardPhone" type="tel" placeholder="VD: 0355 415 501" />
+          </div>
+        </div>
+        <button type="submit" id="onboardSubmitBtn" class="btn btn-primary" style="width:100%;">Lưu vai trò &amp; Vào PEELVERSE →</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Upgrade User to Creator Modal -->
+  <div id="upgradeCreatorOverlay" class="contact-modal-overlay" aria-hidden="true">
+    <div class="contact-modal" role="dialog" aria-modal="true" aria-labelledby="upgradeCreatorTitle">
+      <div class="contact-modal-header">
+        <div>
+          <span class="botanical-tag" style="margin-bottom:4px;">NÂNG CẤP TÀI KHOẢN</span>
+          <h3 id="upgradeCreatorTitle" class="inline-icon-heading">
+            <i class="ph-duotone ph-storefront pv-duotone" style="font-size:22px;color:#EA580C;"></i>
+            <span>Đăng ký làm Nhà sáng tạo</span>
+          </h3>
+        </div>
+        <button type="button" id="closeUpgradeCreatorBtn" class="icon-btn" aria-label="Đóng">
+          <i class="ph-duotone ph-x pv-duotone" style="font-size:18px;"></i>
+        </button>
+      </div>
+      <p class="contact-modal-desc">Điền tên gian hàng và số điện thoại liên hệ để mở khóa ngay <strong>Kênh Nhà sáng tạo</strong> trên thanh điều hướng.</p>
+      <form id="upgradeCreatorForm" class="auth-form">
+        <div class="form-field">
+          <label for="upgradeShopName">Tên gian hàng / Thương hiệu *</label>
+          <input id="upgradeShopName" type="text" required placeholder="VD: Tiệm Xanh Vỏ Cam" />
+        </div>
+        <div class="form-field">
+          <label for="upgradePhone">Số điện thoại liên hệ *</label>
+          <input id="upgradePhone" type="tel" required placeholder="VD: 0355 415 501" />
+        </div>
+        <button type="submit" id="upgradeCreatorSubmitBtn" class="btn btn-orange" style="width:100%;">Kích hoạt Kênh Nhà sáng tạo →</button>
+      </form>
+    </div>
+  </div>
+
   <!-- Back to Top Button -->
   <button id="backToTopBtn" class="back-to-top" aria-label="Lên đầu trang" title="Lên đầu trang">
     <i class="ph-duotone ph-caret-up pv-duotone" style="font-size:20px;" aria-hidden="true"></i>
@@ -511,11 +637,12 @@
   <div id="toastContainer" class="toast-container" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="auth-config.js?v=16"></script>
-  <script src="js/icons.js?v=16"></script>
-  <script src="js/data.js?v=16"></script>
-  <script src="js/games.js?v=16"></script>
-  <script src="js/app.js?v=16"></script>
-  <script src="js/auth.js?v=16"></script>
+  <script src="auth-config.js?v=17"></script>
+  <script src="js/icons.js?v=17"></script>
+  <script src="js/data.js?v=17"></script>
+  <script src="js/games.js?v=17"></script>
+  <script src="js/creator.js?v=17"></script>
+  <script src="js/app.js?v=17"></script>
+  <script src="js/auth.js?v=17"></script>
 </body>
 </html>

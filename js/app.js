@@ -41,7 +41,16 @@
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return cloneObj(defaultState);
-      return { ...cloneObj(defaultState), ...JSON.parse(raw) };
+      const merged = { ...cloneObj(defaultState), ...JSON.parse(raw) };
+      const validIngIds = new Set((DATA && Array.isArray(DATA.ingredients) ? DATA.ingredients : []).map((i) => i.id));
+      const origLen = Array.isArray(merged.exploredIngredients) ? merged.exploredIngredients.length : 0;
+      merged.exploredIngredients = Array.isArray(merged.exploredIngredients)
+        ? merged.exploredIngredients.filter((id) => validIngIds.has(id))
+        : [];
+      if (merged.exploredIngredients.length !== origLen) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      }
+      return merged;
     } catch {
       return cloneObj(defaultState);
     }
@@ -832,7 +841,7 @@
       <section class="explore-grid">
         <article class="explore-card" data-nav="ingredients">
           <div class="explore-card-media">
-            <span class="explore-media-badge">06 Nguyên liệu</span>
+            <span class="explore-media-badge">${String(DATA.ingredients.length).padStart(2, '0')} Nguyên liệu</span>
             <img src="assets/images/ing-citrus.jpg" alt="Khám phá nguyên liệu vỏ cam chanh quýt" />
           </div>
           <div class="explore-card-body">
@@ -840,7 +849,7 @@
               <span class="explore-card-title">Thư viện Nguyên liệu</span>
               <span class="circle-arrow">→</span>
             </div>
-            <p class="explore-card-desc">Đặc tính tinh dầu vỏ cam, chanh, giấm trắng, nước sạch và quế thảo mộc.</p>
+            <p class="explore-card-desc">Đặc tính tinh dầu vỏ cam, chanh, giấm trắng, nước sạch, quế và lá bạc hà.</p>
           </div>
         </article>
 
@@ -2388,7 +2397,7 @@
     const navEntries = [
       { title: ' Trang chủ', desc: 'Tổng quan dự án PEELVERSE, tiến độ và lối tắt nhanh', group: 'Điều hướng', action: () => navigate('home') },
       { title: ' Về dự án', desc: 'Câu chuyện PEELVERSE từ cuộc sống nội trú, Sứ mệnh & Tầm nhìn', group: 'Điều hướng', action: () => navigate('about') },
-      { title: ' Khám phá nguyên liệu', desc: 'Danh sách 6 nguyên liệu nghiên cứu và đặc tính', group: 'Điều hướng', action: () => navigate('ingredients') },
+      { title: ' Khám phá nguyên liệu', desc: `Danh sách ${DATA.ingredients.length} nguyên liệu nghiên cứu và đặc tính`, group: 'Điều hướng', action: () => navigate('ingredients') },
       { title: ' Quy trình thực hiện', desc: '6 bước thu gom, làm sạch, sơ chế, chiết xuất, lọc & đánh giá', group: 'Điều hướng', action: () => navigate('process') },
       { title: ' Kiến thức khoa học', desc: '7 bài học về tinh dầu, limonene, độ pH, chiết xuất, kinh tế tuần hoàn', group: 'Điều hướng', action: () => navigate('science') },
       { title: ' Trò chơi (Mini Game)', desc: '6 màn chơi mô phỏng tạo dung dịch lau bàn', group: 'Điều hướng', action: () => navigate('game') },

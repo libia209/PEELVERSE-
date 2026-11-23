@@ -19,7 +19,7 @@ window.PEELVERSE_DATA = {
       composition: [
         'D-Limonene (chiếm tới 70–95% thành phần tinh dầu vỏ cam quýt)',
         'Các terpene tự nhiên như myrcene, alpha-pinene, linalool',
-        'Flavonoid, pectin và chất xơ thực vật'
+        'Flavonoid và chất xơ thực vật'
       ],
       properties: [
         'Tinh dầu có mùi hương tươi mát đặc trưng, dễ bay hơi',
@@ -110,53 +110,29 @@ window.PEELVERSE_DATA = {
       ]
     },
     {
-      id: 'banana-peel',
-      name: 'Vỏ chuối',
+      id: 'mint-leaf',
+      name: 'Lá bạc hà',
       emoji: '',
       category: 'Thực vật',
       isCore: false,
-      image: 'assets/images/ing-banana.jpg',
-      shortRole: 'Nguyên liệu hữu cơ giàu khoáng chất kali & chất xơ, tiềm năng làm phân bón tự nhiên',
-      description: 'Vỏ chuối là một loại rác thải hữu cơ rất phổ biến ở khu nội trú. Dù không dùng trong công thức dung dịch lau bàn chính, vỏ chuối mở ra hướng nghiên cứu tái chế hữu cơ khác.',
+      image: 'assets/images/la-bac-ha.png',
+      shortRole: 'Thảo mộc giàu tinh dầu menthol tự nhiên, giúp tạo hương thơm mát và hỗ trợ khử mùi bề mặt',
+      description: 'Lá bạc hà là loại thảo mộc quen thuộc chứa hàm lượng tinh dầu thơm tự nhiên cao, mang lại cảm giác the mát, sảng khoái và hỗ trợ làm dịu không gian sau khi vệ sinh bề mặt.',
       composition: [
-        'Giàu Kali (K), Photpho (P) và Canxi (Ca)',
-        'Chứa cellulose, hemicellulose và chất chống oxy hóa',
-        'Độ ẩm cao, phân hủy sinh học nhanh'
+        'Tinh dầu tự nhiên giàu Menthol và Menthone',
+        'Các hợp chất thơm thực vật dễ bay hơi',
+        'Hợp chất polyphenol và sắc tố diệp lục thực vật'
       ],
       properties: [
-        'Có thể ủ làm phân bón lỏng tự nhiên cho cây xanh',
-        'Mặt trong vỏ chuối chứa sáp thực vật nhẹ giúp làm bóng bề mặt lá cây',
-        'Dễ bị oxy hóa (thâm đen) khi tiếp xúc lâu với không khí'
+        'Tạo tầng hương the mát dễ chịu, giúp cân bằng mùi chua của giấm trắng',
+        'Kết hợp hài hòa với tinh dầu D-Limonene từ vỏ cam, chanh, quýt để hỗ trợ khử mùi trên bề mặt',
+        'Nguồn gốc thực vật lành tính, dễ phân hủy sinh học'
       ],
-      researchRole: 'Nguyên liệu mở rộng trong thư viện PEELVERSE để minh họa tư duy phân loại rác hữu cơ đúng mục đích.',
+      researchRole: 'Tạo tầng hương the mát dễ chịu, giúp cân bằng mùi chua của giấm trắng và kết hợp hài hòa với tinh dầu D-Limonene từ vỏ cam, chanh, quýt để hỗ trợ khử mùi trên bề mặt.',
       notes: [
-        'Không dùng vỏ chuối để chiết xuất dung dịch lau bàn vì dễ lên men nhớt và đổi màu nâu.',
-        'Phù hợp nhất cho ủ compost hoặc tưới cây.'
-      ]
-    },
-    {
-      id: 'apple-peel',
-      name: 'Vỏ táo',
-      emoji: '',
-      category: 'Trái cây',
-      isCore: false,
-      image: 'assets/images/ing-apple.jpg',
-      shortRole: 'Chứa axit malic tự nhiên và pectin, ứng dụng trong lên men giấm táo',
-      description: 'Vỏ táo chứa nhiều hợp chất chống oxy hóa, pectin và một lượng nhỏ axit hữu cơ tự nhiên. Đây là nguồn nguyên liệu thú vị để tìm hiểu về quá trình lên men tự nhiên.',
-      composition: [
-        'Pectin thực vật và chất xơ hòa tan',
-        'Axit malic tự nhiên tạo vị chua nhẹ',
-        'Quercetin và các hợp chất phenolic'
-      ],
-      properties: [
-        'Có thể lên men đường tự nhiên tạo thành giấm táo hữu cơ',
-        'Mùi thơm nhẹ nhàng, dễ chịu',
-        'Dễ bị nâu hóa do enzyme polyphenol oxidase'
-      ],
-      researchRole: 'Nguyên liệu tham khảo mở rộng giúp người học so sánh cấu trúc vỏ quả có múi với các loại vỏ trái cây khác.',
-      notes: [
-        'Rửa kỹ lớp sáp bên ngoài vỏ táo trước khi thử nghiệm.',
-        'Cần phân biệt giữa vỏ quả có múi giàu tinh dầu (dùng chiết xuất) và vỏ táo (phù hợp lên men).'
+        'Chọn lá tươi sạch, rửa kỹ và để ráo trước khi ngâm.',
+        'Sử dụng tỷ lệ vừa phải để không lấn át hương vỏ quả.',
+        'Đậy kín và bảo quản tránh ánh nắng trực tiếp để hạn chế bay hơi tinh dầu.'
       ]
     }
   ],

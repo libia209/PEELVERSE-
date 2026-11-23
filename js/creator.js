@@ -230,7 +230,7 @@
       desc: row.description || 'Sản phẩm sinh học thủ công từ cộng đồng Nhà sáng tạo PEELVERSE.',
       specs: {
         volume: `${row.volume || 'Tiêu chuẩn'}`,
-        peel: `${row.peel_ingredients || 'Chiết xuất vỏ trái cây'}`,
+        peel: `${row.ingredients || 'Chiết xuất vỏ trái cây'}`,
         benefit: Number(row.stock ?? 0) > 0 ? `Còn ${row.stock} sản phẩm`: 'Tạm hết hàng'
       }
     };
@@ -292,9 +292,33 @@
     return data && data.publicUrl ? data.publicUrl : '';
   }
 
+  const PRODUCT_DB_COLUMNS = [
+    'creator_id',
+    'shop_name',
+    'name',
+    'category',
+    'price',
+    'volume',
+    'ingredients',
+    'description',
+    'image_url',
+    'stock',
+    'is_active'
+  ];
+
+  function sanitizeProductPayload(obj) {
+    const clean = {};
+    PRODUCT_DB_COLUMNS.forEach((key) => {
+      if (obj && obj[key] !== undefined) {
+        clean[key] = obj[key];
+      }
+    });
+    return clean;
+  }
+
   async function createProduct(payload) {
     const sb = getClient();
-    const { data, error } = await sb.from('products').insert(payload).select().single();
+    const { data, error } = await sb.from('products').insert(sanitizeProductPayload(payload)).select().single();
     if (error) throw error;
     return data;
   }
@@ -303,7 +327,7 @@
     const sb = getClient();
     const { data, error } = await sb
       .from('products')
-      .update(patch)
+      .update(sanitizeProductPayload(patch))
       .eq('id', productId)
       .select()
       .single();
@@ -585,19 +609,18 @@
           imageUrl = await uploadProductImage(file, user.id);
         }
 
-        // Step A: Save product as pending & inactive before moderation
+        // Step A: Save product as inactive before moderation (strictly matching DB schema columns)
         const payload = {
           creator_id: user.id,
           shop_name: profile.shop_name || profile.full_name || 'Nhà sáng tạo PEELVERSE',
           name: prodName,
           category: container.querySelector('#cpCategory').value,
           price: Number(container.querySelector('#cpPrice').value),
-          stock: Number(container.querySelector('#cpStock').value || 0),
           volume: container.querySelector('#cpVolume').value.trim(),
-          peel_ingredients: container.querySelector('#cpPeel').value.trim(),
+          ingredients: container.querySelector('#cpPeel').value.trim(),
           description: container.querySelector('#cpDesc').value.trim(),
           image_url: imageUrl || 'assets/images/prod-table-spray.jpg',
-          moderation_status: 'pending',
+          stock: Number(container.querySelector('#cpStock').value || 0),
           is_active: false
         };
 
@@ -758,13 +781,12 @@
           btn.disabled = true;
           btn.innerHTML = '<span class="auth-spinner"></span>Đang duyệt...';
           try {
-            // Step A: Update product & set pending/inactive for AI re-moderation
+            // Step A: Update product & set inactive for re-moderation (strictly matching DB schema columns)
             await updateProduct(id, {
               name,
               price,
               stock,
               description,
-              moderation_status: 'pending',
               is_active: false
             });
             // Step B & C: Show scanning bar and invoke super-responder

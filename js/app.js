@@ -682,16 +682,26 @@
       { id: 'science', label: 'Khoa học & pH' }
     ];
     return `
-      <div class="lab-subnav" role="tablist" aria-label="Phòng Lab PEELVERSE">
-        ${tabs
-          .map(
-            (t) => `
-          <button type="button" class="lab-subnav-btn ${activeTab === t.id ? 'active' : ''}" data-nav="${t.id}" role="tab" aria-selected="${activeTab === t.id}">
-            ${t.label}
-          </button>
-        `
-          )
-          .join('')}
+      <div class="pv-ltabs pv-ltabs--lab" data-ltabs-id="lab">
+        <div class="pv-ltabs__strip" aria-hidden="true"></div>
+        <div class="pv-ltabs__surface" aria-hidden="true">
+          <div class="pv-ltabs__gooLayer">
+            <div class="pv-ltabs__blob"></div>
+            <div class="pv-ltabs__body"></div>
+          </div>
+          <div class="pv-ltabs__indicator"></div>
+        </div>
+        <div class="pv-ltabs__nav" role="tablist" aria-label="Phòng Lab PEELVERSE">
+          ${tabs
+            .map(
+              (t) => `
+            <button type="button" class="pv-ltabs__btn ${activeTab === t.id ? 'active' : ''}" data-nav="${t.id}" role="tab" aria-selected="${activeTab === t.id}">
+              <span>${t.label}</span>
+            </button>
+          `
+            )
+            .join('')}
+        </div>
       </div>
     `;
   }
@@ -742,6 +752,11 @@
     void view.offsetWidth;
     view.classList.add('view-enter');
     applyStaggerAndCountUp(view);
+    if (window.PEELVERSE_MOTION) {
+      window.PEELVERSE_MOTION.splitHeroWords(view.querySelector('.editorial-hero-title'));
+      window.PEELVERSE_MOTION.initScrollReveal(view);
+      window.PEELVERSE_MOTION.initLiquidTabs(view);
+    }
   }
 
   function render() {
@@ -787,7 +802,12 @@
         </div>
         <figure class="editorial-hero-figure">
           <div class="editorial-figure-frame">
+            <span class="pv-hero-aura" aria-hidden="true"></span>
             <img src="assets/images/hero-peel.jpg" alt="Vỏ cam tươi giàu tinh dầu tự nhiên PEELVERSE" />
+            <span class="pv-oil-sparkle s1" aria-hidden="true"></span>
+            <span class="pv-oil-sparkle s2" aria-hidden="true"></span>
+            <span class="pv-oil-sparkle s3" aria-hidden="true"></span>
+            <span class="pv-oil-sparkle s4" aria-hidden="true"></span>
           </div>
           <figcaption class="editorial-caption">FIG. 01 — CITRUS PEEL ESSENTIAL OIL &amp; D-LIMONENE</figcaption>
         </figure>
@@ -2093,23 +2113,34 @@
     else if (shopSort === 'price-desc') list = [...list].sort((a, b) => b.price - a.price);
 
     view.innerHTML = `
-      <!-- Compact Anti-Box Editorial Header (<= 130px) -->
+      <!-- Compact Anti-Box Editorial Header + Liquid Gooey Tabs -->
       <section class="editorial-page-header">
         <div class="editorial-page-header-left">
           <span class="eyebrow-tag">BỘ SƯU TẬP LÀM SẠCH SINH HỌC</span>
           <h1 class="editorial-h1">Cửa hàng</h1>
           <p class="editorial-sub">Dung dịch lau rửa, nước rửa chén enzyme và xịt khử mùi từ vỏ trái cây.</p>
         </div>
-        <div class="editorial-underline-tabs" role="tablist">
-          <button type="button" class="underline-tab-btn ${shopViewTab === 'catalog' ? 'active' : ''}" data-shop-tab="catalog" role="tab">
-            Cửa hàng sinh học
-          </button>
-          <button type="button" class="underline-tab-btn ${shopViewTab === 'orders' ? 'active' : ''}" data-shop-tab="orders" role="tab">
-            Đơn hàng của tôi
-          </button>
+        <div class="pv-ltabs pv-ltabs--shop" data-ltabs-id="shop">
+          <div class="pv-ltabs__strip" aria-hidden="true"></div>
+          <div class="pv-ltabs__surface" aria-hidden="true">
+            <div class="pv-ltabs__gooLayer">
+              <div class="pv-ltabs__blob"></div>
+              <div class="pv-ltabs__body"></div>
+            </div>
+            <div class="pv-ltabs__indicator"></div>
+          </div>
+          <div class="pv-ltabs__nav" role="tablist" aria-label="Chế độ xem Cửa hàng">
+            <button type="button" class="pv-ltabs__btn ${shopViewTab === 'catalog' ? 'active' : ''}" data-shop-tab="catalog" role="tab" aria-selected="${shopViewTab === 'catalog'}">
+              <span>Cửa hàng sinh học</span>
+            </button>
+            <button type="button" class="pv-ltabs__btn ${shopViewTab === 'orders' ? 'active' : ''}" data-shop-tab="orders" role="tab" aria-selected="${shopViewTab === 'orders'}">
+              <span>Đơn hàng của tôi</span>
+            </button>
+          </div>
         </div>
       </section>
 
+      <div class="pv-tab-panel">
       ${
         shopViewTab === 'orders'
           ? `<div id="buyerOrdersMount" style="margin-top:20px;"></div>`
@@ -2205,10 +2236,16 @@
       }`
       }
 
+      </div>
+
       <div style="margin-top:44px;">
         ${renderCartSupportBoxHtml()}
       </div>
     `;
+
+    if (window.PEELVERSE_MOTION) {
+      window.PEELVERSE_MOTION.initLiquidTabs(view);
+    }
 
     view.querySelectorAll('[data-shop-tab]').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -2567,12 +2604,16 @@
         grouped.forEach((entries, groupName) => {
           html += `<div class="search-section-label"><span>${groupName}</span><span>${entries.length}</span></div>`;
           entries.forEach(({ item, flatIdx }) => {
+            const initial = (groupName || 'P').trim().charAt(0).toUpperCase();
             html += `
               <button type="button" class="search-item" role="option" data-midx="${flatIdx}">
-                <div class="search-item-row">
-                  <span style="font-weight:700;font-size:0.88rem;color:var(--green-dark);">${highlightMatch(item.title, rawQ)}</span>
+                <span class="pltabs__avatar" data-selected="false" aria-hidden="true">${initial}</span>
+                <div class="search-item-content">
+                  <div class="search-item-row">
+                    <span style="font-weight:700;font-size:0.88rem;color:var(--green-dark);">${highlightMatch(item.title, rawQ)}</span>
+                  </div>
+                  <div class="search-item-desc">${highlightMatch(item.desc, rawQ)}</div>
                 </div>
-                <div class="search-item-desc">${highlightMatch(item.desc, rawQ)}</div>
               </button>
             `;
           });
@@ -2584,6 +2625,10 @@
           </div>
         `;
         dropdown.innerHTML = html;
+        dropdown.dataset.pvSlideBound = '';
+        if (window.PEELVERSE_MOTION) {
+          window.PEELVERSE_MOTION.initSlidingList(dropdown, '.search-item');
+        }
 
         dropdown.querySelectorAll('.search-item').forEach((btn) => {
           btn.addEventListener('click', () => {

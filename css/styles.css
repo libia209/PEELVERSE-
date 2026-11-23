@@ -7835,3 +7835,618 @@ h4 {
     padding: 12px 14px calc(14px + env(safe-area-inset-bottom));
   }
 }
+
+
+/* =========================================================================
+   STORYBOOK EDITORIAL MOTION + LIQUID GOOEY TABS (100% PEELVERSE PALETTE)
+   ========================================================================= */
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --pv-bg: #F6F4EE;
+  --pv-surface: #FFFFFF;
+  --pv-strip: #EAE6DC;
+  --pv-primary: #162A22;
+  --pv-primary-hover: #213B30;
+  --pv-accent: #A85432;
+  --pv-ink: #181816;
+}
+
+/* 1. Ultra-fine Botanical Paper Grain Overlay */
+.pv-paper-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.32;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+}
+
+.pv-ltabs__defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* 2. Header fadeDown, Directional Nav Underline & Spring Account Dropdown */
+@keyframes pvFadeDown {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.luxury-header {
+  animation: pvFadeDown 0.8s var(--ease-out) both;
+}
+
+.primary-nav-link {
+  position: relative;
+}
+
+.primary-nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1.5px;
+  background: var(--pv-primary);
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 0.45s var(--ease-out);
+}
+
+.primary-nav-link:hover::after,
+.primary-nav-link.active::after {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+@keyframes pvDropdownSpring {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -6px, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes pvMenuItemSlide {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.user-account-menu {
+  transform-origin: top right;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: pvDropdownSpring 0.45s var(--ease-spring) both;
+}
+
+.user-account-menu:not(.hidden) .user-menu-item {
+  animation: pvMenuItemSlide 0.36s var(--ease-out) both;
+  animation-delay: calc(0.04s * var(--i, 0) + 0.05s);
+}
+
+/* 3. Tactile Luxury Buttons (Primary Diagonal Sheen & Ghost Rising Curtain) */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.22);
+  transition: transform 0.32s var(--ease-out), background-color 0.3s var(--ease-out), box-shadow 0.32s var(--ease-out);
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 20%, rgba(255, 255, 255, 0.24) 50%, transparent 80%);
+  transform: translateX(-110%);
+  transition: transform 0.8s var(--ease-out);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--pv-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.26), 0 10px 22px rgba(22, 42, 34, 0.16);
+}
+
+.btn-primary:hover:not(:disabled)::after {
+  transform: translateX(110%);
+}
+
+.btn-primary:active:not(:disabled),
+.btn-secondary:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn-secondary {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  z-index: 0;
+  transition: color 0.38s var(--ease-out), border-color 0.38s var(--ease-out), transform 0.32s var(--ease-out);
+}
+
+.btn-secondary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--pv-primary);
+  transform: translateY(102%);
+  transition: transform 0.5s var(--ease-out);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.btn-secondary:hover:not(:disabled):not(.danger-outline) {
+  color: #F6F4EE;
+  border-color: var(--pv-primary);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:hover:not(:disabled):not(.danger-outline)::before {
+  transform: translateY(0);
+}
+
+.btn .circle-arrow,
+.explore-card:hover .circle-arrow {
+  transition: transform 0.32s var(--ease-out);
+}
+
+.btn:hover .circle-arrow,
+.explore-card:hover .circle-arrow {
+  transform: translateX(3px);
+}
+
+@media (hover: none) {
+  .btn-primary:hover:not(:disabled),
+  .btn-secondary:hover:not(:disabled) {
+    transform: none;
+  }
+  .btn-primary:hover:not(:disabled)::after {
+    transform: translateX(-110%);
+  }
+  .btn-secondary:hover:not(:disabled)::before {
+    transform: translateY(102%);
+  }
+}
+
+/* 4. Hero Word Mask Reveal (Vietnamese Diacritic-Safe), Blur-Resolve & Floating Figure */
+.pv-word {
+  display: inline-block;
+  overflow: clip;
+  vertical-align: bottom;
+  padding: 0.08em 0.08em 0.14em;
+  margin: -0.08em -0.08em -0.14em;
+}
+
+@keyframes pvWordRise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 105%, 0) rotate(3deg);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+}
+
+.pv-wordInner {
+  display: inline-block;
+  will-change: transform, opacity;
+  animation: pvWordRise 0.95s var(--ease-out) both;
+  animation-delay: calc(0.12s + var(--i, 0) * 0.055s);
+}
+
+@keyframes pvFadeUpBlur {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+
+.editorial-hero-desc {
+  animation: pvFadeUpBlur 0.85s var(--ease-out) 0.42s both;
+}
+
+.editorial-hero-actions {
+  animation: pvFadeUpBlur 0.85s var(--ease-out) 0.56s both;
+}
+
+@keyframes pvStageIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 32px, 0) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes pvHeroFloat {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+@keyframes pvAuraBreathe {
+  from {
+    opacity: 0.42;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 0.82;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes pvTwinkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.15);
+  }
+}
+
+.editorial-hero-figure {
+  animation: pvStageIn 1.05s var(--ease-out) 0.18s both;
+}
+
+.editorial-figure-frame {
+  position: relative;
+  animation: pvHeroFloat 7s ease-in-out 1.2s infinite alternate;
+  will-change: transform;
+}
+
+.pv-hero-aura {
+  position: absolute;
+  inset: -12%;
+  background: radial-gradient(circle at 60% 42%, rgba(218, 155, 84, 0.35), transparent 64%);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+  z-index: 2;
+  animation: pvAuraBreathe 6s ease-in-out infinite alternate;
+}
+
+.pv-oil-sparkle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFF8E7 0%, rgba(218, 155, 84, 0.8) 65%, transparent 100%);
+  box-shadow: 0 0 8px rgba(218, 155, 84, 0.7);
+  pointer-events: none;
+  z-index: 3;
+  animation: pvTwinkle 4.4s ease-in-out infinite;
+}
+
+.pv-oil-sparkle.s1 { top: 18%; left: 22%; animation-delay: 0.2s; }
+.pv-oil-sparkle.s2 { top: 34%; right: 18%; width: 4px; height: 4px; animation-delay: 1.5s; animation-duration: 5.2s; }
+.pv-oil-sparkle.s3 { bottom: 26%; left: 32%; width: 3.5px; height: 3.5px; animation-delay: 2.7s; animation-duration: 4.8s; }
+.pv-oil-sparkle.s4 { bottom: 18%; right: 26%; animation-delay: 3.6s; animation-duration: 5.6s; }
+
+/* Scroll Reveal (IntersectionObserver, runs once, 70ms stagger) */
+.pv-reveal {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  transition: opacity 0.72s var(--ease-out) var(--reveal-delay, 0ms), transform 0.72s var(--ease-out) var(--reveal-delay, 0ms);
+  will-change: transform, opacity;
+}
+
+.pv-reveal.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* =========================================================================
+   PART 2: LIQUID GOOEY TABS (.pv-ltabs)
+   ========================================================================= */
+.pv-ltabs {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  padding-bottom: 10px;
+}
+
+.pv-ltabs--lab {
+  margin-bottom: 16px;
+}
+
+.pv-ltabs--creator {
+  margin-top: 8px;
+}
+
+/* Outer warm stone strip behind unselected tabs (OUTSIDE goo filter) */
+.pv-ltabs__strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  background: #E8E3D8;
+  border-radius: 12px 12px 0 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Drop-shadow surface wrapping the SVG Goo layer */
+.pv-ltabs__surface {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(22, 42, 34, 0.05)) drop-shadow(0 12px 28px rgba(22, 42, 34, 0.08));
+}
+
+/* Goo Layer: active tab blob + bottom card lip merge like liquid oil */
+.pv-ltabs__gooLayer {
+  position: absolute;
+  inset: 0;
+  filter: url(#pv-goo);
+}
+
+.pv-ltabs__blob {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  height: calc(100% - 7px);
+  background: var(--pv-surface);
+  border-radius: 10px 10px 4px 4px;
+  transition: transform 0.52s var(--ease-spring), width 0.45s var(--ease-out);
+  will-change: transform, width;
+}
+
+.pv-ltabs__blob.no-anim,
+.pv-ltabs__indicator.no-anim {
+  transition: none !important;
+}
+
+.pv-ltabs__body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 11px;
+  background: var(--pv-surface);
+  border-radius: 0 0 8px 8px;
+}
+
+.pv-ltabs__indicator {
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  height: 2px;
+  background: var(--pv-primary);
+  border-radius: 2px;
+  transition: transform 0.52s var(--ease-spring), width 0.45s var(--ease-out);
+  will-change: transform, width;
+}
+
+/* Crisp un-filtered text buttons strictly ABOVE .pv-ltabs__surface */
+.pv-ltabs__nav {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 4px 2px;
+}
+
+.pv-ltabs__btn {
+  position: relative;
+  border: none;
+  background: transparent;
+  color: rgba(24, 24, 22, 0.62);
+  font-family: 'Be Vietnam Pro', sans-serif;
+  font-size: 0.84rem;
+  font-weight: 500;
+  padding: 9px 16px;
+  border-radius: 8px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.3s var(--ease-out);
+}
+
+.pv-ltabs__btn:hover {
+  color: var(--pv-primary);
+}
+
+.pv-ltabs__btn.active {
+  color: var(--pv-primary);
+  font-weight: 600;
+}
+
+/* Cross-fade + subtle 8px slide for switched tab panels */
+@keyframes pvTabPanelIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.pv-tab-panel {
+  animation: pvTabPanelIn 0.36s var(--ease-out) both;
+}
+
+@media (max-width: 768px) {
+  .pv-ltabs {
+    display: block;
+    width: 100%;
+    padding-bottom: 8px;
+  }
+  .pv-ltabs__nav {
+    display: flex;
+    width: 100%;
+  }
+  .pv-ltabs__btn {
+    flex: 1 1 0;
+    text-align: center;
+    padding: 8px 8px;
+    font-size: 12.5px;
+  }
+}
+
+@media (max-width: 420px) {
+  .pv-ltabs__nav {
+    padding: 3px 3px 2px;
+    gap: 0;
+  }
+  .pv-ltabs__btn {
+    padding: 7px 4px;
+    font-size: 11.5px;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* 3. Sliding Hover Highlight & Avatar Color Inversion for Lists */
+.pv-slide-list {
+  position: relative;
+}
+
+.pv-slide-hl {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-radius: 8px;
+  background: rgba(22, 42, 34, 0.045);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 0;
+  transition: transform 0.38s var(--ease-out), height 0.32s var(--ease-out), opacity 0.22s ease;
+  will-change: transform, height, opacity;
+}
+
+.pv-slide-hl.is-active {
+  opacity: 1;
+}
+
+.pv-slide-list > .order-card,
+.pv-slide-list > .search-item {
+  position: relative;
+  z-index: 1;
+}
+
+.search-item {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  background: transparent !important;
+}
+
+.search-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.pltabs__avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--pv-strip);
+  color: var(--pv-primary);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.28s var(--ease-out), color 0.28s var(--ease-out), transform 0.28s var(--ease-spring);
+}
+
+.pltabs__avatar--thumb {
+  width: auto;
+  height: auto;
+  padding: 2px;
+  border-radius: 8px;
+  background: transparent;
+}
+
+.pltabs__avatar[data-selected="true"] {
+  background: var(--pv-primary);
+  color: #F6F4EE;
+  transform: scale(1.04);
+}
+
+.pltabs__avatar--thumb[data-selected="true"] {
+  background: var(--pv-primary);
+}
+
+/* =========================================================================
+   PART 3: REDUCED MOTION ACCESSIBILITY
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .luxury-header,
+  .user-account-menu,
+  .user-account-menu .user-menu-item,
+  .pv-wordInner,
+  .editorial-hero-desc,
+  .editorial-hero-actions,
+  .editorial-hero-figure,
+  .editorial-figure-frame,
+  .pv-hero-aura,
+  .pv-oil-sparkle,
+  .pv-tab-panel {
+    animation: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .pv-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .pv-ltabs__blob,
+  .pv-ltabs__indicator,
+  .pv-slide-hl,
+  .btn-primary,
+  .btn-primary::after,
+  .btn-secondary,
+  .btn-secondary::before,
+  .primary-nav-link::after {
+    transition: none !important;
+  }
+}

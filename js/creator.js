@@ -436,21 +436,35 @@
             ${profile.phone ? `• SĐT: <strong>${escapeHtml(profile.phone)}</strong>`: ''}
           </p>
         </div>
-        <div class="creator-tabs" role="tablist">
-          <button type="button" class="creator-tab-btn ${activeCreatorTab === 'publish' ? 'active' : ''}" data-ctab="publish">
-            <i class="ph-duotone ph-plus-circle pv-duotone"></i> <span>Đăng sản phẩm mới</span>
-          </button>
-          <button type="button" class="creator-tab-btn ${activeCreatorTab === 'products' ? 'active' : ''}" data-ctab="products">
-            <i class="ph-duotone ph-package pv-duotone"></i> <span>Sản phẩm của tôi</span>
-          </button>
-          <button type="button" class="creator-tab-btn ${activeCreatorTab === 'orders' ? 'active' : ''}" data-ctab="orders">
-            <i class="ph-duotone ph-receipt pv-duotone"></i> <span>Đơn đặt hàng</span>
-          </button>
+        <div class="pv-ltabs pv-ltabs--creator" data-ltabs-id="creator">
+          <div class="pv-ltabs__strip" aria-hidden="true"></div>
+          <div class="pv-ltabs__surface" aria-hidden="true">
+            <div class="pv-ltabs__gooLayer">
+              <div class="pv-ltabs__blob"></div>
+              <div class="pv-ltabs__body"></div>
+            </div>
+            <div class="pv-ltabs__indicator"></div>
+          </div>
+          <div class="pv-ltabs__nav" role="tablist" aria-label="Kênh Nhà sáng tạo">
+            <button type="button" class="pv-ltabs__btn ${activeCreatorTab === 'publish' ? 'active' : ''}" data-ctab="publish" role="tab" aria-selected="${activeCreatorTab === 'publish'}">
+              <span>Đăng sản phẩm mới</span>
+            </button>
+            <button type="button" class="pv-ltabs__btn ${activeCreatorTab === 'products' ? 'active' : ''}" data-ctab="products" role="tab" aria-selected="${activeCreatorTab === 'products'}">
+              <span>Sản phẩm của tôi</span>
+            </button>
+            <button type="button" class="pv-ltabs__btn ${activeCreatorTab === 'orders' ? 'active' : ''}" data-ctab="orders" role="tab" aria-selected="${activeCreatorTab === 'orders'}">
+              <span>Đơn đặt hàng</span>
+            </button>
+          </div>
         </div>
       </section>
 
-      <div id="creatorTabBody"></div>
+      <div id="creatorTabBody" class="pv-tab-panel"></div>
     `;
+
+    if (window.PEELVERSE_MOTION) {
+      window.PEELVERSE_MOTION.initLiquidTabs(view);
+    }
 
     view.querySelectorAll('[data-ctab]').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -821,9 +835,12 @@
               return `
               <article class="order-card">
                 <div class="order-card-head">
-                  <div>
-                    <strong>Đơn #${shortId}</strong>
-                    <span class="order-date">${o.created_at ? new Date(o.created_at).toLocaleString('vi-VN') : ''}</span>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <span class="pltabs__avatar" data-selected="false" aria-hidden="true">#</span>
+                    <div>
+                      <strong>Đơn #${shortId}</strong>
+                      <span class="order-date">${o.created_at ? new Date(o.created_at).toLocaleString('vi-VN') : ''}</span>
+                    </div>
                   </div>
                   <span class="order-status-badge ${meta.cls}">${meta.label}</span>
                 </div>
@@ -848,6 +865,10 @@
             .join('')}
         </div>
       `;
+
+      if (window.PEELVERSE_MOTION) {
+        window.PEELVERSE_MOTION.initSlidingList(container.querySelector('.orders-list'), '.order-card');
+      }
 
       container.querySelectorAll('[data-order-status]').forEach((sel) => {
         sel.addEventListener('change', async () => {
@@ -910,7 +931,9 @@
                 : '';
               return `
               <article class="order-card buyer-order-card">
-                <img src="${thumb}" alt="${escapeHtml(o.product_name || 'Sản phẩm')}" class="buyer-order-thumb" loading="lazy" onerror="this.onerror=null;this.src='assets/images/prod-table-spray.jpg';" />
+                <div class="pltabs__avatar pltabs__avatar--thumb" data-selected="false">
+                  <img src="${thumb}" alt="${escapeHtml(o.product_name || 'Sản phẩm')}" class="buyer-order-thumb" loading="lazy" onerror="this.onerror=null;this.src='assets/images/prod-table-spray.jpg';" />
+                </div>
                 <div class="buyer-order-main">
                   <div class="buyer-order-top">
                     <div class="buyer-order-name">${escapeHtml(o.product_name || 'Sản phẩm')}</div>
@@ -941,6 +964,10 @@
             .join('')}
         </div>
       `;
+
+      if (window.PEELVERSE_MOTION) {
+        window.PEELVERSE_MOTION.initSlidingList(container.querySelector('.orders-list'), '.order-card');
+      }
 
       container.querySelectorAll('[data-cancel-order]').forEach((btn) => {
         btn.addEventListener('click', async () => {

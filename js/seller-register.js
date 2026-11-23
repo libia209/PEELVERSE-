@@ -600,14 +600,14 @@
     }
 
     const profStatus = (currentProfile && currentProfile.seller_verification_status) || 'none';
-    const verStatus = (currentVerification && currentVerification.status) || profStatus;
+    const verStatus = currentVerification ? currentVerification.status : 'none';
 
-    if (profStatus === 'verified' || verStatus === 'verified') {
+    if (currentVerification && (verStatus === 'verified' || profStatus === 'verified')) {
       renderStatusCard(mount, 'verified');
-    } else if (profStatus === 'pending' || verStatus === 'pending') {
+    } else if (verStatus === 'pending' || profStatus === 'pending') {
       renderStatusCard(mount, 'pending');
     } else {
-      renderVerificationForm(mount, profStatus === 'rejected' || verStatus === 'rejected');
+      renderVerificationForm(mount, verStatus === 'rejected' || profStatus === 'rejected');
     }
   }
 

@@ -221,6 +221,7 @@
 
   function updateCartBadges() {
     const total = getCartTotalQty();
+    const totalAmount = getCartTotalAmount();
     const sideBadge = document.getElementById('sidebarCartBadge');
     const headBadge = document.getElementById('headerCartCount');
     const bottomBadge = document.getElementById('bottomCartBadge');
@@ -229,6 +230,13 @@
       el.textContent = String(total);
       el.classList.toggle('hidden', total === 0);
     });
+
+    const floatBar = document.getElementById('floatingCartBar');
+    const floatSummary = document.getElementById('floatingCartSummary');
+    if (floatBar && floatSummary) {
+      floatSummary.textContent = `${total} món • ${formatVND(totalAmount)}`;
+      floatBar.classList.toggle('hidden', total === 0);
+    }
   }
 
   function openCartDrawer() {
@@ -281,19 +289,20 @@
 
     if (lastOrderSummary) {
       body.innerHTML = `
-        <div class="cart-summary-box" style="background:linear-gradient(145deg,#F3F8E9,#FFFFFF);border-color:#C7DC9F;text-align:center;padding:24px 18px;">
-          <div style="font-size:3rem;margin-bottom:6px;"></div>
-          <h3 style="margin-bottom:6px;">Đã ghi nhận yêu cầu đặt hàng PEELVERSE!</h3>
-          <p style="font-size:0.86rem;color:var(--text-muted);margin-bottom:12px;">
-            Cảm ơn <strong>${lastOrderSummary.name}</strong> đã lựa chọn sản phẩm làm sạch sinh học từ vỏ trái cây PEELVERSE. Nhóm sẽ liên hệ qua <strong>${lastOrderSummary.contact}</strong> trong thời gian sớm nhất.
-          </p>
-          <div style="background:#FFFFFF;border:1px solid var(--border-soft);border-radius:12px;padding:12px;text-align:left;font-size:0.83rem;margin-bottom:14px;">
-            <div><strong>Mã đơn:</strong> #${lastOrderSummary.code}</div>
-            <div><strong>Số lượng:</strong> ${lastOrderSummary.qty} sản phẩm</div>
-            <div><strong>Tổng dự kiến:</strong> ${formatVND(lastOrderSummary.total)}</div>
-            <div><strong>Địa chỉ:</strong> ${lastOrderSummary.address}</div>
+        <div class="cart-scroll-region">
+          <div class="cart-summary-box" style="background:linear-gradient(145deg,#F3F8E9,#FFFFFF);border-color:#C7DC9F;text-align:center;padding:24px 18px;">
+            <h3 style="margin-bottom:6px;">Đã ghi nhận yêu cầu đặt hàng PEELVERSE</h3>
+            <p style="font-size:0.86rem;color:var(--text-muted);margin-bottom:12px;">
+              Cảm ơn <strong>${lastOrderSummary.name}</strong> đã lựa chọn sản phẩm làm sạch sinh học từ vỏ trái cây PEELVERSE. Nhóm sẽ liên hệ qua <strong>${lastOrderSummary.contact}</strong> trong thời gian sớm nhất.
+            </p>
+            <div style="background:#FFFFFF;border:1px solid var(--border-soft);border-radius:12px;padding:12px;text-align:left;font-size:0.83rem;margin-bottom:14px;">
+              <div><strong>Mã đơn:</strong> #${lastOrderSummary.code}</div>
+              <div><strong>Số lượng:</strong> ${lastOrderSummary.qty} sản phẩm</div>
+              <div><strong>Tổng dự kiến:</strong> ${formatVND(lastOrderSummary.total)}</div>
+              <div><strong>Địa chỉ:</strong> ${lastOrderSummary.address}</div>
+            </div>
+            <button class="btn btn-primary" id="continueShoppingBtn" style="width:100%;">Tiếp tục xem sản phẩm sinh học</button>
           </div>
-          <button class="btn btn-primary" id="continueShoppingBtn" style="width:100%;">Tiếp tục xem sản phẩm sinh học</button>
         </div>
       `;
       body.querySelector('#continueShoppingBtn').addEventListener('click', () => {
@@ -306,13 +315,15 @@
 
     if (cart.length === 0) {
       body.innerHTML = `
-        <div style="text-align:center;padding:42px 16px;color:var(--text-muted);">
-          <div style="margin-bottom:12px;color:#2D6A4F;">${PVIcon('shopping-bag', 46)}</div>
-          <h4 style="margin-bottom:6px;">Giỏ hàng đang trống</h4>
-          <p style="font-size:0.86rem;margin-bottom:18px;">Khám phá các dòng nước lau rửa, nước rửa chén enzyme và xịt khử mùi lành tính chiết xuất từ vỏ trái cây của PEELVERSE nhé!</p>
-          <button class="btn btn-primary" id="goShopFromEmpty">Xem sản phẩm làm sạch sinh học →</button>
+        <div class="cart-scroll-region">
+          <div style="text-align:center;padding:42px 16px;color:var(--text-muted);">
+            <div style="margin-bottom:12px;color:#162A22;">${PVIcon('shopping-bag', 42)}</div>
+            <h4 style="margin-bottom:6px;">Giỏ hàng đang trống</h4>
+            <p style="font-size:0.86rem;margin-bottom:18px;">Khám phá các dòng nước lau rửa, nước rửa chén enzyme và xịt khử mùi lành tính chiết xuất từ vỏ trái cây của PEELVERSE.</p>
+            <button class="btn btn-primary" id="goShopFromEmpty">Xem sản phẩm làm sạch sinh học →</button>
+          </div>
+          ${renderCartSupportBoxHtml()}
         </div>
-        ${renderCartSupportBoxHtml()}
       `;
       body.querySelector('#goShopFromEmpty').addEventListener('click', () => {
         closeCartDrawer();
@@ -324,68 +335,80 @@
     const totalAmount = getCartTotalAmount();
 
     body.innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        ${cart
-          .map((entry) => {
-            const p = getAllShopProducts().find((item) => item.id === entry.id);
-            if (!p) return '';
-            return `
-            <div class="cart-item-row">
-              <img src="${p.image}" alt="${p.name}" class="cart-item-thumb" />
-              <div class="cart-item-info">
-                <div class="cart-item-name">${p.name}</div>
-                <div class="cart-item-price">${formatVND(p.price)}</div>
-                <div class="qty-controls">
-                  <button class="qty-btn" data-qty-dec="${p.id}" aria-label="Giảm số lượng">−</button>
-                  <span style="font-size:0.84rem;font-weight:700;min-width:18px;text-align:center;">${entry.qty}</span>
-                  <button class="qty-btn" data-qty-inc="${p.id}" aria-label="Tăng số lượng">+</button>
+      <div class="cart-scroll-region">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${cart
+            .map((entry) => {
+              const p = getAllShopProducts().find((item) => item.id === entry.id);
+              if (!p) return '';
+              return `
+              <div class="cart-item-row">
+                <img src="${p.image}" alt="${p.name}" class="cart-item-thumb" />
+                <div class="cart-item-info">
+                  <div class="cart-item-name">${p.name}</div>
+                  <div class="cart-item-price">${formatVND(p.price)}</div>
+                  <div class="qty-controls">
+                    <button class="qty-btn" data-qty-dec="${p.id}" aria-label="Giảm số lượng">−</button>
+                    <span style="font-size:0.84rem;font-weight:700;min-width:18px;text-align:center;">${entry.qty}</span>
+                    <button class="qty-btn" data-qty-inc="${p.id}" aria-label="Tăng số lượng">+</button>
+                  </div>
                 </div>
+                <button class="remove-item-btn" data-remove="${p.id}" title="Xóa sản phẩm" aria-label="Xóa">✕</button>
               </div>
-              <button class="remove-item-btn" data-remove="${p.id}" title="Xóa sản phẩm" aria-label="Xóa">✕</button>
-            </div>
-          `;
-          })
-          .join('')}
+            `;
+            })
+            .join('')}
+        </div>
+
+        <div class="cart-summary-box">
+          <div class="cart-summary-line">
+            <span>Tạm tính (${totalQty} món)</span>
+            <strong>${formatVND(totalAmount)}</strong>
+          </div>
+          <div class="cart-summary-line">
+            <span>Đóng gói giấy tái chế thân thiện</span>
+            <strong style="color:var(--green-mid);">Miễn phí</strong>
+          </div>
+          <div class="cart-summary-total">
+            <span>Tổng cộng</span>
+            <span style="color:var(--orange-deep);">${formatVND(totalAmount)}</span>
+          </div>
+        </div>
+
+        <form id="ecoOrderForm" class="order-form hidden">
+          <h4>Xác nhận đặt hàng (Thanh toán khi nhận hàng - COD)</h4>
+          <div class="form-field">
+            <label for="orderName">Họ và tên *</label>
+            <input id="orderName" type="text" required placeholder="VD: Nguyễn Minh Anh" />
+          </div>
+          <div class="form-field">
+            <label for="orderContact">Số điện thoại nhận hàng *</label>
+            <input id="orderContact" type="tel" required placeholder="VD: 0912 345 678" />
+          </div>
+          <div class="form-field">
+            <label for="orderAddress">Địa chỉ giao hàng *</label>
+            <input id="orderAddress" type="text" required placeholder="VD: Phòng 302, Ký túc xá..." />
+          </div>
+          <div class="form-field">
+            <label for="orderNote">Ghi chú thêm</label>
+            <textarea id="orderNote" rows="2" placeholder="VD: Giao buổi chiều, gọi trước khi đến..."></textarea>
+          </div>
+          <button type="submit" id="ecoOrderSubmitBtn" class="btn btn-primary" style="width:100%;margin-top:4px;">
+            Xác nhận đặt hàng COD (${formatVND(totalAmount)})
+          </button>
+        </form>
+        ${renderCartSupportBoxHtml()}
       </div>
 
-      <div class="cart-summary-box">
-        <div class="cart-summary-line">
-          <span>Tạm tính (${totalQty} món)</span>
+      <div class="cart-sticky-footer" id="cartStickyFooter">
+        <div class="cart-sticky-totals">
+          <span>Tổng cộng (${totalQty} món)</span>
           <strong>${formatVND(totalAmount)}</strong>
         </div>
-        <div class="cart-summary-line">
-          <span>Đóng gói giấy tái chế thân thiện</span>
-          <strong style="color:var(--green-mid);">Miễn phí</strong>
-        </div>
-        <div class="cart-summary-total">
-          <span>Tổng cộng</span>
-          <span style="color:var(--orange-deep);">${formatVND(totalAmount)}</span>
-        </div>
-      </div>
-
-      <form id="ecoOrderForm" class="order-form">
-        <h4> Xác nhận đặt hàng (Thanh toán khi nhận hàng - COD)</h4>
-        <div class="form-field">
-          <label for="orderName">Họ và tên *</label>
-          <input id="orderName" type="text" required placeholder="VD: Nguyễn Minh Anh" />
-        </div>
-        <div class="form-field">
-          <label for="orderContact">Số điện thoại nhận hàng *</label>
-          <input id="orderContact" type="tel" required placeholder="VD: 0912 345 678" />
-        </div>
-        <div class="form-field">
-          <label for="orderAddress">Địa chỉ giao hàng *</label>
-          <input id="orderAddress" type="text" required placeholder="VD: Phòng 302, Ký túc xá..." />
-        </div>
-        <div class="form-field">
-          <label for="orderNote">Ghi chú thêm</label>
-          <textarea id="orderNote" rows="2" placeholder="VD: Giao buổi chiều, gọi trước khi đến..."></textarea>
-        </div>
-        <button type="submit" id="ecoOrderSubmitBtn" class="btn btn-orange" style="width:100%;margin-top:4px;">
-          Xác nhận đặt hàng COD (${formatVND(totalAmount)})
+        <button type="button" id="proceedCheckoutBtn" class="btn btn-primary" style="width:100%;">
+          Tiến hành đặt hàng →
         </button>
-      </form>
-      ${renderCartSupportBoxHtml()}
+      </div>
     `;
 
     body.querySelectorAll('[data-qty-dec]').forEach((btn) => {
@@ -399,6 +422,17 @@
     });
 
     const form = body.querySelector('#ecoOrderForm');
+    const proceedBtn = body.querySelector('#proceedCheckoutBtn');
+    const stickyFooter = body.querySelector('#cartStickyFooter');
+    if (proceedBtn && form) {
+      proceedBtn.addEventListener('click', () => {
+        form.classList.remove('hidden');
+        if (stickyFooter) stickyFooter.classList.add('hidden');
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const nameInput = form.querySelector('#orderName');
+        if (nameInput) setTimeout(() => nameInput.focus(), 220);
+      });
+    }
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = form.querySelector('#orderName').value.trim();
@@ -2143,13 +2177,13 @@
                 ${cornerTag ? `<span class="lookbook-tag">${cornerTag}</span>`: ''}
               </div>
               <div class="lookbook-info">
-                <div class="lookbook-meta">${shortCat}${rawVol ? `• ${rawVol}`: ''}</div>
+                <div class="lookbook-meta">${shortCat}${rawVol ? ` • ${rawVol}` : ''}</div>
                 <h3 class="lookbook-title" data-quickview="${p.id}">${p.name}</h3>
                 <p class="lookbook-ing">${shortPeel || 'Chiết xuất tinh dầu vỏ trái cây tự nhiên'}</p>
                 <div class="lookbook-foot">
                   <span class="lookbook-price">${formatVND(p.price)}</span>
                   <button type="button" class="lookbook-add-btn ${inCart ? 'in-cart' : ''}" data-add-cart="${p.id}" ${outOfStock ? 'disabled' : ''}>
-                    ${outOfStock ? 'Hết hàng' : inCart ? `Thêm (${inCart.qty})`: 'Thêm vào giỏ'}
+                    ${outOfStock ? 'Hết hàng' : inCart ? `Đã thêm (${inCart.qty})` : '<span class="btn-lbl-desktop">Thêm vào giỏ</span><span class="btn-lbl-mobile">+ Thêm</span>'}
                   </button>
                 </div>
               </div>
@@ -2925,11 +2959,13 @@
       }
     });
 
-    // Cart Drawer
+    // Cart Drawer & Floating Mini-Cart Bar
     const cartToggleBtn = document.getElementById('cartToggleBtn');
+    const floatingCartBar = document.getElementById('floatingCartBar');
     const closeCartBtn = document.getElementById('closeCartBtn');
     const cartOverlay = document.getElementById('cartOverlay');
     if (cartToggleBtn) cartToggleBtn.addEventListener('click', openCartDrawer);
+    if (floatingCartBar) floatingCartBar.addEventListener('click', openCartDrawer);
     if (closeCartBtn) closeCartBtn.addEventListener('click', closeCartDrawer);
     if (cartOverlay) cartOverlay.addEventListener('click', closeCartDrawer);
 

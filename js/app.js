@@ -1909,9 +1909,10 @@
 
             return `
             <article class="stage-card-v2 stage-editorial ${isCleared ? 'cleared' : ''}">
-              <div class="stage-editorial-top">
-                <span class="stage-serif-num">${st.num}</span>
-                <span class="stage-status-chip ${isCleared ? 'done' : ''}">
+              <div class="stage-editorial-media" data-stage="${st.id}" role="button" tabindex="0" aria-label="Mở công đoạn ${st.num}: ${st.title}">
+                <img src="${st.image || 'assets/images/explore-game.jpg'}" alt="Công đoạn ${st.num}: ${st.title}" loading="lazy" />
+                <span class="stage-media-num">${st.num}</span>
+                <span class="stage-media-status ${isCleared ? 'done' : ''}">
                   ${isCleared ? 'Hoàn thành' : 'Chưa thực hiện'}
                 </span>
               </div>

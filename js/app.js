@@ -532,6 +532,8 @@
     const pct = getOverallProgress();
     const xpEl = document.getElementById('headerXp');
     if (xpEl) xpEl.textContent = `${pct}%`;
+    const sidePctEl = document.getElementById('sidebarProgressPct');
+    if (sidePctEl) sidePctEl.textContent = `${pct}%`;
     const ringEl = document.getElementById('headerProgressRing');
     if (ringEl) {
       const circumference = 94.25; // 2 * PI * 15
@@ -2083,7 +2085,7 @@
             .join('')}
         </div>
 
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="shop-select-row">
           <select id="shopPriceFilter" class="sort-select" aria-label="Lọc theo mức giá">
             <option value="all" ${shopPriceRange === 'all' ? 'selected' : ''}>Giá: Tất cả</option>
             <option value="under60" ${shopPriceRange === 'under60' ? 'selected' : ''}>Dưới 60.000đ</option>
@@ -2114,7 +2116,7 @@
             return `
             <article class="product-card" data-product-id="${p.id}">
               <div class="product-media">
-                <img src="${p.image}" alt="${p.name}" />
+                <img src="${p.image}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='assets/images/prod-table-spray.jpg';" />
                 <span class="core-badge ${isCreatorProd ? 'creator-shop-badge' : ''}">${p.badge}</span>
                 <span class="progress-badge">${p.category}</span>
               </div>

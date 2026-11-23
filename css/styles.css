@@ -5854,3 +5854,287 @@ body.auth-locked {
   padding: 3px 10px;
   border-radius: var(--radius-pill);
 }
+
+
+/* ===== MOBILE RESPONSIVE POLISH (@media max-width: 768px — DESKTOP 100% UNCHANGED) ===== */
+.shop-select-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mobile-only-pill {
+  display: none;
+}
+
+html, body {
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  /* 1. Clean ~52px Mobile Header — zero overlap, no duplicate hamburger/cart/0% pill */
+  .topbar {
+    min-height: calc(52px + env(safe-area-inset-top));
+    padding: max(6px, env(safe-area-inset-top)) 12px 6px !important;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .topbar-left {
+    flex: 0 1 auto;
+    min-width: 0;
+    gap: 6px;
+  }
+
+  /* Hide duplicate hamburger, header cart button, and 0% progress pill on mobile */
+  #menuToggleBtn,
+  #cartToggleBtn,
+  .topbar .avatar-pill {
+    display: none !important;
+  }
+
+  .mobile-only-pill {
+    display: inline-flex;
+  }
+
+  .topbar-mobile-brand {
+    font-size: 16px;
+    font-weight: 800;
+    white-space: nowrap;
+    flex-shrink: 0;
+    gap: 6px;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .topbar-right .icon-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .user-account-btn {
+    padding: 2px;
+    min-height: 36px;
+    min-width: 36px;
+    border-radius: 50%;
+    gap: 0;
+  }
+
+  .user-avatar-frame {
+    width: 32px;
+    height: 32px;
+  }
+
+  .user-display-name,
+  .user-account-btn .ph-caret-down {
+    display: none !important;
+  }
+
+  /* 2. Compact Bottom Navigation Bar (~56px) & Non-Intrusive Back-to-Top (36x36) */
+  .bottom-nav {
+    display: flex;
+    height: calc(56px + env(safe-area-inset-bottom));
+    padding: 4px max(6px, env(safe-area-inset-left)) env(safe-area-inset-bottom) max(6px, env(safe-area-inset-right));
+  }
+
+  .bottom-nav-item {
+    min-width: 48px;
+    min-height: 44px;
+    padding: 3px 4px;
+    font-size: 10.5px;
+    gap: 2px;
+  }
+
+  .bottom-nav-icon .pv-duotone {
+    font-size: 20px !important;
+  }
+
+  .back-to-top {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    right: 12px;
+    bottom: calc(74px + env(safe-area-inset-bottom));
+    opacity: 0;
+  }
+
+  .back-to-top.visible {
+    opacity: 0.72;
+  }
+
+  .back-to-top.visible:active,
+  .back-to-top.visible:focus-visible {
+    opacity: 1;
+  }
+
+  /* 3. Wider Mobile Reading Area & Compact Card / Hero Padding */
+  .app-view {
+    padding: 12px 12px calc(78px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .hero-banner,
+  .about-story-card,
+  .story-strip,
+  .science-lab-hero,
+  .game-lab-hero,
+  .creator-hero,
+  .progress-overview,
+  .bento-card,
+  .glossary-section,
+  .info-box,
+  .quiz-box,
+  .creator-form-card {
+    padding: 14px 16px !important;
+    border-radius: 18px;
+  }
+
+  .hero-title,
+  .page-title,
+  .shop-hero h1,
+  .game-lab-hero h1,
+  .science-lab-hero h1 {
+    font-size: clamp(21px, 5.8vw, 25px) !important;
+    line-height: 1.25;
+  }
+
+  .hero-desc,
+  .shop-hero p,
+  .science-lab-hero p,
+  .game-lab-hero p {
+    font-size: 14px !important;
+    line-height: 1.5;
+  }
+
+  /* Avoid heavy nested padding inside Mini Science Quiz */
+  .mini-science-quiz {
+    padding: 14px 12px !important;
+    border-radius: 18px;
+  }
+
+  .mini-quiz-card {
+    padding: 12px !important;
+  }
+
+  .quiz-option,
+  .mini-quiz-opt {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 0.86rem;
+  }
+
+  /* 4. Compact Shop Hero, 1-Row Horizontal Swipeable Filter Pills & 2-Col Selects */
+  .shop-hero {
+    padding: 14px 15px !important;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .shop-hero > div:last-child {
+    width: 100%;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .shop-subtabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .shop-subtabs .creator-tab-btn {
+    justify-content: center;
+    padding: 9px 10px;
+    font-size: 0.8rem;
+  }
+
+  .source-filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  /* Single-row horizontal scrollable pills (no 5-row vertical stack!) */
+  .filter-pills,
+  .glossary-badges {
+    display: flex;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 8px;
+    width: 100%;
+    padding-bottom: 2px;
+  }
+
+  .filter-pills::-webkit-scrollbar,
+  .glossary-badges::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-pill,
+  .glossary-badge {
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 38px;
+    padding: 7px 13px;
+    font-size: 0.82rem;
+  }
+
+  .shop-select-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .shop-select-row .sort-select {
+    width: 100%;
+    min-height: 40px;
+    font-size: 0.82rem;
+    padding: 8px 10px;
+  }
+
+  .product-media {
+    height: auto;
+    aspect-ratio: 16 / 10;
+  }
+
+  .product-body {
+    padding: 14px;
+    gap: 8px;
+  }
+
+  /* 5. Safe Mobile Modals (94vw, max 88dvh, scrollable) */
+  .contact-modal,
+  .auth-gate-card {
+    width: min(94vw, 440px);
+    max-height: 88dvh;
+    overflow-y: auto;
+    padding: 18px 16px;
+  }
+
+  .site-footer {
+    padding: 14px 12px calc(74px + env(safe-area-inset-bottom));
+  }
+}

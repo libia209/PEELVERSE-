@@ -2119,6 +2119,11 @@
                 <span class="progress-badge">${p.category}</span>
               </div>
               <div class="product-body">
+                ${
+                  isCreatorProd
+                    ? `<span class="ai-verified-pill"><i class="ph-duotone ph-seal-check pv-duotone" style="font-size:14px;"></i> Đã kiểm duyệt AI ✓</span>`
+                    : ''
+                }
                 <h3 class="product-title">${p.name}</h3>
                 <p class="product-desc">${p.desc}</p>
                 <div class="care-pills">

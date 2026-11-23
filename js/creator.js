@@ -18,6 +18,119 @@
     'Thủ công từ vỏ quả'
   ];
 
+  const MODERATION_META = {
+    approved: {
+      label: 'Đã duyệt & Mở bán',
+      shortLabel: 'Đã duyệt AI',
+      cls: 'ai-approved',
+      icon: 'ph-seal-check'
+    },
+    rejected: {
+      label: 'Chưa đạt — Cần chỉnh sửa',
+      shortLabel: 'Bị từ chối',
+      cls: 'ai-rejected',
+      icon: 'ph-x-circle'
+    },
+    needs_review: {
+      label: 'Chờ xem xét thêm',
+      shortLabel: 'Chờ xem xét',
+      cls: 'ai-review',
+      icon: 'ph-warning-circle'
+    },
+    pending: {
+      label: 'Đang chờ duyệt',
+      shortLabel: 'Đang chờ duyệt',
+      cls: 'ai-pending',
+      icon: 'ph-clock'
+    }
+  };
+
+  function getModerationMeta(status) {
+    return MODERATION_META[status] || MODERATION_META.pending;
+  }
+
+  function formatAiSuggestions(val) {
+    if (!val) return '';
+    if (Array.isArray(val)) return val.filter(Boolean).join(' • ');
+    return String(val).trim();
+  }
+
+  function renderAiScanningHtml(productName) {
+    return `
+      <div class="ai-mod-card ai-scanning">
+        <div class="ai-mod-head">
+          <span class="ai-scan-orb"><i class="ph-duotone ph-sparkle pv-duotone" style="font-size:22px;"></i></span>
+          <div>
+            <strong>AI Gemini đang kiểm duyệt nội dung &amp; hình ảnh sản phẩm...</strong>
+            <div style="font-size:0.8rem;color:var(--text-muted);">${escapeHtml(productName || 'Sản phẩm mới')}</div>
+          </div>
+        </div>
+        <div class="ai-scan-track"><div class="ai-scan-beam"></div></div>
+      </div>
+    `;
+  }
+
+  function renderAiResultCardHtml(res) {
+    const status = res.moderation_status || res.status || 'pending';
+    const meta = getModerationMeta(status);
+    const score = Number.isFinite(Number(res.ai_score)) ? Math.max(0, Math.min(100, Math.round(Number(res.ai_score)))) : null;
+    const note = res.ai_review_note || res.review_note || '';
+    const suggestions = formatAiSuggestions(res.ai_suggestions || res.suggestions);
+
+    return `
+      <div class="ai-mod-card ${meta.cls}">
+        <div class="ai-mod-head" style="justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="ai-status-icon ${meta.cls}">
+              <i class="ph-duotone ${meta.icon} pv-duotone" style="font-size:22px;"></i>
+            </span>
+            <div>
+              <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;opacity:0.8;">Kết quả kiểm duyệt Gemini AI</div>
+              <strong style="font-size:1rem;">${meta.label}</strong>
+            </div>
+          </div>
+          ${
+            score !== null
+              ? `<div class="ai-score-badge">Điểm phù hợp AI: <strong>${score}/100</strong></div>`
+              : ''
+          }
+        </div>
+        ${
+          score !== null
+            ? `<div class="ai-score-track"><div class="ai-score-fill ${meta.cls}" style="width:${score}%;"></div></div>`
+            : ''
+        }
+        ${note ? `<div class="ai-mod-note"><strong>Nhận xét của AI:</strong> ${escapeHtml(note)}</div>` : ''}
+        ${suggestions ? `<div class="ai-mod-suggest"><strong>💡 Gợi ý chỉnh sửa:</strong> ${escapeHtml(suggestions)}</div>` : ''}
+      </div>
+    `;
+  }
+
+  async function runAiModeration(productId) {
+    const sb = getClient();
+    if (!sb) throw new Error('Supabase chưa sẵn sàng.');
+    const { data, error } = await sb.functions.invoke('moderate-product', {
+      body: { product_id: productId }
+    });
+    if (error) throw error;
+
+    const payload = (data && (data.product || data.data || data)) || {};
+    // Also fetch latest persisted row to guarantee accurate status/notes
+    try {
+      const { data: fresh } = await sb.from('products').select('*').eq('id', productId).maybeSingle();
+      if (fresh) {
+        return {
+          ...payload,
+          ...fresh,
+          moderation_status: fresh.moderation_status || payload.moderation_status || payload.status || 'pending'
+        };
+      }
+    } catch {
+      // Fallback to edge function payload
+    }
+    return payload;
+  }
+
   function getClient() {
     return window.PEELVERSE_AUTH && window.PEELVERSE_AUTH.supabase;
   }
@@ -105,6 +218,8 @@
       creatorId: row.creator_id || null,
       source: 'creator',
       shopName,
+      aiVerified: row.moderation_status === 'approved',
+      aiScore: row.ai_score ?? null,
       name: row.name || 'Sản phẩm xanh',
       category: row.category || 'Thủ công từ vỏ quả',
       price: Number(row.price || 0),
@@ -124,11 +239,12 @@
   async function fetchActiveCommunityProducts() {
     const sb = getClient();
     if (!sb) return [];
-    // Try join with profiles for shop_name, fallback to plain select if FK name differs
+    // Public storefront ONLY shows products where is_active = true AND moderation_status = 'approved'
     let { data, error } = await sb
       .from('products')
       .select('*, profiles(shop_name, full_name)')
       .eq('is_active', true)
+      .eq('moderation_status', 'approved')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -136,6 +252,7 @@
         .from('products')
         .select('*')
         .eq('is_active', true)
+        .eq('moderation_status', 'approved')
         .order('created_at', { ascending: false });
       if (plain.error) throw plain.error;
       data = plain.data;
@@ -404,15 +521,17 @@
 
         <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
           <button type="submit" id="cpSubmitBtn" class="btn btn-orange">
-            <i class="ph-duotone ph-upload-simple pv-duotone"></i> <span>Đăng sản phẩm lên PEELVERSE</span>
+            <i class="ph-duotone ph-sparkle pv-duotone"></i> <span>Đăng &amp; Kiểm duyệt AI Gemini</span>
           </button>
         </div>
       </form>
+      <div id="publishAiModerationArea" style="margin-top:16px;"></div>
     `;
 
     const fileInput = container.querySelector('#cpImageFile');
     const previewWrap = container.querySelector('#cpImagePreviewWrap');
     const previewImg = container.querySelector('#cpImagePreview');
+    const aiArea = container.querySelector('#publishAiModerationArea');
 
     fileInput.addEventListener('change', () => {
       const f = fileInput.files && fileInput.files[0];
@@ -440,8 +559,9 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = container.querySelector('#cpSubmitBtn');
+      const prodName = container.querySelector('#cpName').value.trim();
       btn.disabled = true;
-      btn.innerHTML = '<span class="auth-spinner"></span> Đang đăng sản phẩm...';
+      btn.innerHTML = '<span class="auth-spinner"></span> Đang lưu sản phẩm...';
 
       try {
         let imageUrl = container.querySelector('#cpImageUrl').value.trim();
@@ -450,10 +570,11 @@
           imageUrl = await uploadProductImage(file, user.id);
         }
 
+        // Step A: Save product as pending & inactive before AI moderation
         const payload = {
           creator_id: user.id,
           shop_name: profile.shop_name || profile.full_name || 'Nhà sáng tạo PEELVERSE',
-          name: container.querySelector('#cpName').value.trim(),
+          name: prodName,
           category: container.querySelector('#cpCategory').value,
           price: Number(container.querySelector('#cpPrice').value),
           stock: Number(container.querySelector('#cpStock').value || 0),
@@ -461,19 +582,46 @@
           peel_ingredients: container.querySelector('#cpPeel').value.trim(),
           description: container.querySelector('#cpDesc').value.trim(),
           image_url: imageUrl || 'assets/images/prod-table-spray.jpg',
-          is_active: true
+          moderation_status: 'pending',
+          is_active: false
         };
 
-        await createProduct(payload);
-        toast('🎉 Đã đăng sản phẩm xanh lên cửa hàng PEELVERSE thành công!');
-        form.reset();
-        previewWrap.classList.add('hidden');
+        const savedProduct = await createProduct(payload);
+
+        // Step B: Show animated Gemini AI scanning state
+        btn.innerHTML = '<span class="auth-spinner"></span> AI Gemini đang kiểm duyệt...';
+        aiArea.innerHTML = renderAiScanningHtml(prodName);
+        aiArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Step C: Call Supabase Edge Function `moderate-product`
+        try {
+          const modResult = await runAiModeration(savedProduct.id);
+          // Step D: Render clear AI moderation result card
+          aiArea.innerHTML = renderAiResultCardHtml(modResult);
+          const status = modResult.moderation_status || modResult.status || 'pending';
+          if (status === 'approved') {
+            toast('🎉 Sản phẩm đã được AI Gemini duyệt & mở bán!');
+            form.reset();
+            previewWrap.classList.add('hidden');
+          } else if (status === 'rejected') {
+            toast('⚠️ Sản phẩm chưa đạt kiểm duyệt AI. Xem gợi ý chỉnh sửa bên dưới!', 'warning');
+          } else {
+            toast('⏳ Sản phẩm đã lưu và đang chờ xem xét thêm.', 'warning');
+          }
+        } catch (aiErr) {
+          aiArea.innerHTML = renderAiResultCardHtml({
+            moderation_status: 'pending',
+            ai_review_note: `Sản phẩm đã được lưu ở trạng thái chờ duyệt nhưng không gọi được Edge Function moderate-product: ${translateDbError(aiErr)}`
+          });
+          toast('⚠️ Đã lưu sản phẩm nhưng kiểm duyệt AI gặp lỗi kết nối.', 'warning');
+        }
+
         if (onProductsChanged) onProductsChanged();
       } catch (err) {
         toast(`⚠️ ${translateDbError(err)}`, 'warning');
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<i class="ph-duotone ph-upload-simple pv-duotone"></i> <span>Đăng sản phẩm lên PEELVERSE</span>';
+        btn.innerHTML = '<i class="ph-duotone ph-sparkle pv-duotone"></i> <span>Đăng &amp; Kiểm duyệt AI Gemini</span>';
       }
     });
   }
@@ -500,45 +648,70 @@
       }
 
       container.innerHTML = `
+        <div id="myProductsAiArea" style="margin-bottom:14px;"></div>
         <div class="creator-products-list">
           ${items
-            .map(
-              (p) => `
+            .map((p) => {
+              const modStatus = p.moderation_status || 'pending';
+              const modMeta = getModerationMeta(modStatus);
+              const isApproved = modStatus === 'approved';
+              const hasScore = p.ai_score !== null && p.ai_score !== undefined;
+              const suggestions = formatAiSuggestions(p.ai_suggestions);
+              return `
             <article class="creator-prod-row" data-pid="${p.id}">
               <img src="${escapeHtml(p.image_url || 'assets/images/prod-table-spray.jpg')}" alt="${escapeHtml(p.name)}" class="creator-prod-thumb" />
               <div class="creator-prod-info">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                   <strong>${escapeHtml(p.name)}</strong>
-                  <span class="order-status-badge ${p.is_active ? 'status-completed' : 'status-cancelled'}">
-                    ${p.is_active ? 'Đang bán' : 'Đang ẩn'}
+                  <span class="ai-pill-badge ${modMeta.cls}">
+                    <i class="ph-duotone ${modMeta.icon} pv-duotone" style="font-size:14px;"></i>
+                    <span>${modMeta.shortLabel}</span>
+                  </span>
+                  ${hasScore ? `<span class="ai-score-mini">AI: ${Math.round(Number(p.ai_score))}/100</span>` : ''}
+                  <span class="order-status-badge ${p.is_active && isApproved ? 'status-completed' : 'status-cancelled'}">
+                    ${p.is_active && isApproved ? 'Đang bán' : 'Đang ẩn'}
                   </span>
                 </div>
                 <div style="font-size:0.84rem;color:var(--text-muted);margin-top:4px;">
                   ${escapeHtml(p.category || '')} • Giá: <strong style="color:var(--orange-deep);">${formatVND(p.price)}</strong> • Tồn kho: <strong>${p.stock ?? 0}</strong>
                 </div>
+                ${
+                  p.ai_review_note || suggestions
+                    ? `<div class="ai-inline-reason ${modMeta.cls}">
+                        ${p.ai_review_note ? `<div><strong>AI nhận xét:</strong> ${escapeHtml(p.ai_review_note)}</div>` : ''}
+                        ${suggestions ? `<div><strong>Gợi ý:</strong> ${escapeHtml(suggestions)}</div>` : ''}
+                      </div>`
+                    : ''
+                }
                 <div class="creator-quick-edit hidden" id="editBox-${p.id}">
+                  <input type="text" class="qe-name" value="${escapeHtml(p.name || '')}" placeholder="Tên sản phẩm" />
                   <input type="number" class="qe-price" value="${p.price}" min="1000" step="1000" placeholder="Giá VNĐ" />
                   <input type="number" class="qe-stock" value="${p.stock ?? 0}" min="0" placeholder="Tồn kho" />
-                  <input type="text" class="qe-desc" value="${escapeHtml(p.description || '')}" placeholder="Mô tả ngắn" />
-                  <button type="button" class="btn btn-primary btn-sm" data-save-edit="${p.id}">Lưu</button>
+                  <input type="text" class="qe-desc" value="${escapeHtml(p.description || '')}" placeholder="Mô tả chi tiết" style="flex:1;min-width:180px;max-width:none;" />
+                  <button type="button" class="btn btn-primary btn-sm" data-save-edit="${p.id}">Lưu &amp; AI duyệt lại</button>
                 </div>
               </div>
               <div class="creator-prod-actions">
-                <button type="button" class="btn btn-secondary btn-sm" data-toggle-active="${p.id}" data-cur="${p.is_active ? '1' : '0'}">
-                  ${p.is_active ? 'Tạm ẩn' : 'Mở bán'}
+                <button type="button" class="btn btn-secondary btn-sm" data-toggle-active="${p.id}" data-cur="${p.is_active ? '1' : '0'}" ${!isApproved ? 'disabled title="Cần đạt trạng thái Đã duyệt AI trước khi mở bán"' : ''}>
+                  ${!isApproved ? '🔒 Chưa duyệt' : p.is_active ? 'Tạm ẩn' : 'Mở bán'}
                 </button>
-                <button type="button" class="btn btn-secondary btn-sm" data-open-edit="${p.id}">Sửa nhanh</button>
+                <button type="button" class="btn ${modStatus === 'rejected' || modStatus === 'pending' ? 'btn-orange' : 'btn-secondary'} btn-sm" data-open-edit="${p.id}">
+                  ${modStatus === 'rejected' || modStatus === 'pending' ? 'Chỉnh sửa & Gửi AI duyệt lại' : 'Sửa nhanh'}
+                </button>
                 <button type="button" class="btn btn-secondary btn-sm danger-outline" data-delete-prod="${p.id}">Xóa</button>
               </div>
             </article>
-          `
-            )
+          `;
+            })
             .join('')}
         </div>
       `;
 
+      const aiArea = container.querySelector('#myProductsAiArea');
+
       container.querySelectorAll('[data-toggle-active]').forEach((btn) => {
         btn.addEventListener('click', async () => {
+          if (btn.disabled) return;
           const next = btn.dataset.cur !== '1';
           btn.disabled = true;
           try {
@@ -564,18 +737,44 @@
         btn.addEventListener('click', async () => {
           const id = btn.dataset.saveEdit;
           const box = container.querySelector(`#editBox-${id}`);
+          const name = box.querySelector('.qe-name').value.trim();
           const price = Number(box.querySelector('.qe-price').value);
           const stock = Number(box.querySelector('.qe-stock').value);
           const description = box.querySelector('.qe-desc').value.trim();
           btn.disabled = true;
+          btn.innerHTML = '<span class="auth-spinner"></span> Đang duyệt...';
           try {
-            await updateProduct(id, { price, stock, description });
-            toast('✅ Đã cập nhật thông tin sản phẩm!');
+            // Step A: Update product & set pending/inactive for AI re-moderation
+            await updateProduct(id, {
+              name,
+              price,
+              stock,
+              description,
+              moderation_status: 'pending',
+              is_active: false
+            });
+            // Step B & C: Show scanning bar and invoke moderate-product
+            if (aiArea) {
+              aiArea.innerHTML = renderAiScanningHtml(name);
+              aiArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            const modResult = await runAiModeration(id);
+            const status = modResult.moderation_status || modResult.status || 'pending';
+            toast(
+              status === 'approved'
+                ? '🎉 AI Gemini đã duyệt lại & mở bán sản phẩm!'
+                : '📋 Đã cập nhật kết quả kiểm duyệt AI mới.'
+            );
             if (onProductsChanged) onProductsChanged();
-            renderMyProductsTab(container, { user, onProductsChanged });
+            await renderMyProductsTab(container, { user, onProductsChanged });
+            const refreshedArea = container.querySelector('#myProductsAiArea');
+            if (refreshedArea) {
+              refreshedArea.innerHTML = renderAiResultCardHtml(modResult);
+            }
           } catch (err) {
             toast(`⚠️ ${translateDbError(err)}`, 'warning');
             btn.disabled = false;
+            btn.textContent = 'Lưu & AI duyệt lại';
           }
         });
       });

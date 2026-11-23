@@ -61,7 +61,7 @@
         <div class="ai-mod-head">
           <span class="ai-scan-orb"><i class="ph-duotone ph-sparkle pv-duotone" style="font-size:22px;"></i></span>
           <div>
-            <strong>AI Gemini đang kiểm duyệt nội dung &amp; hình ảnh sản phẩm...</strong>
+            <strong>Đang gửi sản phẩm lên hệ thống...</strong>
             <div style="font-size:0.8rem;color:var(--text-muted);">${escapeHtml(productName || 'Sản phẩm mới')}</div>
           </div>
         </div>
@@ -85,13 +85,13 @@
               <i class="ph-duotone ${meta.icon} pv-duotone" style="font-size:22px;"></i>
             </span>
             <div>
-              <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;opacity:0.8;">Kết quả kiểm duyệt Gemini AI</div>
+              <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;opacity:0.8;">Kết quả kiểm duyệt sản phẩm</div>
               <strong style="font-size:1rem;">${meta.label}</strong>
             </div>
           </div>
           ${
             score !== null
-              ? `<div class="ai-score-badge">Điểm phù hợp AI: <strong>${score}/100</strong></div>`
+              ? `<div class="ai-score-badge">Điểm phù hợp: <strong>${score}/100</strong></div>`
               : ''
           }
         </div>
@@ -100,7 +100,7 @@
             ? `<div class="ai-score-track"><div class="ai-score-fill ${meta.cls}" style="width:${score}%;"></div></div>`
             : ''
         }
-        ${note ? `<div class="ai-mod-note"><strong>Nhận xét của AI:</strong> ${escapeHtml(note)}</div>` : ''}
+        ${note ? `<div class="ai-mod-note"><strong>Nhận xét:</strong> ${escapeHtml(note)}</div>` : ''}
         ${suggestions ? `<div class="ai-mod-suggest"><strong>💡 Gợi ý chỉnh sửa:</strong> ${escapeHtml(suggestions)}</div>` : ''}
       </div>
     `;
@@ -109,7 +109,7 @@
   async function runAiModeration(productId) {
     const sb = getClient();
     if (!sb) throw new Error('Supabase chưa sẵn sàng.');
-    const { data, error } = await sb.functions.invoke('moderate-product', {
+    const { data, error } = await sb.functions.invoke('super-responder', {
       body: { product_id: productId }
     });
     if (error) throw error;
@@ -519,10 +519,11 @@
           </div>
         </div>
 
-        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
-          <button type="submit" id="cpSubmitBtn" class="btn btn-orange">
-            <i class="ph-duotone ph-sparkle pv-duotone"></i> <span>Đăng &amp; Kiểm duyệt AI Gemini</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;margin-top:16px;">
+          <button type="submit" id="cpSubmitBtn" class="btn btn-orange" style="min-width:132px;">
+            <span>Đăng</span>
           </button>
+          <span style="font-size:12px;color:var(--text-muted);">Lưu ý: Kiểm duyệt mất 1–2 ngày.</span>
         </div>
       </form>
       <div id="publishAiModerationArea" style="margin-top:16px;"></div>
@@ -561,7 +562,7 @@
       const btn = container.querySelector('#cpSubmitBtn');
       const prodName = container.querySelector('#cpName').value.trim();
       btn.disabled = true;
-      btn.innerHTML = '<span class="auth-spinner"></span> Đang lưu sản phẩm...';
+      btn.innerHTML = '<span class="auth-spinner"></span> Đang đăng...';
 
       try {
         let imageUrl = container.querySelector('#cpImageUrl').value.trim();
@@ -570,7 +571,7 @@
           imageUrl = await uploadProductImage(file, user.id);
         }
 
-        // Step A: Save product as pending & inactive before AI moderation
+        // Step A: Save product as pending & inactive before moderation
         const payload = {
           creator_id: user.id,
           shop_name: profile.shop_name || profile.full_name || 'Nhà sáng tạo PEELVERSE',
@@ -588,32 +589,31 @@
 
         const savedProduct = await createProduct(payload);
 
-        // Step B: Show animated Gemini AI scanning state
-        btn.innerHTML = '<span class="auth-spinner"></span> AI Gemini đang kiểm duyệt...';
+        // Step B: Show smooth submitting state
         aiArea.innerHTML = renderAiScanningHtml(prodName);
         aiArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-        // Step C: Call Supabase Edge Function `moderate-product`
+        // Step C: Call Supabase Edge Function `super-responder`
         try {
           const modResult = await runAiModeration(savedProduct.id);
-          // Step D: Render clear AI moderation result card
+          // Step D: Render clear moderation result card
           aiArea.innerHTML = renderAiResultCardHtml(modResult);
           const status = modResult.moderation_status || modResult.status || 'pending';
           if (status === 'approved') {
-            toast('🎉 Sản phẩm đã được AI Gemini duyệt & mở bán!');
+            toast('🎉 Sản phẩm đã được duyệt và mở bán thành công!');
             form.reset();
             previewWrap.classList.add('hidden');
           } else if (status === 'rejected') {
-            toast('⚠️ Sản phẩm chưa đạt kiểm duyệt AI. Xem gợi ý chỉnh sửa bên dưới!', 'warning');
+            toast('⚠️ Sản phẩm chưa đạt kiểm duyệt. Xem gợi ý chỉnh sửa bên dưới!', 'warning');
           } else {
-            toast('⏳ Sản phẩm đã lưu và đang chờ xem xét thêm.', 'warning');
+            toast('⏳ Sản phẩm đã được gửi và đang chờ kiểm duyệt.');
           }
         } catch (aiErr) {
           aiArea.innerHTML = renderAiResultCardHtml({
             moderation_status: 'pending',
-            ai_review_note: `Sản phẩm đã được lưu ở trạng thái chờ duyệt nhưng không gọi được Edge Function moderate-product: ${translateDbError(aiErr)}`
+            ai_review_note: 'Sản phẩm đã được gửi lên hệ thống và đang chờ kiểm duyệt (dự kiến 1–2 ngày).'
           });
-          toast('⚠️ Đã lưu sản phẩm nhưng kiểm duyệt AI gặp lỗi kết nối.', 'warning');
+          toast('✅ Đã gửi sản phẩm lên hệ thống chờ kiểm duyệt.');
         }
 
         if (onProductsChanged) onProductsChanged();
@@ -621,7 +621,7 @@
         toast(`⚠️ ${translateDbError(err)}`, 'warning');
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<i class="ph-duotone ph-sparkle pv-duotone"></i> <span>Đăng &amp; Kiểm duyệt AI Gemini</span>';
+        btn.innerHTML = '<span>Đăng</span>';
       }
     });
   }
@@ -753,7 +753,7 @@
               moderation_status: 'pending',
               is_active: false
             });
-            // Step B & C: Show scanning bar and invoke moderate-product
+            // Step B & C: Show scanning bar and invoke super-responder
             if (aiArea) {
               aiArea.innerHTML = renderAiScanningHtml(name);
               aiArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -762,8 +762,8 @@
             const status = modResult.moderation_status || modResult.status || 'pending';
             toast(
               status === 'approved'
-                ? '🎉 AI Gemini đã duyệt lại & mở bán sản phẩm!'
-                : '📋 Đã cập nhật kết quả kiểm duyệt AI mới.'
+                ? '🎉 Sản phẩm đã được duyệt lại & mở bán!'
+                : '📋 Đã cập nhật trạng thái kiểm duyệt sản phẩm.'
             );
             if (onProductsChanged) onProductsChanged();
             await renderMyProductsTab(container, { user, onProductsChanged });

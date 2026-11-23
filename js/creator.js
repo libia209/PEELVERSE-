@@ -869,6 +869,17 @@
     }
   }
 
+  function resolveOrderThumb(order) {
+    if (order && order.product_image) return order.product_image;
+    const official = (window.PEELVERSE_DATA && window.PEELVERSE_DATA.shopProducts) || [];
+    const byId = official.find((p) => p.id === order.product_id);
+    if (byId && byId.image) return byId.image;
+    const nameLower = String(order.product_name || '').toLowerCase();
+    const byName = official.find((p) => String(p.name || '').toLowerCase() === nameLower);
+    if (byName && byName.image) return byName.image;
+    return 'assets/images/prod-table-spray.jpg';
+  }
+
   // ===== BUYER "ĐƠN HÀNG CỦA TÔI" VIEW =====
   async function renderBuyerOrdersPanel(container, user) {
     if (!user) {
@@ -893,28 +904,37 @@
             .map((o) => {
               const meta = ORDER_STATUS_META[o.status] || ORDER_STATUS_META.pending;
               const shortId = String(o.id).slice(0, 8).toUpperCase();
+              const thumb = resolveOrderThumb(o);
+              const dateStr = o.created_at
+                ? new Date(o.created_at).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: '2-digit' })
+                : '';
               return `
-              <article class="order-card">
-                <div class="order-card-head">
-                  <div>
-                    <strong>Đơn #${shortId}</strong>
-                    <span class="order-date">${o.created_at ? new Date(o.created_at).toLocaleString('vi-VN') : ''}</span>
+              <article class="order-card buyer-order-card">
+                <img src="${thumb}" alt="${escapeHtml(o.product_name || 'Sản phẩm')}" class="buyer-order-thumb" loading="lazy" onerror="this.onerror=null;this.src='assets/images/prod-table-spray.jpg';" />
+                <div class="buyer-order-main">
+                  <div class="buyer-order-top">
+                    <div class="buyer-order-name">${escapeHtml(o.product_name || 'Sản phẩm')}</div>
+                    <span class="order-status-badge ${meta.cls}">${meta.label}</span>
                   </div>
-                  <span class="order-status-badge ${meta.cls}">${meta.label}</span>
+                  <div class="buyer-order-meta">
+                    <span>SL: <strong>×${o.quantity || 1}</strong></span>
+                    <span class="buyer-order-total">${formatVND(o.total_price)}</span>
+                    <span>#${shortId}${dateStr ? ` • ${dateStr}` : ''}</span>
+                  </div>
+                  ${
+                    o.shipping_address
+                      ? `<div class="buyer-order-address">${escapeHtml(o.shipping_address)}${o.buyer_phone ? ` • ${escapeHtml(o.buyer_phone)}` : ''}</div>`
+                      : ''
+                  }
+                  ${
+                    o.status === 'pending'
+                      ? `<div class="buyer-order-actions">
+                          <span></span>
+                          <button type="button" class="btn btn-secondary btn-sm danger-outline" data-cancel-order="${o.id}">Hủy đơn</button>
+                        </div>`
+                      : ''
+                  }
                 </div>
-                <div class="order-card-body">
-                  <div><strong>Sản phẩm:</strong> ${escapeHtml(o.product_name || 'Sản phẩm')} × ${o.quantity || 1}</div>
-                  <div><strong>Tổng tiền (COD):</strong> <span style="color:var(--orange-deep);font-weight:800;">${formatVND(o.total_price)}</span></div>
-                  <div><strong>Giao tới:</strong> ${escapeHtml(o.shipping_address || '')} (${escapeHtml(o.buyer_phone || '')})</div>
-                  ${o.note ? `<div><strong>Ghi chú:</strong> ${escapeHtml(o.note)}</div>`: ''}
-                </div>
-                ${
-                  o.status === 'pending'
-                    ? `<div class="order-card-foot">
-                        <button type="button" class="btn btn-secondary btn-sm danger-outline" data-cancel-order="${o.id}">Hủy đơn hàng</button>
-                      </div>`
-                    : ''
-                }
               </article>
             `;
             })

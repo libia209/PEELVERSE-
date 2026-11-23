@@ -2514,7 +2514,7 @@
       }
     ];
 
-    const quickChips = ['Vỏ cam', 'Limonene', 'Độ pH', 'Mini Game', 'Nước lau rửa', 'Liên hệ'];
+    const quickChips = ['Vỏ cam', 'Lá bạc hà', 'Limonene', 'Độ pH', 'Nước lau rửa', 'Mô phỏng'];
     let flatMatches = [];
     let activeIdx = -1;
 
@@ -2523,14 +2523,70 @@
       item.action();
       input.value = '';
       dropdown.classList.add('hidden');
+      const sp = document.getElementById('searchBarPanel');
+      if (sp) sp.classList.add('hidden');
       input.blur();
     }
 
+    function movePsearchSheet(listEl, rowEl) {
+      if (!listEl) return;
+      const sheet = listEl.querySelector('.psearch__sheet');
+      if (!sheet) return;
+      if (!rowEl) {
+        sheet.style.opacity = '0';
+        return;
+      }
+      sheet.style.opacity = '1';
+      sheet.style.transform = `translate3d(0, ${rowEl.offsetTop}px, 0)`;
+      sheet.style.height = `${rowEl.offsetHeight}px`;
+    }
+
     function updateActiveHighlight() {
-      const buttons = dropdown.querySelectorAll('.search-item');
-      buttons.forEach((b, i) => {
-        b.classList.toggle('active-result', i === activeIdx);
-        if (i === activeIdx) b.scrollIntoView({ block: 'nearest' });
+      const listEl = dropdown.querySelector('.psearch__list');
+      const rows = dropdown.querySelectorAll('.psearch__row[data-midx]');
+      let activeRow = null;
+      rows.forEach((row, i) => {
+        const isHit = i === activeIdx;
+        row.classList.toggle('is-active', isHit);
+        if (isHit) {
+          activeRow = row;
+          row.scrollIntoView({ block: 'nearest' });
+        }
+      });
+      movePsearchSheet(listEl, activeRow);
+    }
+
+    function renderChipsHtml(count) {
+      const chipColors = ['#EDE5D6', '#E4ECE5', '#F3E5DA', '#E6E9E4', '#EFE6DC', '#E2E9E5'];
+      return `
+        <div class="psearch__chips" aria-label="Từ khóa gợi ý">
+          <button type="button" class="psearch__chip psearch__chip--lead" data-reset-search>
+            <span class="psearch__count">${count}</span>
+            <span>Gợi ý nhanh</span>
+          </button>
+          ${quickChips
+            .map(
+              (c, idx) => `
+            <button type="button" class="psearch__chip" style="background:${chipColors[idx % chipColors.length]};" data-chip="${c}">
+              <span class="psearch__chip-x" aria-hidden="true">→</span>
+              <span>${c}</span>
+            </button>
+          `
+            )
+            .join('')}
+        </div>
+      `;
+    }
+
+    function bindPsearchListInteractions(listEl) {
+      if (!listEl) return;
+      listEl.addEventListener('pointerover', (e) => {
+        const row = e.target.closest('.psearch__row');
+        if (row && listEl.contains(row)) movePsearchSheet(listEl, row);
+      });
+      listEl.addEventListener('pointerleave', () => {
+        const activeRow = listEl.querySelector('.psearch__row.is-active');
+        movePsearchSheet(listEl, activeRow);
       });
     }
 
@@ -2543,35 +2599,84 @@
         flatMatches = [];
         const recents = loadRecentSearches();
         dropdown.innerHTML = `
-          <div class="search-section-label"><span>Truy cập nhanh</span></div>
-          <div class="search-chips-wrap">
-            ${quickChips.map((c) => `<button type="button" class="search-quick-chip" data-chip="${c}">${c}</button>`).join('')}
-          </div>
-          ${
-            recents.length > 0
-              ? `
-            <div class="search-section-label">
-              <span>Tìm kiếm gần đây</span>
-              <button type="button" class="text-btn" id="clearRecentSearchBtn">Xóa</button>
+          <div class="psearch__panel">
+            <div class="psearch__head">
+              <span class="psearch__head-label">${recents.length > 0 ? 'Tìm kiếm gần đây' : 'Khám phá nhanh PEELVERSE'}</span>
+              ${
+                recents.length > 0
+                  ? `<button type="button" class="psearch__action" id="clearRecentSearchBtn">Xóa tất cả</button>`
+                  : `<span class="psearch__head-label">${index.length} mục</span>`
+              }
             </div>
-            <div class="search-chips-wrap">
-              ${recents.map((r) => `<button type="button" class="search-quick-chip" data-chip="${r}"> ${r}</button>`).join('')}
-            </div>`
-              : ''
-          }
-          <div class="search-kbd-hint">
-            <span>Gõ có dấu hoặc không dấu (VD: "vo cam", "rua chen")</span>
-            <span>Esc để đóng</span>
+            <ul class="psearch__list">
+              <div class="psearch__sheet" aria-hidden="true"></div>
+              ${
+                recents.length > 0
+                  ? recents
+                      .map(
+                        (r, idx) => `
+                <li class="psearch__row" data-recent-row="${idx}">
+                  <span class="psearch__divider" aria-hidden="true"></span>
+                  <div class="psearch__row-body" data-chip="${r}">
+                    <div class="psearch__tile" aria-hidden="true">
+                      <div class="psearch__tile-art" style="background:#EAE6DC;display:grid;place-items:center;color:#162A22;font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;">
+                        ${String(r).trim().charAt(0).toUpperCase()}
+                      </div>
+                    </div>
+                    <div class="psearch__row-text">
+                      <div class="psearch__row-title">${r}</div>
+                      <div class="psearch__row-sub">Tìm kiếm gần đây</div>
+                    </div>
+                    <div class="psearch__remove-slot">
+                      <button type="button" class="psearch__remove" data-remove-recent="${r}" aria-label="Xóa ${r}">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                      <span class="psearch__tip" aria-hidden="true">Xóa<span class="psearch__tip-arrow"></span></span>
+                    </div>
+                  </div>
+                </li>
+              `
+                      )
+                      .join('')
+                  : `
+                <li class="psearch__empty">
+                  <div>Gõ có dấu hoặc không dấu (VD: <strong>vo cam</strong>, <strong>la bac ha</strong>, <strong>rua chen</strong>) hoặc chọn từ khóa bên dưới.</div>
+                </li>
+              `
+              }
+            </ul>
+            ${renderChipsHtml(quickChips.length)}
           </div>
+          <div class="psearch__foot"></div>
         `;
 
-        dropdown.querySelectorAll('[data-chip]').forEach((chip) => {
-          chip.addEventListener('click', () => {
-            input.value = chip.dataset.chip;
+        bindPsearchListInteractions(dropdown.querySelector('.psearch__list'));
+
+        dropdown.querySelectorAll('[data-chip]').forEach((el) => {
+          el.addEventListener('click', (e) => {
+            if (e.target.closest('[data-remove-recent]')) return;
+            input.value = el.dataset.chip;
             renderDropdown();
             input.focus();
           });
         });
+
+        dropdown.querySelectorAll('[data-remove-recent]').forEach((btn) => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const term = btn.dataset.removeRecent;
+            const row = btn.closest('.psearch__row');
+            const nextRecents = loadRecentSearches().filter((x) => x !== term);
+            localStorage.setItem(RECENT_SEARCH_KEY, JSON.stringify(nextRecents));
+            if (row) {
+              row.classList.add('psearch__row--leaving');
+              setTimeout(() => renderDropdown(), 180);
+            } else {
+              renderDropdown();
+            }
+          });
+        });
+
         const clearBtn = dropdown.querySelector('#clearRecentSearchBtn');
         if (clearBtn) {
           clearBtn.addEventListener('click', (e) => {
@@ -2584,58 +2689,75 @@
         return;
       }
 
-      flatMatches = index.filter((item) => item.searchBlob.includes(normQ)).slice(0, 12);
+      flatMatches = index.filter((item) => item.searchBlob.includes(normQ)).slice(0, 10);
 
-      if (flatMatches.length === 0) {
-        dropdown.innerHTML = `
-          <div style="padding:14px 12px;font-size:0.86rem;color:var(--text-muted);text-align:center;">
-            Không tìm thấy kết quả cho "<strong>${rawQ}</strong>". Hãy thử từ khóa khác như <em>vỏ cam, limonene, độ pH, nước rửa chén</em>.
+      dropdown.innerHTML = `
+        <div class="psearch__panel">
+          <div class="psearch__head">
+            <span class="psearch__head-label">Kết quả tìm kiếm</span>
+            <button type="button" class="psearch__action" id="clearQueryBtn">Xóa từ khóa</button>
           </div>
-        `;
-      } else {
-        // Group matches by category
-        const grouped = new Map();
-        flatMatches.forEach((m, idx) => {
-          if (!grouped.has(m.group)) grouped.set(m.group, []);
-          grouped.get(m.group).push({ item: m, flatIdx: idx });
-        });
-
-        let html = '';
-        grouped.forEach((entries, groupName) => {
-          html += `<div class="search-section-label"><span>${groupName}</span><span>${entries.length}</span></div>`;
-          entries.forEach(({ item, flatIdx }) => {
-            const initial = (groupName || 'P').trim().charAt(0).toUpperCase();
-            html += `
-              <button type="button" class="search-item" role="option" data-midx="${flatIdx}">
-                <span class="pltabs__avatar" data-selected="false" aria-hidden="true">${initial}</span>
-                <div class="search-item-content">
-                  <div class="search-item-row">
-                    <span style="font-weight:700;font-size:0.88rem;color:var(--green-dark);">${highlightMatch(item.title, rawQ)}</span>
+          <ul class="psearch__list">
+            <div class="psearch__sheet" aria-hidden="true"></div>
+            ${
+              flatMatches.length === 0
+                ? `<li class="psearch__empty"><div>Không tìm thấy kết quả cho "<strong>${rawQ}</strong>". Thử từ khóa như <em>vỏ cam, lá bạc hà, limonene, độ pH</em>.</div></li>`
+                : flatMatches
+                    .map((item, idx) => {
+                      const badgeChar = (item.group || 'P').trim().charAt(0).toUpperCase();
+                      return `
+                <li class="psearch__row" role="option" data-midx="${idx}">
+                  <span class="psearch__divider" aria-hidden="true"></span>
+                  <div class="psearch__row-body">
+                    <div class="psearch__tile" aria-hidden="true">
+                      <div class="psearch__tile-art" style="background:#162A22;display:grid;place-items:center;color:#F6F4EE;font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;">
+                        ${badgeChar}
+                      </div>
+                    </div>
+                    <div class="psearch__row-text">
+                      <div class="psearch__row-title">${highlightMatch(item.title, rawQ)}</div>
+                      <div class="psearch__row-sub">${item.group} • ${highlightMatch(item.desc, rawQ)}</div>
+                    </div>
                   </div>
-                  <div class="search-item-desc">${highlightMatch(item.desc, rawQ)}</div>
-                </div>
-              </button>
-            `;
-          });
-        });
-        html += `
-          <div class="search-kbd-hint">
-            <span>↑↓ Di chuyển • Enter để mở</span>
-            <span>Esc để đóng</span>
-          </div>
-        `;
-        dropdown.innerHTML = html;
-        dropdown.dataset.pvSlideBound = '';
-        if (window.PEELVERSE_MOTION) {
-          window.PEELVERSE_MOTION.initSlidingList(dropdown, '.search-item');
-        }
+                </li>
+              `;
+                    })
+                    .join('')
+            }
+          </ul>
+          ${renderChipsHtml(flatMatches.length)}
+        </div>
+        <div class="psearch__foot"></div>
+      `;
 
-        dropdown.querySelectorAll('.search-item').forEach((btn) => {
-          btn.addEventListener('click', () => {
-            const idx = Number(btn.dataset.midx);
-            openItem(flatMatches[idx], rawQ);
-          });
+      const listEl = dropdown.querySelector('.psearch__list');
+      bindPsearchListInteractions(listEl);
+
+      const clearQueryBtn = dropdown.querySelector('#clearQueryBtn');
+      if (clearQueryBtn) {
+        clearQueryBtn.addEventListener('click', () => {
+          input.value = '';
+          renderDropdown();
+          input.focus();
         });
+      }
+
+      dropdown.querySelectorAll('[data-chip]').forEach((chip) => {
+        chip.addEventListener('click', () => {
+          input.value = chip.dataset.chip;
+          renderDropdown();
+          input.focus();
+        });
+      });
+
+      dropdown.querySelectorAll('.psearch__row[data-midx]').forEach((row) => {
+        row.addEventListener('click', () => {
+          const idx = Number(row.dataset.midx);
+          openItem(flatMatches[idx], rawQ);
+        });
+      });
+
+      if (flatMatches.length > 0) {
         activeIdx = 0;
         updateActiveHighlight();
       }

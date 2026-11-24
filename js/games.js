@@ -171,7 +171,6 @@
     startMusic() {
       if (!this.save.musicEnabled || this.musicTimer) return;
       this.ensure();
-      // Warm Coffee-Talk style Lo-Fi progression: Fmaj7 -> Em7 -> Dm7 -> Cmaj7
       const chords = [
         [174.61, 220.0, 261.63, 329.63],
         [164.81, 196.0, 246.94, 293.66],
@@ -453,7 +452,6 @@
         pushIfWhite(x, y - 1);
       }
 
-      // Soft 1px feathering on border pixels touching transparent background
       for (let y = 1; y < cellH - 1; y++) {
         for (let x = 1; x < cellW - 1; x++) {
           const p = y * cellW + x;
@@ -475,28 +473,29 @@
     });
   }
 
-  function makeCozyButton(scene, x, y, w, h, label, bgColor, textColor, onClick) {
+  // Cozy Parchment / Raised Wood Button (NO #000 black borders)
+  function makeCozyButton(scene, x, y, w, h, label, bgColor, textColor, onClick, borderColor = 0xa67c52) {
     const container = scene.add.container(x, y);
+    const shadow = scene.add.graphics();
+    shadow.fillStyle(0x1c1008, 0.24);
+    shadow.fillRoundedRect(-w / 2, -h / 2 + 3, w, h, 10);
+
     const bg = scene.add.graphics();
-    const drawBg = (fill) => {
-      bg.clear();
-      bg.fillStyle(fill, 1);
-      bg.lineStyle(2, 0x162a22, 0.85);
-      bg.fillRoundedRect(-w / 2, -h / 2, w, h, 10);
-      bg.strokeRoundedRect(-w / 2, -h / 2, w, h, 10);
-    };
-    drawBg(bgColor);
+    bg.fillStyle(bgColor, 1);
+    bg.lineStyle(1.5, borderColor, 0.95);
+    bg.fillRoundedRect(-w / 2, -h / 2, w, h, 10);
+    bg.strokeRoundedRect(-w / 2, -h / 2, w, h, 10);
 
     const txt = scene.add
       .text(0, 0, label, {
         fontFamily: '"Be Vietnam Pro", sans-serif',
-        fontSize: '15px',
+        fontSize: '14px',
         fontWeight: '600',
         color: textColor
       })
       .setOrigin(0.5);
 
-    container.add([bg, txt]);
+    container.add([shadow, bg, txt]);
     container.setSize(w, h);
     container.setInteractive({ useHandCursor: true });
 
@@ -507,11 +506,45 @@
       scene.tweens.add({ targets: container, scaleX: 1, scaleY: 1, duration: 110, ease: 'Sine.easeOut' });
     });
     container.on('pointerdown', () => {
-      scene.tweens.add({ targets: container, scaleX: 0.96, scaleY: 0.96, duration: 70, yoyo: true });
+      scene.tweens.add({ targets: container, scaleX: 0.95, scaleY: 0.95, duration: 70, yoyo: true });
       if (onClick) onClick();
     });
     container.setLabel = (newLbl) => txt.setText(newLbl);
     return container;
+  }
+
+  // Circular Icon Button (Music / SFX / Fullscreen)
+  function makeCircleIconButton(scene, x, y, drawIconFn, onClick) {
+    const c = scene.add.container(x, y);
+    const shadow = scene.add.graphics();
+    shadow.fillStyle(0x1c1008, 0.24);
+    shadow.fillCircle(0, 2, 18);
+
+    const bg = scene.add.graphics();
+    const iconG = scene.add.graphics();
+
+    const redraw = (active = true) => {
+      bg.clear();
+      bg.fillStyle(active ? 0xf5ecdc : 0xd9d0c1, active ? 0.96 : 0.72);
+      bg.lineStyle(1.5, 0xa67c52, 0.95);
+      bg.fillCircle(0, 0, 18);
+      bg.strokeCircle(0, 0, 18);
+      iconG.clear();
+      drawIconFn(iconG, active);
+    };
+    redraw(true);
+
+    c.add([shadow, bg, iconG]);
+    c.setSize(38, 38);
+    c.setInteractive({ useHandCursor: true });
+    c.on('pointerover', () => scene.tweens.add({ targets: c, scaleX: 1.08, scaleY: 1.08, duration: 100 }));
+    c.on('pointerout', () => scene.tweens.add({ targets: c, scaleX: 1, scaleY: 1, duration: 100 }));
+    c.on('pointerdown', () => {
+      scene.tweens.add({ targets: c, scaleX: 0.92, scaleY: 0.92, duration: 70, yoyo: true });
+      if (onClick) onClick(redraw);
+    });
+    c.setActiveState = redraw;
+    return c;
   }
 
   let activeGame = null;
@@ -543,26 +576,19 @@
       container.innerHTML = `
         <div class="peel-lab-frame" id="peelLabFrame">
           <div id="phaserMount" style="width:100%;height:100%;"></div>
-          <button type="button" class="peel-lab-fs-btn" id="peelLabFsBtn" aria-label="Toàn màn hình">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-            <span>Toàn màn hình</span>
-          </button>
         </div>
       `;
 
       const frameEl = container.querySelector('#peelLabFrame');
-      const fsBtn = container.querySelector('#peelLabFsBtn');
-      if (fsBtn && frameEl) {
-        fsBtn.addEventListener('click', () => {
-          if (!document.fullscreenElement) {
-            if (frameEl.requestFullscreen) frameEl.requestFullscreen().catch(() => {});
-          } else if (document.exitFullscreen) {
-            document.exitFullscreen().catch(() => {});
-          }
-        });
-      }
+      const toggleFullscreen = () => {
+        if (!document.fullscreenElement) {
+          if (frameEl && frameEl.requestFullscreen) frameEl.requestFullscreen().catch(() => {});
+        } else if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      };
 
-      // ===== BOOT SCENE: PRELOAD & BFS FLOOD-FILL =====
+      // ===== BOOT SCENE: PRELOAD, BFS FLOOD-FILL & PROCEDURAL TEXTURES =====
       class BootScene extends Phaser.Scene {
         constructor() {
           super({ key: 'BootScene' });
@@ -603,17 +629,38 @@
             'cust_3_happy'
           ]);
 
-          // Procedural soft particle textures
+          // Warm golden sunlit dust particle
           const g1 = this.make.graphics({ x: 0, y: 0, add: false });
-          g1.fillStyle(0xf6f4ee, 1);
+          g1.fillStyle(0xf7d996, 1);
           g1.fillCircle(8, 8, 8);
           g1.generateTexture('dust_dot', 16, 16);
 
+          // Golden essential oil particle
           const g2 = this.make.graphics({ x: 0, y: 0, add: false });
           g2.fillStyle(0xd98a2b, 1);
           g2.fillCircle(8, 8, 8);
           g2.generateTexture('oil_dot', 16, 16);
 
+          // Soft radial-gradient elliptical shadow (rgba(45, 25, 10, 0.34) -> transparent)
+          const shC = document.createElement('canvas');
+          shC.width = 160;
+          shC.height = 48;
+          const sg = shC.getContext('2d');
+          sg.save();
+          sg.translate(80, 24);
+          sg.scale(1, 0.3);
+          const rad = sg.createRadialGradient(0, 0, 8, 0, 0, 76);
+          rad.addColorStop(0, 'rgba(45, 25, 10, 0.36)');
+          rad.addColorStop(0.6, 'rgba(45, 25, 10, 0.16)');
+          rad.addColorStop(1, 'rgba(45, 25, 10, 0)');
+          sg.fillStyle = rad;
+          sg.beginPath();
+          sg.arc(0, 0, 76, 0, Math.PI * 2);
+          sg.fill();
+          sg.restore();
+          this.textures.addCanvas('soft_shadow', shC);
+
+          // Wipe brush for RenderTexture.erase()
           const g3 = this.make.graphics({ x: 0, y: 0, add: false });
           g3.fillStyle(0xffffff, 1);
           g3.fillCircle(32, 32, 32);
@@ -623,7 +670,7 @@
         }
       }
 
-      // ===== SHOP SCENE (TITLE, ORDER, BREW, SWIRL, DAY SUMMARY, UPGRADES) =====
+      // ===== SHOP SCENE =====
       class ShopScene extends Phaser.Scene {
         constructor() {
           super({ key: 'ShopScene' });
@@ -637,23 +684,23 @@
           this.cameras.main.fadeIn(260, 22, 42, 34);
           this.add.image(640, 360, 'bg_shop').setDisplaySize(1280, 720);
 
-          // Floating sunlit dust motes
+          // 20 warm golden sunlit dust motes drifting across the arched window
           this.add.particles(0, 0, 'dust_dot', {
-            x: { min: 150, max: 1130 },
-            y: { min: 80, max: 520 },
-            lifespan: 4500,
-            speedY: { min: -12, max: 8 },
-            speedX: { min: -10, max: 10 },
-            scale: { start: 0.16, end: 0.04 },
-            alpha: { start: 0.35, end: 0 },
-            frequency: 240
+            x: { min: 410, max: 870 },
+            y: { min: 70, max: 460 },
+            lifespan: 5800,
+            speedY: { min: -10, max: 6 },
+            speedX: { min: -8, max: 8 },
+            scale: { start: 0.22, end: 0.05 },
+            alpha: { start: 0.45, end: 0 },
+            maxParticles: 22,
+            frequency: 260
           });
 
-          // State for current customer & flask
           this.customerNum = this.entryData.customerNum || 1;
           this.dayCoins = this.entryData.dayCoins || 0;
           this.currentOrder = this.entryData.order || ORDERS[(saveData.day + this.customerNum - 2) % ORDERS.length];
-          this.phase = 'brew'; // 'title' | 'brew' | 'swirl' | 'result'
+          this.phase = 'brew';
           this.liquidMl = 0;
           this.vinegarMl = 0;
           this.waterMl = 0;
@@ -669,211 +716,318 @@
           this.patienceLeft = this.patienceMax;
           this.customerActive = false;
 
-          // Customer sprite behind wooden counter (counter edge ~ y=515)
+          // Customer sprite behind wooden counter (y=520 lip mask)
           const custKey = `cust_${this.currentOrder.custIdx}_sad`;
-          this.customerSprite = this.add.image(640, 388, custKey).setDisplaySize(230, 256).setAlpha(0);
+          this.customerSprite = this.add.image(640, 392, custKey).setDisplaySize(236, 262).setAlpha(0);
           const maskG = this.make.graphics({ add: false });
           maskG.fillStyle(0xffffff);
-          maskG.fillRect(360, 80, 560, 442);
+          maskG.fillRect(260, 70, 760, 452);
           this.customerSprite.setMask(maskG.createGeometryMask());
 
-          // Wooden counter overlay strip at y=522 so customer stands cleanly behind counter
-          const counterLip = this.add.graphics();
-          counterLip.fillStyle(0x9b6b43, 0.25);
-          counterLip.fillRect(0, 518, 1280, 8);
-
-          this.createDiegeticHud();
+          this.createCozyHud();
           this.createWorkbenchProps();
           this.createSpeechBubble();
           this.createModalContainer();
 
           if (this.entryData.mode === 'title') {
             this.phase = 'title';
+            this.setPhVisible(false);
             this.showTitleOverlay();
           } else if (this.entryData.mode === 'cleaned') {
             this.phase = 'result';
+            this.setPhVisible(false);
             this.handleCustomerResult(this.entryData);
           } else {
+            this.setPhVisible(true);
             this.startCustomerVisit();
           }
         }
 
-        createDiegeticHud() {
+        createCozyHud() {
           const bar = this.add.container(0, 0).setDepth(30);
-          const pill = (x, y, w, textStr) => {
-            const g = this.add.graphics();
-            g.fillStyle(0xf6f4ee, 0.94);
-            g.lineStyle(1.5, 0x162a22, 0.85);
-            g.fillRoundedRect(x, y, w, 36, 9);
-            g.strokeRoundedRect(x, y, w, 36, 9);
-            const t = this.add
-              .text(x + w / 2, y + 18, textStr, {
-                fontFamily: '"Be Vietnam Pro", sans-serif',
-                fontSize: '14px',
-                fontWeight: '700',
-                color: '#162A22'
-              })
-              .setOrigin(0.5);
-            bar.add([g, t]);
-            return t;
-          };
 
-          this.hudDayTxt = pill(20, 16, 110, `Ngày ${saveData.day}`);
-          this.hudCoinTxt = pill(140, 16, 165, `Xu: ${saveData.coins}`);
-          this.hudComboTxt = pill(315, 16, 115, `Combo x${saveData.combo}`);
-          this.hudCustTxt = pill(440, 16, 118, `Khách ${this.customerNum}/3`);
+          // Top-left unified warm dark-wood status bar
+          const leftShadow = this.add.graphics();
+          leftShadow.fillStyle(0x1c1008, 0.25);
+          leftShadow.fillRoundedRect(20, 17, 360, 40, 12);
 
-          this.recipeBtn = makeCozyButton(this, 855, 34, 130, 36, 'Sổ công thức', 0xf6f4ee, '#162A22', () => {
+          const leftBg = this.add.graphics();
+          leftBg.fillStyle(0x261910, 0.84);
+          leftBg.lineStyle(1.5, 0xa67c52, 0.9);
+          leftBg.fillRoundedRect(20, 14, 360, 40, 12);
+          leftBg.strokeRoundedRect(20, 14, 360, 40, 12);
+
+          this.hudDayCustTxt = this.add.text(36, 25, `Ngày ${saveData.day}  •  Khách ${this.customerNum}/3`, {
+            fontFamily: '"Be Vietnam Pro", sans-serif',
+            fontSize: '13.5px',
+            fontWeight: '600',
+            color: '#F5ECDC'
+          });
+
+          // Bronze-gold coin icon
+          const coinIcon = this.add.graphics();
+          coinIcon.fillStyle(0xd98a2b, 1);
+          coinIcon.lineStyle(1.5, 0xf5ecdc, 0.85);
+          coinIcon.fillCircle(232, 34, 9);
+          coinIcon.strokeCircle(232, 34, 9);
+
+          this.hudCoinTxt = this.add.text(248, 25, `${saveData.coins} Xu`, {
+            fontFamily: '"Be Vietnam Pro", sans-serif',
+            fontSize: '13.5px',
+            fontWeight: '700',
+            color: '#F7D996'
+          });
+
+          // Combo pill (ONLY visible when combo >= 2)
+          this.comboContainer = this.add.container(435, 34).setVisible(saveData.combo >= 2);
+          const comboBg = this.add.graphics();
+          comboBg.fillStyle(0xa85432, 0.96);
+          comboBg.lineStyle(1.5, 0xf5ecdc, 0.7);
+          comboBg.fillRoundedRect(-44, -16, 88, 32, 10);
+          comboBg.strokeRoundedRect(-44, -16, 88, 32, 10);
+          this.hudComboTxt = this.add
+            .text(0, 0, `Combo x${saveData.combo}`, {
+              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontSize: '12.5px',
+              fontWeight: '700',
+              color: '#FAF4E6'
+            })
+            .setOrigin(0.5);
+          this.comboContainer.add([comboBg, this.hudComboTxt]);
+
+          bar.add([leftShadow, leftBg, this.hudDayCustTxt, coinIcon, this.hudCoinTxt, this.comboContainer]);
+
+          // Top-right cluster: 2 parchment buttons + 3 circular icon buttons
+          this.recipeBtn = makeCozyButton(this, 900, 34, 128, 36, 'Sổ công thức', 0xf5ecdc, '#3A2516', () => {
             soundEngine.playClick();
             this.openRecipeModal();
           });
-          this.upgradeBtn = makeCozyButton(this, 995, 34, 130, 36, 'Nâng cấp', 0xf6f4ee, '#162A22', () => {
+          this.upgradeBtn = makeCozyButton(this, 1036, 34, 118, 36, 'Nâng cấp', 0xf5ecdc, '#3A2516', () => {
             soundEngine.playClick();
             this.openUpgradeModal();
           });
-          this.musicBtn = makeCozyButton(
+
+          // 1. Music Note icon
+          this.musicIconBtn = makeCircleIconButton(
             this,
-            1115,
+            1132,
             34,
-            92,
-            36,
-            saveData.musicEnabled ? 'Nhạc: Bật' : 'Nhạc: Tắt',
-            0x162a22,
-            '#F6F4EE',
-            () => {
+            (g, active) => {
+              g.lineStyle(2, 0x3a2516, active ? 1 : 0.45);
+              g.fillStyle(0x3a2516, active ? 1 : 0.45);
+              g.fillCircle(-3, 5, 3.2);
+              g.fillCircle(5, 3, 3.2);
+              g.beginPath();
+              g.moveTo(0, 5);
+              g.lineTo(0, -6);
+              g.lineTo(8, -8);
+              g.lineTo(8, 3);
+              g.strokePath();
+              if (!active) {
+                g.lineStyle(2, 0xa85432, 1);
+                g.lineBetween(-8, -8, 8, 8);
+              }
+            },
+            (redraw) => {
               soundEngine.playClick();
               saveData.musicEnabled = !saveData.musicEnabled;
               writeSave(saveData);
               if (saveData.musicEnabled) soundEngine.startMusic();
               else soundEngine.stopMusic();
-              this.musicBtn.setLabel(saveData.musicEnabled ? 'Nhạc: Bật' : 'Nhạc: Tắt');
+              redraw(saveData.musicEnabled);
             }
           );
-          this.sfxBtn = makeCozyButton(
+          this.musicIconBtn.setActiveState(saveData.musicEnabled);
+
+          // 2. Speaker SFX icon
+          this.sfxIconBtn = makeCircleIconButton(
             this,
-            1214,
+            1178,
             34,
-            92,
-            36,
-            saveData.sfxEnabled ? 'SFX: Bật' : 'SFX: Tắt',
-            0x162a22,
-            '#F6F4EE',
-            () => {
+            (g, active) => {
+              g.fillStyle(0x3a2516, active ? 1 : 0.45);
+              g.fillRect(-7, -3, 4, 6);
+              g.fillTriangle(-3, -3, 3, -7, 3, 7);
+              g.fillTriangle(-3, 3, -3, -3, 3, 7);
+              if (active) {
+                g.lineStyle(1.8, 0x3a2516, 1);
+                g.beginPath();
+                g.arc(4, 0, 5, -0.7, 0.7);
+                g.strokePath();
+              } else {
+                g.lineStyle(2, 0xa85432, 1);
+                g.lineBetween(-8, -8, 8, 8);
+              }
+            },
+            (redraw) => {
               saveData.sfxEnabled = !saveData.sfxEnabled;
               writeSave(saveData);
-              this.sfxBtn.setLabel(saveData.sfxEnabled ? 'SFX: Bật' : 'SFX: Tắt');
+              if (saveData.sfxEnabled) soundEngine.playClick();
+              redraw(saveData.sfxEnabled);
             }
           );
-          bar.add([this.recipeBtn, this.upgradeBtn, this.musicBtn, this.sfxBtn]);
+          this.sfxIconBtn.setActiveState(saveData.sfxEnabled);
+
+          // 3. Fullscreen icon
+          this.fsIconBtn = makeCircleIconButton(
+            this,
+            1224,
+            34,
+            (g) => {
+              g.lineStyle(2, 0x3a2516, 1);
+              // 4 corner brackets
+              g.lineBetween(-7, -3, -7, -7);
+              g.lineBetween(-7, -7, -3, -7);
+              g.lineBetween(3, -7, 7, -7);
+              g.lineBetween(7, -7, 7, -3);
+              g.lineBetween(-7, 3, -7, 7);
+              g.lineBetween(-7, 7, -3, 7);
+              g.lineBetween(3, 7, 7, 7);
+              g.lineBetween(7, 7, 7, 3);
+            },
+            () => {
+              soundEngine.playClick();
+              toggleFullscreen();
+            }
+          );
+
+          bar.add([this.recipeBtn, this.upgradeBtn, this.musicIconBtn, this.sfxIconBtn, this.fsIconBtn]);
         }
 
         createSpeechBubble() {
-          this.bubble = this.add.container(865, 225).setDepth(20).setAlpha(0);
-          const bg = this.add.graphics();
-          bg.fillStyle(0xf6f4ee, 0.96);
-          bg.lineStyle(2, 0x162a22, 0.9);
-          bg.fillRoundedRect(-175, -108, 350, 210, 14);
-          bg.strokeRoundedRect(-175, -108, 350, 210, 14);
+          this.bubble = this.add.container(940, 224).setDepth(20).setAlpha(0);
+          const shadow = this.add.graphics();
+          shadow.fillStyle(0x1c1008, 0.2);
+          shadow.fillRoundedRect(-185, -104, 370, 206, 14);
 
-          this.bubbleSpeaker = this.add.text(-155, -92, '', {
+          const bg = this.add.graphics();
+          bg.fillStyle(0xfaf4e6, 0.97);
+          bg.lineStyle(2, 0xa67c52, 0.95);
+          bg.fillRoundedRect(-185, -108, 370, 206, 14);
+          bg.strokeRoundedRect(-185, -108, 370, 206, 14);
+
+          this.bubbleSpeaker = this.add.text(-165, -92, '', {
             fontFamily: '"Cormorant Garamond", Georgia, serif',
             fontSize: '21px',
             fontWeight: '700',
             color: '#A85432'
           });
-          this.bubbleText = this.add.text(-155, -62, '', {
+          this.bubbleText = this.add.text(-165, -62, '', {
             fontFamily: '"Be Vietnam Pro", sans-serif',
             fontSize: '13.5px',
-            color: '#181816',
-            wordWrap: { width: 310 },
+            color: '#3A2516',
+            wordWrap: { width: 330 },
             lineSpacing: 5
           });
-          this.bubbleHint = this.add.text(-155, 48, '', {
+          this.bubbleHint = this.add.text(-165, 44, '', {
             fontFamily: '"Be Vietnam Pro", sans-serif',
             fontSize: '12px',
             fontWeight: '700',
             color: '#162A22'
           });
 
-          // Patience bar
           const pTrack = this.add.graphics();
-          pTrack.fillStyle(0xe0dad0, 1);
-          pTrack.fillRoundedRect(-155, 76, 310, 10, 5);
+          pTrack.fillStyle(0xe5dccb, 1);
+          pTrack.fillRoundedRect(-165, 72, 330, 9, 4.5);
           this.patienceBar = this.add.graphics();
 
-          this.bubble.add([bg, this.bubbleSpeaker, this.bubbleText, this.bubbleHint, pTrack, this.patienceBar]);
+          this.bubble.add([shadow, bg, this.bubbleSpeaker, this.bubbleText, this.bubbleHint, pTrack, this.patienceBar]);
+        }
+
+        makeCreamLabel(x, y, text, hintText) {
+          const c = this.add.container(x, y).setDepth(15);
+          const w = Math.max(82, text.length * 8.5 + 20);
+          const bg = this.add.graphics();
+          bg.fillStyle(0xf8f1e3, 0.94);
+          bg.lineStyle(1, 0xc5a880, 0.95);
+          bg.fillRoundedRect(-w / 2, -13, w, 26, 6);
+          bg.strokeRoundedRect(-w / 2, -13, w, 26, 6);
+
+          const t = this.add
+            .text(0, 0, text, {
+              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontSize: '12.5px',
+              fontWeight: '700',
+              color: '#3A2516'
+            })
+            .setOrigin(0.5);
+
+          const showInitHint = saveData.day === 1 && this.customerNum === 1;
+          const hint = this.add
+            .text(0, 20, hintText, {
+              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontSize: '10.5px',
+              fontWeight: '500',
+              color: '#FAF4E6',
+              backgroundColor: 'rgba(38, 25, 16, 0.7)',
+              padding: { x: 5, y: 2 }
+            })
+            .setOrigin(0.5)
+            .setAlpha(showInitHint ? 0.92 : 0);
+
+          c.add([bg, t, hint]);
+          c.hintObj = hint;
+          return c;
         }
 
         createWorkbenchProps() {
-          const addShadow = (x, y, rx, ry) => {
-            const s = this.add.ellipse(x, y, rx, ry, 0x162a22, 0.24).setDepth(10);
-            return s;
-          };
-
-          // Center Flask + Dynamic Liquid Graphics
-          addShadow(640, 668, 150, 28);
+          // Center Flask (~17% larger, sits naturally on oak counter)
+          this.add.image(640, 650, 'soft_shadow').setDisplaySize(176, 36).setDepth(10);
           this.liquidGraphics = this.add.graphics().setDepth(11);
-          this.flaskSprite = this.add.image(640, 590, 'prop_flask').setDisplaySize(165, 185).setDepth(12);
+          this.flaskSprite = this.add.image(640, 562, 'prop_flask').setDisplaySize(192, 214).setDepth(12);
 
-          // Brass pH Column beside flask
+          // Refined Brass & Glass pH Pill Tube (aligned right beside flask)
           this.phGraphics = this.add.graphics().setDepth(13);
+          this.phLabelBg = this.add.graphics().setDepth(13);
           this.phLabelTxt = this.add
-            .text(742, 495, 'pH 7.0', {
+            .text(778, 466, 'pH 7.0', {
               fontFamily: '"Be Vietnam Pro", sans-serif',
-              fontSize: '13px',
+              fontSize: '12.5px',
               fontWeight: '700',
-              color: '#162A22',
-              backgroundColor: '#F6F4EE',
-              padding: { x: 6, y: 3 }
+              color: '#3A2516'
             })
-            .setDepth(13);
+            .setOrigin(0.5)
+            .setDepth(14);
 
-          // Pour stream & Swirl ring graphics
           this.pourStreamG = this.add.graphics().setDepth(14);
           this.swirlRingG = this.add.graphics().setDepth(15);
           this.swirlTxt = this.add
-            .text(640, 472, '', {
+            .text(640, 444, '', {
               fontFamily: '"Be Vietnam Pro", sans-serif',
-              fontSize: '15px',
+              fontSize: '14.5px',
               fontWeight: '700',
-              color: '#162A22',
-              backgroundColor: '#F6F4EE',
-              padding: { x: 8, y: 4 }
+              color: '#3A2516',
+              backgroundColor: '#FAF4E6',
+              padding: { x: 10, y: 4 }
             })
             .setOrigin(0.5)
             .setDepth(16)
             .setAlpha(0);
 
-          // Left Solids: Orange, Cinnamon, Mint (Draggable)
+          // Left Solids: Orange, Cinnamon, Mint (~16% larger, higher on oak counter)
           const solidDefs = [
-            { id: 'orange', key: 'prop_orange', label: 'Vỏ cam', x: 165, y: 618, homeX: 165, homeY: 618, pitch: 360 },
-            { id: 'cinnamon', key: 'prop_cinnamon', label: 'Quế', x: 305, y: 618, homeX: 305, homeY: 618, pitch: 280 },
-            { id: 'mint', key: 'prop_mint', label: 'Lá bạc hà', x: 445, y: 618, homeX: 445, homeY: 618, pitch: 430 }
+            { id: 'orange', key: 'prop_orange', label: 'Vỏ cam', x: 150, y: 586, homeX: 150, homeY: 586, pitch: 360 },
+            { id: 'cinnamon', key: 'prop_cinnamon', label: 'Quế', x: 300, y: 586, homeX: 300, homeY: 586, pitch: 280 },
+            { id: 'mint', key: 'prop_mint', label: 'Lá bạc hà', x: 450, y: 586, homeX: 450, homeY: 586, pitch: 430 }
           ];
           this.solidSprites = [];
           solidDefs.forEach((def) => {
-            addShadow(def.x, def.y + 44, 108, 20);
-            const sp = this.add.image(def.x, def.y, def.key).setDisplaySize(120, 120).setDepth(14);
+            this.add.image(def.x, def.y + 44, 'soft_shadow').setDisplaySize(134, 26).setDepth(10);
+            const sp = this.add.image(def.x, def.y, def.key).setDisplaySize(140, 140).setDepth(14);
             sp.setInteractive({ draggable: true, useHandCursor: true });
             this.input.setDraggable(sp);
-            this.add
-              .text(def.x, def.y + 68, def.label, {
-                fontFamily: '"Be Vietnam Pro", sans-serif',
-                fontSize: '13px',
-                fontWeight: '700',
-                color: '#F6F4EE',
-                backgroundColor: '#162A22',
-                padding: { x: 8, y: 3 }
-              })
-              .setOrigin(0.5)
-              .setDepth(14);
+            const lbl = this.makeCreamLabel(def.x, def.y + 74, def.label, 'Kéo thả');
 
             sp.on('pointerover', () => {
               if (this.phase !== 'brew') return;
               this.tweens.add({ targets: sp, scaleX: sp.scaleX * 1.07, scaleY: sp.scaleY * 1.07, duration: 100 });
+              this.tweens.add({ targets: lbl.hintObj, alpha: 0.95, duration: 120 });
             });
             sp.on('pointerout', () => {
-              sp.setDisplaySize(120, 120);
+              sp.setDisplaySize(140, 140);
+              if (!(saveData.day === 1 && this.customerNum === 1)) {
+                this.tweens.add({ targets: lbl.hintObj, alpha: 0, duration: 120 });
+              }
             });
             sp.on('drag', (_p, dx, dy) => {
               if (this.phase !== 'brew') return;
@@ -882,7 +1036,7 @@
               sp.setDepth(22);
             });
             sp.on('dragend', () => {
-              if (this.phase === 'brew' && Phaser.Math.Distance.Between(sp.x, sp.y, 640, 540) < 115) {
+              if (this.phase === 'brew' && Phaser.Math.Distance.Between(sp.x, sp.y, 640, 515) < 125) {
                 this.addSolid(def.id, def.pitch);
               }
               this.tweens.add({
@@ -897,27 +1051,26 @@
             this.solidSprites.push(sp);
           });
 
-          // Right Liquids: Vinegar, Water (Press & Hold to Pour)
+          // Right Liquids: Vinegar, Water (~16% larger, higher on oak counter)
           const liqDefs = [
-            { id: 'vinegar', key: 'prop_vinegar', label: 'Giấm trắng (Giữ)', x: 895, y: 600, homeX: 895, homeY: 600 },
-            { id: 'water', key: 'prop_water', label: 'Nước (Giữ)', x: 1065, y: 600, homeX: 1065, homeY: 600 }
+            { id: 'vinegar', key: 'prop_vinegar', label: 'Giấm trắng', x: 920, y: 566, homeX: 920, homeY: 566 },
+            { id: 'water', key: 'prop_water', label: 'Nước', x: 1095, y: 566, homeX: 1095, homeY: 566 }
           ];
           liqDefs.forEach((def) => {
-            addShadow(def.x, def.y + 56, 98, 22);
-            const sp = this.add.image(def.x, def.y, def.key).setDisplaySize(125, 145).setDepth(14);
+            this.add.image(def.x, def.y + 62, 'soft_shadow').setDisplaySize(124, 26).setDepth(10);
+            const sp = this.add.image(def.x, def.y, def.key).setDisplaySize(144, 168).setDepth(14);
             sp.setInteractive({ useHandCursor: true });
-            this.add
-              .text(def.x, def.y + 84, def.label, {
-                fontFamily: '"Be Vietnam Pro", sans-serif',
-                fontSize: '13px',
-                fontWeight: '700',
-                color: '#F6F4EE',
-                backgroundColor: '#162A22',
-                padding: { x: 8, y: 3 }
-              })
-              .setOrigin(0.5)
-              .setDepth(14);
+            const lbl = this.makeCreamLabel(def.x, def.y + 92, def.label, 'Nhấn giữ');
 
+            sp.on('pointerover', () => {
+              if (this.phase !== 'brew') return;
+              this.tweens.add({ targets: lbl.hintObj, alpha: 0.95, duration: 120 });
+            });
+            sp.on('pointerout', () => {
+              if (!(saveData.day === 1 && this.customerNum === 1)) {
+                this.tweens.add({ targets: lbl.hintObj, alpha: 0, duration: 120 });
+              }
+            });
             sp.on('pointerdown', () => {
               if (this.phase !== 'brew') return;
               this.pouringId = def.id;
@@ -925,8 +1078,8 @@
               soundEngine.startPour();
               this.tweens.add({
                 targets: sp,
-                x: 725,
-                y: 458,
+                x: 730,
+                y: 432,
                 angle: -46,
                 duration: 180,
                 ease: 'Sine.easeOut'
@@ -952,8 +1105,8 @@
             this.input.on('pointerup', stopPourThis);
           });
 
-          // Action buttons: Khuấy chiết xuất & Đổ làm lại
-          this.swirlActionBtn = makeCozyButton(this, 640, 692, 175, 36, 'Khuấy chiết xuất →', 0xa85432, '#F6F4EE', () => {
+          // Action buttons placed cleanly below flask
+          this.swirlActionBtn = makeCozyButton(this, 685, 686, 178, 36, 'Khuấy chiết xuất →', 0xa85432, '#FAF4E6', () => {
             if (this.phase === 'brew' && this.liquidMl >= 90) {
               soundEngine.playClick();
               this.enterSwirlPhase();
@@ -961,13 +1114,20 @@
           });
           this.swirlActionBtn.setDepth(18).setVisible(false);
 
-          this.resetFlaskBtn = makeCozyButton(this, 495, 692, 100, 34, 'Đổ làm lại', 0xf6f4ee, '#162A22', () => {
+          this.resetFlaskBtn = makeCozyButton(this, 535, 686, 104, 34, 'Đổ làm lại', 0xf8f1e3, '#3A2516', () => {
             if (this.phase === 'brew') {
               soundEngine.playClick();
               this.resetFlask();
             }
           });
           this.resetFlaskBtn.setDepth(18).setVisible(false);
+        }
+
+        setPhVisible(visible) {
+          this.phVisible = visible;
+          if (this.phGraphics) this.phGraphics.setVisible(visible);
+          if (this.phLabelBg) this.phLabelBg.setVisible(visible);
+          if (this.phLabelTxt) this.phLabelTxt.setVisible(visible);
         }
 
         addSolid(id, pitch) {
@@ -983,14 +1143,14 @@
             duration: 90,
             yoyo: true
           });
-          this.add.particles(640, 520, 'oil_dot', {
+          this.add.particles(640, 495, 'oil_dot', {
             speed: { min: 40, max: 120 },
             angle: { min: 220, max: 320 },
             scale: { start: 0.45, end: 0 },
             lifespan: 450,
             quantity: 10,
             emitting: false
-          }).explode(10, 640, 525);
+          }).explode(10, 640, 500);
         }
 
         resetFlask() {
@@ -1024,9 +1184,9 @@
 
           this.input.on('pointermove', (p) => {
             if (this.phase !== 'swirl' || !p.isDown) return;
-            const ang = Phaser.Math.Angle.Between(640, 585, p.x, p.y);
+            const ang = Phaser.Math.Angle.Between(640, 560, p.x, p.y);
             if (this.swirlAnglePrev !== null) {
-              let delta = Phaser.Math.Angle.Wrap(ang - this.swirlAnglePrev);
+              const delta = Phaser.Math.Angle.Wrap(ang - this.swirlAnglePrev);
               const mag = Math.abs(delta);
               if (mag > 0.03 && mag < 1.2) {
                 this.swirlProgress = Math.min(100, this.swirlProgress + mag * 18);
@@ -1092,19 +1252,20 @@
         startCustomerVisit() {
           this.phase = 'brew';
           this.customerActive = true;
+          this.setPhVisible(true);
           soundEngine.playDoorbell();
-          this.customerSprite.setTexture(`cust_${this.currentOrder.custIdx}_sad`).setPosition(460, 396).setAlpha(0);
+          this.customerSprite.setTexture(`cust_${this.currentOrder.custIdx}_sad`).setPosition(470, 396).setAlpha(0);
           this.tweens.add({
             targets: this.customerSprite,
-            x: 640,
+            x: 610,
             alpha: 1,
             duration: 460,
             ease: 'Back.easeOut',
             onComplete: () => {
               this.tweens.add({
                 targets: this.customerSprite,
-                y: 391,
-                duration: 1300,
+                scaleY: this.customerSprite.scaleY * 1.018,
+                duration: 1350,
                 yoyo: true,
                 repeat: -1,
                 ease: 'Sine.easeInOut'
@@ -1117,7 +1278,6 @@
           this.bubbleText.setText('');
           this.tweens.add({ targets: this.bubble, alpha: 1, duration: 240 });
 
-          // Typewriter dialogue
           const fullTxt = this.currentOrder.dialogue;
           let charIdx = 0;
           this.time.addEvent({
@@ -1133,14 +1293,27 @@
         handleCustomerResult(res) {
           const ord = res.order;
           const q = res.quality;
-          this.customerSprite.setTexture(`cust_${ord.custIdx}_happy`).setPosition(640, 388).setAlpha(1);
+          this.setPhVisible(false);
+
+          // Happy customer stands clearly in the LEFT half of the arched window
+          this.customerSprite.setTexture(`cust_${ord.custIdx}_happy`).setPosition(495, 392).setAlpha(1);
           this.tweens.add({
             targets: this.customerSprite,
-            y: 372,
+            y: 374,
             duration: 240,
             yoyo: true,
             repeat: 2,
-            ease: 'Sine.easeOut'
+            ease: 'Sine.easeOut',
+            onComplete: () => {
+              this.tweens.add({
+                targets: this.customerSprite,
+                scaleY: this.customerSprite.scaleY * 1.02,
+                duration: 1200,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+              });
+            }
           });
 
           soundEngine.playComplete();
@@ -1158,57 +1331,111 @@
           writeSave(saveData);
           if (typeof onScoreSaved === 'function') onScoreSaved(earned, saveData.bestScore);
 
-          this.hudCoinTxt.setText(`Xu: ${saveData.coins}`);
+          this.hudCoinTxt.setText(`${saveData.coins} Xu`);
+          this.comboContainer.setVisible(saveData.combo >= 2);
           this.hudComboTxt.setText(`Combo x${saveData.combo}`);
 
-          // Burst stars
-          this.add.particles(640, 320, 'oil_dot', {
-            speed: { min: 70, max: 200 },
-            scale: { start: 0.6, end: 0 },
-            lifespan: 700,
-            quantity: 22,
+          // Golden essential oil sparkles around happy customer
+          this.add.particles(495, 310, 'oil_dot', {
+            speed: { min: 65, max: 185 },
+            scale: { start: 0.55, end: 0 },
+            lifespan: 760,
+            quantity: 24,
             emitting: false
-          }).explode(22, 640, 320);
+          }).explode(24, 495, 310);
 
+          // Completion Evaluation Slip on the RIGHT half (never covers customer!)
           const nextDayCoins = (res.dayCoins || 0) + earned;
-          const card = this.add.container(640, 360).setDepth(45);
-          const bg = this.add.graphics();
-          bg.fillStyle(0xf6f4ee, 0.98);
-          bg.lineStyle(2.5, 0x162a22, 1);
-          bg.fillRoundedRect(-250, -140, 500, 280, 16);
-          bg.strokeRoundedRect(-250, -140, 500, 280, 16);
+          const card = this.add.container(895, 340).setDepth(45);
+          const shadow = this.add.graphics();
+          shadow.fillStyle(0x1c1008, 0.28);
+          shadow.fillRoundedRect(-215, -150, 430, 310, 16);
 
-          const rankTitle = q.rank === 'S' ? 'HOÀN HẢO (HẠNG S)' : q.rank === 'A' ? 'ĐẠT CHUẨN (HẠNG A)' : 'CẦN CHỈNH TỶ LỆ (HẠNG B)';
-          const t1 = this.add.text(0, -104, rankTitle, {
-            fontFamily: '"Be Vietnam Pro", sans-serif',
-            fontSize: '14px',
-            fontWeight: '800',
-            color: q.rank === 'S' ? '#162A22' : '#A85432'
-          }).setOrigin(0.5);
-          const t2 = this.add.text(0, -68, `${ord.recipeName}  •  +${earned} Xu`, {
+          const bg = this.add.graphics();
+          bg.fillStyle(0xfaf4e6, 0.99);
+          bg.lineStyle(2, 0xa67c52, 1);
+          bg.fillRoundedRect(-215, -155, 430, 310, 16);
+          bg.strokeRoundedRect(-215, -155, 430, 310, 16);
+          bg.lineStyle(1, 0xc5a880, 0.75);
+          bg.strokeRoundedRect(-207, -147, 414, 294, 12);
+
+          // Wax seal stamp in top-right corner of slip
+          const sealColor = q.rank === 'S' ? 0x162a22 : q.rank === 'A' ? 0x4a7c59 : 0xa85432;
+          const seal = this.add.graphics();
+          seal.fillStyle(sealColor, 1);
+          seal.fillCircle(165, -108, 26);
+          seal.lineStyle(1.5, 0xfaf4e6, 0.7);
+          seal.strokeCircle(165, -108, 21);
+          const sealTxt = this.add
+            .text(165, -108, q.rank, {
+              fontFamily: '"Cormorant Garamond", Georgia, serif',
+              fontSize: '26px',
+              fontWeight: '700',
+              color: '#FAF4E6'
+            })
+            .setOrigin(0.5);
+
+          // 3 golden stars popping sequentially
+          const starCount = q.rank === 'S' ? 3 : q.rank === 'A' ? 2 : 1;
+          for (let i = 0; i < 3; i++) {
+            const sx = -155 + i * 32;
+            const sy = -112;
+            const sg = this.add.graphics();
+            const lit = i < starCount;
+            sg.fillStyle(lit ? 0xd98a2b : 0xdcd4c4, 1);
+            sg.fillCircle(sx, sy, 10);
+            sg.setScale(0.2);
+            this.tweens.add({
+              targets: sg,
+              scaleX: 1,
+              scaleY: 1,
+              duration: 240,
+              delay: 140 + i * 130,
+              ease: 'Back.easeOut'
+            });
+            card.add(sg);
+          }
+
+          const tRecipe = this.add.text(-175, -78, ord.recipeName, {
             fontFamily: '"Cormorant Garamond", Georgia, serif',
-            fontSize: '28px',
+            fontSize: '26px',
             fontWeight: '700',
             color: '#162A22'
-          }).setOrigin(0.5);
-          const t3 = this.add.text(0, -5, q.reason, {
+          });
+
+          const coinRewardTxt = this.add.text(-175, -42, '+0 Xu Tinh Dầu', {
             fontFamily: '"Be Vietnam Pro", sans-serif',
-            fontSize: '14px',
-            color: '#525B54',
-            align: 'center',
-            wordWrap: { width: 440 }
-          }).setOrigin(0.5);
+            fontSize: '16px',
+            fontWeight: '800',
+            color: '#A85432'
+          });
+          this.tweens.addCounter({
+            from: 0,
+            to: earned,
+            duration: 600,
+            onUpdate: (tw) => {
+              coinRewardTxt.setText(`+${Math.round(tw.getValue())} Xu Tinh Dầu`);
+            }
+          });
+
+          const tNote = this.add.text(-175, -6, q.reason, {
+            fontFamily: '"Be Vietnam Pro", sans-serif',
+            fontSize: '13px',
+            color: '#52463A',
+            wordWrap: { width: 350 },
+            lineSpacing: 5
+          });
 
           const isEndOfDay = (res.customerNum || 1) >= 3;
           const nextBtn = makeCozyButton(
             this,
             0,
-            88,
-            230,
+            106,
+            235,
             44,
             isEndOfDay ? 'Xem Tổng Kết Ngày →' : 'Khách tiếp theo →',
             0x162a22,
-            '#F6F4EE',
+            '#FAF4E6',
             () => {
               soundEngine.playClick();
               card.destroy();
@@ -1217,92 +1444,134 @@
               } else {
                 this.scene.restart({ mode: 'play', customerNum: (res.customerNum || 1) + 1, dayCoins: nextDayCoins });
               }
-            }
+            },
+            0x162a22
           );
 
-          card.add([bg, t1, t2, t3, nextBtn]);
+          card.add([shadow, bg, seal, sealTxt, tRecipe, coinRewardTxt, tNote, nextBtn]);
         }
 
         showDaySummary(dayCoins) {
+          this.setPhVisible(false);
           const card = this.add.container(640, 360).setDepth(50);
+          const shadow = this.add.graphics();
+          shadow.fillStyle(0x1c1008, 0.3);
+          shadow.fillRoundedRect(-260, -150, 520, 310, 16);
+
           const bg = this.add.graphics();
-          bg.fillStyle(0xf6f4ee, 0.99);
-          bg.lineStyle(3, 0x162a22, 1);
+          bg.fillStyle(0xfaf4e6, 0.99);
+          bg.lineStyle(2.5, 0xa67c52, 1);
           bg.fillRoundedRect(-260, -155, 520, 310, 16);
           bg.strokeRoundedRect(-260, -155, 520, 310, 16);
 
-          const t1 = this.add.text(0, -110, `TỔNG KẾT NGÀY ${saveData.day}`, {
-            fontFamily: '"Cormorant Garamond", Georgia, serif',
-            fontSize: '34px',
-            fontWeight: '700',
-            color: '#162A22'
-          }).setOrigin(0.5);
-          const t2 = this.add.text(0, -50, `Doanh thu hôm nay: +${dayCoins} Xu Tinh Dầu\nTổng quỹ tiệm hiện có: ${saveData.coins} Xu`, {
-            fontFamily: '"Be Vietnam Pro", sans-serif',
-            fontSize: '16px',
-            color: '#525B54',
-            align: 'center',
-            lineSpacing: 8
-          }).setOrigin(0.5);
+          const t1 = this.add
+            .text(0, -108, `TỔNG KẾT NGÀY ${saveData.day}`, {
+              fontFamily: '"Cormorant Garamond", Georgia, serif',
+              fontSize: '34px',
+              fontWeight: '700',
+              color: '#162A22'
+            })
+            .setOrigin(0.5);
+          const t2 = this.add
+            .text(0, -48, `Doanh thu hôm nay: +${dayCoins} Xu Tinh Dầu\nTổng quỹ tiệm hiện có: ${saveData.coins} Xu`, {
+              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontSize: '15.5px',
+              color: '#52463A',
+              align: 'center',
+              lineSpacing: 8
+            })
+            .setOrigin(0.5);
 
-          const upgBtn = makeCozyButton(this, -120, 68, 200, 44, 'Nâng cấp Tiệm', 0xf6f4ee, '#162A22', () => {
+          const upgBtn = makeCozyButton(this, -118, 68, 200, 44, 'Nâng cấp Tiệm', 0xf5ecdc, '#3A2516', () => {
             soundEngine.playClick();
             this.openUpgradeModal();
           });
-          const nextDayBtn = makeCozyButton(this, 120, 68, 210, 44, `Mở Ngày ${saveData.day + 1} →`, 0x162a22, '#F6F4EE', () => {
-            soundEngine.playClick();
-            saveData.day += 1;
-            writeSave(saveData);
-            card.destroy();
-            this.scene.restart({ mode: 'play', customerNum: 1, dayCoins: 0 });
-          });
+          const nextDayBtn = makeCozyButton(
+            this,
+            118,
+            68,
+            210,
+            44,
+            `Mở Ngày ${saveData.day + 1} →`,
+            0x162a22,
+            '#FAF4E6',
+            () => {
+              soundEngine.playClick();
+              saveData.day += 1;
+              writeSave(saveData);
+              card.destroy();
+              this.scene.restart({ mode: 'play', customerNum: 1, dayCoins: 0 });
+            },
+            0x162a22
+          );
 
-          card.add([bg, t1, t2, upgBtn, nextDayBtn]);
+          card.add([shadow, bg, t1, t2, upgBtn, nextDayBtn]);
         }
 
         showTitleOverlay() {
           const ov = this.add.container(640, 360).setDepth(55);
-          const dim = this.add.rectangle(0, 0, 1280, 720, 0x162a22, 0.45);
+          const dim = this.add.rectangle(0, 0, 1280, 720, 0x162a22, 0.42);
+          const shadow = this.add.graphics();
+          shadow.fillStyle(0x1c1008, 0.28);
+          shadow.fillRoundedRect(-270, -165, 540, 340, 18);
+
           const card = this.add.graphics();
-          card.fillStyle(0xf6f4ee, 0.98);
-          card.lineStyle(2.5, 0x162a22, 1);
+          card.fillStyle(0xfaf4e6, 0.99);
+          card.lineStyle(2.5, 0xa67c52, 1);
           card.fillRoundedRect(-270, -170, 540, 340, 18);
           card.strokeRoundedRect(-270, -170, 540, 340, 18);
 
-          const ey = this.add.text(0, -125, 'PEELVERSE • BOTANICAL LAB GAME', {
-            fontFamily: '"Be Vietnam Pro", sans-serif',
-            fontSize: '12px',
-            fontWeight: '700',
-            color: '#A85432'
-          }).setOrigin(0.5);
-          const title = this.add.text(0, -78, 'PEEL LAB', {
-            fontFamily: '"Cormorant Garamond", Georgia, serif',
-            fontSize: '52px',
-            fontWeight: '700',
-            color: '#162A22'
-          }).setOrigin(0.5);
-          const sub = this.add.text(0, -24, 'Tiệm Pha Chế Tinh Dầu Vỏ Cam\nKéo thả nguyên liệu • Khuấy chiết xuất • Xịt & lau sạch bề mặt', {
-            fontFamily: '"Be Vietnam Pro", sans-serif',
-            fontSize: '14.5px',
-            color: '#525B54',
-            align: 'center',
-            lineSpacing: 6
-          }).setOrigin(0.5);
+          const ey = this.add
+            .text(0, -125, 'PEELVERSE • BOTANICAL LAB GAME', {
+              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontSize: '12px',
+              fontWeight: '700',
+              color: '#A85432'
+            })
+            .setOrigin(0.5);
+          const title = this.add
+            .text(0, -78, 'PEEL LAB', {
+              fontFamily: '"Cormorant Garamond", Georgia, serif',
+              fontSize: '52px',
+              fontWeight: '700',
+              color: '#162A22'
+            })
+            .setOrigin(0.5);
+          const sub = this.add
+            .text(0, -24, 'Tiệm Pha Chế Tinh Dầu Vỏ Cam\nKéo thả nguyên liệu • Khuấy chiết xuất • Xịt & lau sạch bề mặt', {
+              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontSize: '14.5px',
+              color: '#52463A',
+              align: 'center',
+              lineSpacing: 6
+            })
+            .setOrigin(0.5);
 
-          const openBtn = makeCozyButton(this, 0, 62, 260, 48, `Mở cửa Tiệm (Ngày ${saveData.day})`, 0x162a22, '#F6F4EE', () => {
-            soundEngine.ensure();
-            soundEngine.playClick();
-            soundEngine.startMusic();
-            ov.destroy();
-            this.startCustomerVisit();
-          });
-          const upgBtn = makeCozyButton(this, 0, 124, 210, 40, `Nâng cấp Tiệm (${saveData.coins} Xu)`, 0xf6f4ee, '#162A22', () => {
+          const openBtn = makeCozyButton(
+            this,
+            0,
+            62,
+            260,
+            48,
+            `Mở cửa Tiệm (Ngày ${saveData.day})`,
+            0x162a22,
+            '#FAF4E6',
+            () => {
+              soundEngine.ensure();
+              soundEngine.playClick();
+              soundEngine.startMusic();
+              ov.destroy();
+              this.startCustomerVisit();
+            },
+            0x162a22
+          );
+          const upgBtn = makeCozyButton(this, 0, 124, 210, 40, `Nâng cấp Tiệm (${saveData.coins} Xu)`, 0xf5ecdc, '#3A2516', () => {
             soundEngine.ensure();
             soundEngine.playClick();
             this.openUpgradeModal();
           });
 
-          ov.add([dim, card, ey, title, sub, openBtn, upgBtn]);
+          ov.add([dim, shadow, card, ey, title, sub, openBtn, upgBtn]);
         }
 
         createModalContainer() {
@@ -1313,8 +1582,8 @@
           this.modalGroup.removeAll(true);
           const dim = this.add.rectangle(0, 0, 1280, 720, 0x162a22, 0.55).setInteractive();
           const bg = this.add.graphics();
-          bg.fillStyle(0xf6f4ee, 1);
-          bg.lineStyle(2.5, 0x162a22, 1);
+          bg.fillStyle(0xfaf4e6, 1);
+          bg.lineStyle(2.5, 0xa67c52, 1);
           bg.fillRoundedRect(-330, -230, 660, 460, 16);
           bg.strokeRoundedRect(-330, -230, 660, 460, 16);
 
@@ -1324,10 +1593,10 @@
             fontWeight: '700',
             color: '#162A22'
           });
-          const closeBtn = makeCozyButton(this, 275, -186, 70, 32, 'Đóng', 0x162a22, '#F6F4EE', () => {
+          const closeBtn = makeCozyButton(this, 275, -186, 70, 32, 'Đóng', 0x162a22, '#FAF4E6', () => {
             soundEngine.playClick();
             this.modalGroup.setVisible(false);
-          });
+          }, 0x162a22);
           this.modalGroup.add([dim, bg, title, closeBtn]);
 
           UPGRADES.forEach((up, idx) => {
@@ -1335,7 +1604,7 @@
             const owned = Boolean(saveData.upgrades[up.id]);
             const rowBg = this.add.graphics();
             rowBg.fillStyle(0xffffff, 1);
-            rowBg.lineStyle(1, 0x162a22, 0.18);
+            rowBg.lineStyle(1, 0xc5a880, 0.9);
             rowBg.fillRoundedRect(-295, ry - 28, 590, 66, 10);
             rowBg.strokeRoundedRect(-295, ry - 28, 590, 66, 10);
 
@@ -1348,7 +1617,7 @@
             const ds = this.add.text(-275, ry + 5, up.desc, {
               fontFamily: '"Be Vietnam Pro", sans-serif',
               fontSize: '12.5px',
-              color: '#525B54'
+              color: '#52463A'
             });
             const actBtn = makeCozyButton(
               this,
@@ -1365,7 +1634,7 @@
                 saveData.coins -= up.cost;
                 saveData.upgrades[up.id] = true;
                 writeSave(saveData);
-                this.hudCoinTxt.setText(`Xu: ${saveData.coins}`);
+                this.hudCoinTxt.setText(`${saveData.coins} Xu`);
                 this.openUpgradeModal();
               }
             );
@@ -1378,8 +1647,8 @@
           this.modalGroup.removeAll(true);
           const dim = this.add.rectangle(0, 0, 1280, 720, 0x162a22, 0.55).setInteractive();
           const bg = this.add.graphics();
-          bg.fillStyle(0xf6f4ee, 1);
-          bg.lineStyle(2.5, 0x162a22, 1);
+          bg.fillStyle(0xfaf4e6, 1);
+          bg.lineStyle(2.5, 0xa67c52, 1);
           bg.fillRoundedRect(-330, -240, 660, 480, 16);
           bg.strokeRoundedRect(-330, -240, 660, 480, 16);
 
@@ -1389,18 +1658,18 @@
             fontWeight: '700',
             color: '#162A22'
           });
-          const closeBtn = makeCozyButton(this, 275, -196, 70, 32, 'Đóng', 0x162a22, '#F6F4EE', () => {
+          const closeBtn = makeCozyButton(this, 275, -196, 70, 32, 'Đóng', 0x162a22, '#FAF4E6', () => {
             soundEngine.playClick();
             this.modalGroup.setVisible(false);
-          });
+          }, 0x162a22);
           this.modalGroup.add([dim, bg, title, closeBtn]);
 
           ORDERS.forEach((ord, idx) => {
             const ry = -132 + idx * 72;
             const unlocked = saveData.unlockedRecipes.includes(ord.id);
             const rowBg = this.add.graphics();
-            rowBg.fillStyle(unlocked ? 0xffffff : 0xedeae2, 1);
-            rowBg.lineStyle(1, 0x162a22, 0.15);
+            rowBg.fillStyle(unlocked ? 0xffffff : 0xede6d8, 1);
+            rowBg.lineStyle(1, 0xc5a880, 0.85);
             rowBg.fillRoundedRect(-295, ry - 22, 590, 58, 8);
             rowBg.strokeRoundedRect(-295, ry - 22, 590, 58, 8);
             const nm = this.add.text(-275, ry - 14, ord.recipeName, {
@@ -1412,14 +1681,16 @@
             const ds = this.add.text(-275, ry + 8, unlocked ? ord.hint : 'Hoàn thành ca với Hạng A/S để mở khóa công thức.', {
               fontFamily: '"Be Vietnam Pro", sans-serif',
               fontSize: '12px',
-              color: '#525B54'
+              color: '#52463A'
             });
-            const badge = this.add.text(275, ry + 6, unlocked ? 'ĐÃ MỞ' : 'KHÓA', {
-              fontFamily: '"Be Vietnam Pro", sans-serif',
-              fontSize: '11px',
-              fontWeight: '700',
-              color: unlocked ? '#162A22' : '#7A7D78'
-            }).setOrigin(1, 0.5);
+            const badge = this.add
+              .text(275, ry + 6, unlocked ? 'ĐÃ MỞ' : 'KHÓA', {
+                fontFamily: '"Be Vietnam Pro", sans-serif',
+                fontSize: '11px',
+                fontWeight: '700',
+                color: unlocked ? '#162A22' : '#7A7D78'
+              })
+              .setOrigin(1, 0.5);
             this.modalGroup.add([rowBg, nm, ds, badge]);
           });
           this.modalGroup.setVisible(true);
@@ -1430,7 +1701,6 @@
           this.wavePhase += dt * 5.2;
           this.waveAmp = Math.max(0.6, this.waveAmp * (1 - dt * 2.5));
 
-          // Pouring liquid
           if (this.phase === 'brew' && this.pouringId && this.liquidMl < 220) {
             const add = 44 * dt;
             this.liquidMl = Math.min(220, this.liquidMl + add);
@@ -1442,22 +1712,21 @@
             this.pourStreamG.clear();
             this.pourStreamG.lineStyle(6, this.pouringId === 'vinegar' ? 0xdfd6ba : 0x9dc2bc, 0.9);
             this.pourStreamG.beginPath();
-            this.pourStreamG.moveTo(662, 476);
-            this.pourStreamG.lineTo(645, 625);
+            this.pourStreamG.moveTo(665, 452);
+            this.pourStreamG.lineTo(645, 610);
             this.pourStreamG.strokePath();
           }
 
-          // Smooth pH needle
           this.currentPh += (this.targetPh - this.currentPh) * Math.min(1, dt * 8);
           this.phLabelTxt.setText(`pH ${this.currentPh.toFixed(1)}`);
 
-          // Draw dynamic liquid inside flask
+          // Dynamic liquid inside flask
           this.liquidGraphics.clear();
           if (this.liquidMl > 0) {
             const ratio = Math.min(0.84, this.liquidMl / 220);
-            const bottomY = 668;
-            const topY = bottomY - 120 * ratio;
-            const halfW = 36 + (1 - ratio) * 24;
+            const bottomY = 648;
+            const topY = bottomY - 135 * ratio;
+            const halfW = 42 + (1 - ratio) * 26;
             const colorHex =
               this.solids.orange > 0 && this.solids.mint > 0
                 ? 0x7a9a58
@@ -1471,44 +1740,62 @@
 
             this.liquidGraphics.fillStyle(colorHex, 0.82);
             this.liquidGraphics.beginPath();
-            this.liquidGraphics.moveTo(640 - 62, bottomY);
+            this.liquidGraphics.moveTo(640 - 72, bottomY);
             for (let x = -halfW; x <= halfW; x += 6) {
               const wy = Math.sin(this.wavePhase + x * 0.08) * this.waveAmp;
               this.liquidGraphics.lineTo(640 + x, topY + wy);
             }
-            this.liquidGraphics.lineTo(640 + 62, bottomY);
+            this.liquidGraphics.lineTo(640 + 72, bottomY);
             this.liquidGraphics.closePath();
             this.liquidGraphics.fillPath();
           }
 
-          // Draw Brass pH Column
+          // Brass & Glass pH Pill Tube (only drawn when phVisible)
           this.phGraphics.clear();
-          const px = 748;
-          const py = 526;
-          const phH = 140;
-          this.phGraphics.fillStyle(0xf6f4ee, 0.95);
-          this.phGraphics.lineStyle(2, 0x162a22, 0.85);
-          this.phGraphics.fillRoundedRect(px, py, 16, phH, 7);
-          this.phGraphics.strokeRoundedRect(px, py, 16, phH, 7);
+          this.phLabelBg.clear();
+          if (this.phVisible) {
+            const px = 768;
+            const py = 492;
+            const pw = 18;
+            const phH = 148;
 
-          const [tMin, tMax] = this.currentOrder.targetPh;
-          const y1 = py + ((tMin - 2) / 7) * phH;
-          const y2 = py + ((tMax - 2) / 7) * phH;
-          this.phGraphics.fillStyle(0x4a7c59, saveData.upgrades.labPhMeter ? 0.85 : 0.45);
-          this.phGraphics.fillRect(px + 2, y1, 12, Math.max(8, y2 - y1));
+            // Glass tube pill with brass border (#B98B48)
+            this.phGraphics.fillStyle(0xf8f1e3, 0.94);
+            this.phGraphics.lineStyle(2, 0xb98b48, 1);
+            this.phGraphics.fillRoundedRect(px, py, pw, phH, 9);
+            this.phGraphics.strokeRoundedRect(px, py, pw, phH, 9);
 
-          const ptrY = py + ((this.currentPh - 2) / 7) * phH;
-          this.phGraphics.fillStyle(0xa85432, 1);
-          this.phGraphics.fillTriangle(px + 18, ptrY, px + 28, ptrY - 5, px + 28, ptrY + 5);
+            // Soft glowing target pH bracket inside tube
+            const [tMin, tMax] = this.currentOrder.targetPh;
+            const y1 = py + ((tMin - 2) / 7) * phH;
+            const y2 = py + ((tMax - 2) / 7) * phH;
+            this.phGraphics.fillStyle(0x4a7c59, saveData.upgrades.labPhMeter ? 0.88 : 0.45);
+            this.phGraphics.fillRoundedRect(px + 3, y1, pw - 6, Math.max(10, y2 - y1), 4);
+
+            // Indicator fluid fill up to pointer
+            const ptrY = py + ((this.currentPh - 2) / 7) * phH;
+            this.phGraphics.fillStyle(0xd98a2b, 0.5);
+            this.phGraphics.fillRoundedRect(px + 5, ptrY, pw - 10, Math.max(6, py + phH - ptrY - 3), 3);
+
+            // Brass needle pointer
+            this.phGraphics.fillStyle(0xa85432, 1);
+            this.phGraphics.fillTriangle(px + pw + 2, ptrY, px + pw + 11, ptrY - 5, px + pw + 11, ptrY + 5);
+
+            // Attached cream label cap right above tube
+            this.phLabelBg.fillStyle(0xf8f1e3, 0.96);
+            this.phLabelBg.lineStyle(1.5, 0xb98b48, 1);
+            this.phLabelBg.fillRoundedRect(748, 454, 60, 24, 6);
+            this.phLabelBg.strokeRoundedRect(748, 454, 60, 24, 6);
+          }
 
           // Swirl ring
           this.swirlRingG.clear();
           if (this.phase === 'swirl') {
             this.swirlRingG.lineStyle(4, 0xd98a2b, 0.35);
-            this.swirlRingG.strokeCircle(640, 585, 58);
+            this.swirlRingG.strokeCircle(640, 560, 62);
             this.swirlRingG.lineStyle(5, 0xd98a2b, 1);
             this.swirlRingG.beginPath();
-            this.swirlRingG.arc(640, 585, 58, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * this.swirlProgress) / 100);
+            this.swirlRingG.arc(640, 560, 62, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * this.swirlProgress) / 100);
             this.swirlRingG.strokePath();
           }
 
@@ -1518,7 +1805,7 @@
             const pct = this.patienceLeft / this.patienceMax;
             this.patienceBar.clear();
             this.patienceBar.fillStyle(pct > 0.3 ? 0x4a7c59 : 0xa85432, 1);
-            this.patienceBar.fillRoundedRect(-155, 76, 310 * pct, 10, 5);
+            this.patienceBar.fillRoundedRect(-165, 72, 330 * pct, 9, 4.5);
           }
         }
       }
@@ -1540,14 +1827,12 @@
           const quality = this.dataIn.quality;
           const order = this.dataIn.order;
 
-          // RenderTexture dirt layer across center tabletop
           this.rtX = 230;
           this.rtY = 140;
           this.rtW = 820;
           this.rtH = 440;
           this.dirtRt = this.add.renderTexture(this.rtX, this.rtY, this.rtW, this.rtH).setOrigin(0, 0).setDepth(5);
 
-          // Stamp organic stains onto RenderTexture
           const stainColor =
             order.stainTheme === 'grease' || order.stainTheme === 'mixed'
               ? 0xb87624
@@ -1572,15 +1857,15 @@
             this.dirtRt.draw(stampG, sx - 80, sy - 80);
           }
 
-          this.tool = 'spray'; // 'spray' | 'cloth'
+          this.tool = 'spray';
           this.cleanPct = 0;
           this.totalWipeMoves = 0;
           this.doneFlag = false;
 
-          // Top cozy HUD
+          // Cozy parchment status pill (no #000 border)
           const hudBg = this.add.graphics().setDepth(20);
-          hudBg.fillStyle(0xf6f4ee, 0.95);
-          hudBg.lineStyle(2, 0x162a22, 0.9);
+          hudBg.fillStyle(0xfaf4e6, 0.96);
+          hudBg.lineStyle(2, 0xa67c52, 0.95);
           hudBg.fillRoundedRect(240, 18, 800, 48, 12);
           hudBg.strokeRoundedRect(240, 18, 800, 48, 12);
 
@@ -1589,23 +1874,21 @@
               fontFamily: '"Be Vietnam Pro", sans-serif',
               fontSize: '15px',
               fontWeight: '700',
-              color: '#162A22'
+              color: '#3A2516'
             })
             .setOrigin(0.5)
             .setDepth(21);
 
-          // Tool buttons at bottom
-          this.sprayBtn = makeCozyButton(this, 535, 665, 190, 44, 'Chai xịt tinh dầu', 0xa85432, '#F6F4EE', () => {
+          this.sprayBtn = makeCozyButton(this, 535, 665, 190, 44, 'Chai xịt tinh dầu', 0xa85432, '#FAF4E6', () => {
             soundEngine.playClick();
             this.setTool('spray');
           }).setDepth(22);
 
-          this.clothBtn = makeCozyButton(this, 745, 665, 190, 44, 'Khăn vải linen', 0xf6f4ee, '#162A22', () => {
+          this.clothBtn = makeCozyButton(this, 745, 665, 190, 44, 'Khăn vải linen', 0xf5ecdc, '#3A2516', () => {
             soundEngine.playClick();
             this.setTool('cloth');
           }).setDepth(22);
 
-          // Active cursor prop follower
           this.cursorProp = this.add.image(640, 360, 'prop_spray').setDisplaySize(86, 100).setDepth(30).setAlpha(0.92);
 
           const wipeRadiusScale =

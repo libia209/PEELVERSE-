@@ -744,9 +744,7 @@
         ? 'game'
         : '';
 
-    document.querySelectorAll('.primary-nav-link, .bottom-nav-item[data-route]').forEach((btn) => {
-      btn.classList.toggle('active', btn.dataset.route === topNavKey);
-    });
+    syncActiveNav(topNavKey);
 
     const userMenu = document.getElementById('userAccountMenu');
     if (userMenu) userMenu.classList.add('hidden');
@@ -755,6 +753,12 @@
 
     render();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function syncActiveNav(topNavKey) {
+    document.querySelectorAll('.primary-nav-link, .bottom-nav-item[data-route]').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.route === topNavKey);
+    });
   }
 
   function triggerViewTransition(view) {
@@ -2738,6 +2742,17 @@
     setupSearch();
     updateHeaderStats();
     updateCartBadges();
+    const initTopNav =
+      currentRoute === 'home' || currentRoute === 'about'
+        ? 'home'
+        : currentRoute === 'shop' || currentRoute === 'my-orders'
+        ? 'shop'
+        : currentRoute === 'game' || currentRoute === 'game-play'
+        ? 'game'
+        : currentRoute === 'ingredients' || currentRoute === 'process' || currentRoute === 'science'
+        ? 'lab'
+        : '';
+    syncActiveNav(initTopNav);
     render();
   });
 })();

@@ -9485,3 +9485,288 @@ body.seller-register-page .site-footer {
     padding: 6px 2px;
   }
 }
+
+
+/* =========================================================================
+   PEEL LAB — CANVAS 2D GAME WORKBENCH
+   ========================================================================= */
+.peel-lab-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.peel-lab-topbar {
+  background: #162A22;
+  color: #F6F4EE;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.peel-lab-status-left,
+.peel-lab-status-right {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.peel-lab-rank-pill {
+  background: #A85432;
+  color: #F6F4EE;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.peel-lab-meta-chip {
+  background: rgba(246, 244, 238, 0.12);
+  color: #F6F4EE;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.peel-lab-combo-chip {
+  background: #D98A2B;
+  color: #162A22;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 9px;
+  border-radius: 4px;
+}
+
+.peel-lab-timer-wrap {
+  width: 78px;
+  height: 7px;
+  background: rgba(246, 244, 238, 0.2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.peel-lab-timer-fill {
+  height: 100%;
+  background: #D98A2B;
+  transition: width 150ms linear;
+}
+
+.peel-lab-timer-num {
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 28px;
+}
+
+.peel-lab-top-btn {
+  border: 1px solid rgba(246, 244, 238, 0.25);
+  background: transparent;
+  color: #F6F4EE;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.peel-lab-top-btn:hover {
+  background: rgba(246, 244, 238, 0.12);
+}
+
+.peel-lab-ticket {
+  position: relative;
+  background: #FFFFFF;
+  border: 1px solid rgba(22, 42, 34, 0.14);
+  border-left: 4px solid #A85432;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.peel-lab-ticket-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+
+.peel-lab-ticket-head strong {
+  font-size: 0.94rem;
+  color: #162A22;
+}
+
+.peel-lab-ticket-body p {
+  font-size: 0.82rem;
+  color: #525B54;
+  margin-top: 2px;
+}
+
+.peel-lab-stage-wrap {
+  position: relative;
+  width: 100%;
+  height: clamp(380px, 56vh, 520px);
+  border-radius: 12px;
+  border: 1px solid rgba(22, 42, 34, 0.14);
+  overflow: hidden;
+  background: #F6F4EE;
+}
+
+.peel-lab-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.peel-lab-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(22, 42, 34, 0.45);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 4;
+}
+
+.peel-lab-result-box {
+  background: #F6F4EE;
+  border: 1px solid rgba(22, 42, 34, 0.18);
+  border-radius: 12px;
+  padding: 22px 20px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 44px rgba(22, 42, 34, 0.25);
+}
+
+.peel-lab-rank-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.peel-lab-rank-badge.rank-S {
+  background: #162A22;
+  color: #F6F4EE;
+}
+
+.peel-lab-rank-badge.rank-A {
+  background: #4A7C59;
+  color: #FFFFFF;
+}
+
+.peel-lab-rank-badge.rank-B {
+  background: #A85432;
+  color: #FFFFFF;
+}
+
+.peel-lab-result-note {
+  font-size: 0.84rem;
+  color: #525B54;
+  line-height: 1.45;
+}
+
+.peel-lab-result-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+  background: #FFFFFF;
+  border: 1px solid rgba(22, 42, 34, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.peel-lab-result-stats span {
+  display: block;
+  font-size: 11px;
+  color: #525B54;
+}
+
+.peel-lab-result-stats strong {
+  font-size: 0.95rem;
+  color: #162A22;
+}
+
+.peel-lab-recipe-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.peel-lab-recipe-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(22, 42, 34, 0.12);
+  background: #FAF9F5;
+  opacity: 0.7;
+}
+
+.peel-lab-recipe-row.unlocked {
+  opacity: 1;
+  background: #FFFFFF;
+}
+
+.peel-lab-recipe-row strong {
+  display: block;
+  font-size: 0.88rem;
+  color: #162A22;
+}
+
+.peel-lab-recipe-row p {
+  font-size: 0.78rem;
+  color: #525B54;
+  margin-top: 2px;
+}
+
+.peel-lab-recipe-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: #EAE6DC;
+  color: #162A22;
+  white-space: nowrap;
+}
+
+.peel-lab-recipe-row.unlocked .peel-lab-recipe-badge {
+  background: #162A22;
+  color: #F6F4EE;
+}
+
+@media (max-width: 768px) {
+  .peel-lab-ticket {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .peel-lab-stage-wrap {
+    height: clamp(360px, 54dvh, 460px);
+  }
+}

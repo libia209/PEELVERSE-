@@ -1620,122 +1620,21 @@
     update();
   }
 
-  // ===== 06. GAME HUB & PLAY (6 EXTRACTION STAGES) =====
-  function getPlayerRank(clearedCount, totalScore) {
-    if (clearedCount >= 6 || totalScore >= 900) {
-      return { title: 'Bậc thầy PEELVERSE', icon: 'ph-crown', color: '#D97706', bg: '#FEF3C7' };
-    }
-    if (clearedCount >= 3 || totalScore >= 350) {
-      return { title: 'Chuyên gia Chiết xuất', icon: 'ph-flask', color: '#059669', bg: '#D1FAE5' };
-    }
-    return { title: 'Tân binh Tái sinh', icon: 'ph-plant', color: '#2D6A4F', bg: '#E6F4E8' };
-  }
-
+  // ===== 06. PEEL LAB — CANVAS 2D EXTRACTION GAME =====
   function renderGameHub(view) {
-    const clearedCount = Object.keys(state.clearedGames).length;
-    const totalScore = Object.values(state.clearedGames).reduce((a, b) => a + b, 0);
-    const rank = getPlayerRank(clearedCount, totalScore);
-
-    view.innerHTML = `
-      <section class="editorial-page-header">
-        <div class="editorial-page-header-left">
-          <span class="eyebrow-tag">MÔ PHỎNG TƯƠNG TÁC • 06 CÔNG ĐOẠN</span>
-          <h1 class="editorial-h1">Mô phỏng chiết xuất</h1>
-          <p class="editorial-sub">Thực hành 6 công đoạn phòng lab biến vỏ cam thành dung dịch làm sạch sinh học.</p>
-        </div>
-        <div class="editorial-page-header-right">
-          <div class="sim-inline-summary">
-            <span><strong>${clearedCount}/6</strong> công đoạn</span>
-            <span class="hairline-sep">|</span>
-            <span><strong>${totalScore}</strong> điểm</span>
-            <span class="hairline-sep">|</span>
-            <span>${rank.title}</span>
-          </div>
-          <button class="btn btn-primary btn-sm" id="startFirstStageBtn">Bắt đầu mô phỏng →</button>
-        </div>
-      </section>
-
-      <section class="game-stages-grid">
-        ${GAMES.stages
-          .map((st) => {
-            const best = state.clearedGames[st.id] || 0;
-            const isCleared = best > 0;
-            const stars = GAMES.getStarsForScore(st, best);
-            const pct = Math.min(100, Math.round((best / (st.maxScore || 200)) * 100));
-            const starsHtml = [1, 2, 3]
-              .map(
-                (i) =>
-                  `<span class="editorial-star ${i <= stars ? 'lit' : ''}" aria-hidden="true">★</span>`
-              )
-              .join('');
-
-            return `
-            <article class="stage-card-v2 stage-editorial ${isCleared ? 'cleared' : ''}">
-              <div class="stage-editorial-media" data-stage="${st.id}" role="button" tabindex="0" aria-label="Mở công đoạn ${st.num}: ${st.title}">
-                <img src="${st.image || 'assets/images/explore-game.jpg'}" alt="Công đoạn ${st.num}: ${st.title}" loading="lazy" onerror="this.onerror=null;this.src='assets/images/explore-game.jpg';" />
-                <span class="stage-media-num">${st.num}</span>
-                <span class="stage-media-status ${isCleared ? 'done' : ''}">
-                  ${isCleared ? 'Hoàn thành' : 'Chưa thực hiện'}
-                </span>
-              </div>
-
-              <div class="stage-card-v2-body">
-                <div class="stage-card-meta-row">
-                  <span class="eyebrow-tag">CÔNG ĐOẠN ${st.num}</span>
-                  <div class="stage-stars-row" aria-label="${stars}/3 sao">${starsHtml}</div>
-                </div>
-                <h3 class="serif-heading" style="font-size:1.35rem;">${st.title}</h3>
-                <p class="stage-desc-v2">${st.desc}</p>
-
-                <div class="stage-score-meter">
-                  <div class="stage-score-labels">
-                    <span>Điểm cao nhất</span>
-                    <strong>${best} / ${st.maxScore}</strong>
-                  </div>
-                  <div class="stage-mini-track">
-                    <div class="stage-mini-fill" style="width:${pct}%;"></div>
-                  </div>
-                </div>
-
-                <button class="btn ${isCleared ? 'btn-secondary' : 'btn-primary'} btn-sm" style="width:100%;margin-top:8px;" data-stage="${st.id}">
-                  ${isCleared ? 'Thực hành lại' : 'Mở công đoạn →'}
-                </button>
-              </div>
-            </article>
-          `;
-          })
-          .join('')}
-      </section>
-    `;
-
-    view.querySelector('#startFirstStageBtn').addEventListener('click', () => {
-      const nextStage = GAMES.stages.find((s) => !state.clearedGames[s.id])?.id || 1;
-      navigate('game-play', nextStage);
-    });
-
-    view.querySelectorAll('[data-stage]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        navigate('game-play', Number(btn.dataset.stage));
+    view.innerHTML = `<div id="peelLabMount"></div>`;
+    const mount = view.querySelector('#peelLabMount');
+    if (mount && GAMES && GAMES.mountLab) {
+      GAMES.mountLab(mount, (shiftScore, bestScore) => {
+        state.clearedGames[1] = Math.max(state.clearedGames[1] || 0, bestScore);
+        addNotification(`PEEL LAB: Đạt ${shiftScore} điểm (Kỷ lục: ${bestScore} điểm)!`);
+        saveState();
       });
-    });
+    }
   }
 
-  function renderGamePlay(view, stageId) {
-    GAMES.mountStage(
-      stageId,
-      view,
-      (completedId, score) => {
-        const prev = state.clearedGames[completedId] || 0;
-        if (score > prev) {
-          state.clearedGames[completedId] = score;
-        }
-        addNotification(`Hoàn thành Màn ${completedId} với ${score} điểm!`);
-        showToast(`Màn ${completedId} hoàn tất (+${score} điểm)`);
-        triggerEcoConfetti();
-        saveState();
-      },
-      () => navigate('game')
-    );
+  function renderGamePlay(view) {
+    renderGameHub(view);
   }
 
   // ===== 07. CREATOR STUDIO ROUTE =====
@@ -2159,11 +2058,11 @@
         }
       })),
       ...GAMES.stages.map((g) => ({
-        title: `${g.emoji} Màn ${g.id}: ${g.title}`,
+        title: `PEEL LAB • ${g.title}`,
         desc: g.desc,
         group: 'Mô phỏng',
-        searchBlob: normalizeVi(`man ${g.id} mo phong mini game tro choi ${g.title} ${g.desc}`),
-        action: () => navigate('game-play', g.id)
+        searchBlob: normalizeVi(`peel lab mo phong chiet xuat ${g.title} ${g.desc}`),
+        action: () => navigate('game')
       })),
       ...getAllShopProducts().map((sp) => ({
         title: `${sp.name}`,

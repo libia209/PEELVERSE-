@@ -1,622 +1,1446 @@
-window.PEELVERSE_GAMES = {
-  stages: [
+(() => {
+  const LAB_STORAGE_KEY = 'peelverse_peel_lab_v1';
+
+  const INGREDIENTS = [
     {
-      id: 1,
-      num: '01',
-      title: 'Thu thập nguyên liệu',
-      image: 'assets/images/step-1-collect.jpg',
-      emoji: '🧺',
-      icon: 'ph-orange-slice',
-      accent: '#EA580C',
-      accentBg: 'linear-gradient(135deg, #FFF1E3 0%, #FDE0C2 100%)',
-      glow: 'rgba(234, 88, 12, 0.22)',
-      maxScore: 200,
-      scienceTip: 'Vỏ cam tươi không nấm mốc chứa hàm lượng tinh dầu D-Limonene cao nhất ở lớp vỏ ngoài (flavedo).',
-      desc: 'Chọn và thu thập các loại vỏ trái cây phù hợp vào giỏ, phân biệt nguyên liệu nên sử dụng và không nên sử dụng.'
+      id: 'citrus',
+      name: 'Vỏ cam',
+      type: 'solid',
+      imgSrc: 'assets/images/ing-citrus.jpg',
+      color: '#D98A2B',
+      phDelta: -0.25,
+      mlPerUnit: 12,
+      role: 'Tinh dầu D-Limonene'
     },
     {
-      id: 2,
-      num: '02',
-      title: 'Làm sạch nguyên liệu',
-      image: 'assets/images/step-2-wash.jpg',
-      emoji: '🫧',
-      icon: 'ph-drop',
-      accent: '#0284C7',
-      accentBg: 'linear-gradient(135deg, #E3F4FD 0%, #C6E8FA 100%)',
-      glow: 'rgba(2, 132, 199, 0.22)',
-      maxScore: 180,
-      scienceTip: 'Rửa sạch bụi bẩn và lớp sáp mỏng bằng nước mát giúp bảo toàn tinh dầu dễ bay hơi trước khi chiết xuất.',
-      desc: 'Thao tác rửa vỏ trái cây, loại bỏ bụi bẩn bằng cách tương tác trực tiếp trên màn hình.'
+      id: 'vinegar',
+      name: 'Giấm trắng',
+      type: 'liquid',
+      imgSrc: 'assets/images/ing-vinegar.jpg',
+      color: '#E6DFC8',
+      phTarget: 2.6,
+      role: 'Axit axetic nhẹ'
     },
     {
-      id: 3,
-      num: '03',
-      title: 'Sơ chế',
-      image: 'assets/images/step-3-prep.jpg',
-      emoji: '✂️',
-      icon: 'ph-scissors',
-      accent: '#CA8A04',
-      accentBg: 'linear-gradient(135deg, #FEF9DC 0%, #FDECA8 100%)',
-      glow: 'rgba(202, 138, 4, 0.22)',
-      maxScore: 200,
-      scienceTip: 'Cắt vỏ thành miếng đồng đều 1.5–2 cm làm tăng mạnh diện tích tiếp xúc, giúp dung môi khuếch tán tinh dầu nhanh hơn.',
-      desc: 'Hoàn thành thử thách sơ chế thông qua các thao tác chạm cắt vỏ thành kích thước đồng đều.'
+      id: 'water',
+      name: 'Nước',
+      type: 'liquid',
+      imgSrc: 'assets/images/ing-water.jpg',
+      color: '#BFD8D2',
+      phTarget: 7.0,
+      role: 'Dung môi pha loãng'
     },
     {
-      id: 4,
-      num: '04',
-      title: 'Ghép nguyên liệu',
-      image: 'assets/images/step-4-extract.jpg',
-      emoji: '🧪',
-      icon: 'ph-flask',
-      accent: '#059669',
-      accentBg: 'linear-gradient(135deg, #E2F7EE 0%, #BFEBD8 100%)',
-      glow: 'rgba(5, 150, 105, 0.22)',
-      maxScore: 220,
-      scienceTip: 'Giấm trắng (axit axetic ~5%) kết hợp tinh dầu vỏ cam và hương quế tạo nên công thức làm sạch vừa thơm dịu vừa sạch cặn.',
-      desc: 'Ghép các nguyên liệu vào đúng vị trí vai trò khoa học để tạo hỗn hợp chiết xuất chuẩn.'
+      id: 'cinnamon',
+      name: 'Quế',
+      type: 'solid',
+      imgSrc: 'assets/images/ing-cinnamon.jpg',
+      color: '#A85432',
+      phDelta: 0.05,
+      mlPerUnit: 10,
+      role: 'Hương ấm khử mùi'
     },
     {
-      id: 5,
-      num: '05',
-      title: 'Lọc dung dịch',
-      image: 'assets/images/step-5-filter.jpg',
-      emoji: '🫖',
-      icon: 'ph-funnel',
-      accent: '#D97706',
-      accentBg: 'linear-gradient(135deg, #FEF2DC 0%, #FCDBA8 100%)',
-      glow: 'rgba(217, 119, 6, 0.22)',
-      maxScore: 220,
-      scienceTip: 'Lọc tách hoàn toàn bã rắn giúp dung dịch vàng trong, không làm tắc đầu vòi xịt và bảo quản lâu hơn.',
-      desc: 'Thực hiện minigame lọc, tách phần bã nguyên liệu rắn để thu lấy dung dịch trong.'
-    },
-    {
-      id: 6,
-      num: '06',
-      title: 'Thử thách lau bàn',
-      image: 'assets/images/step-6-evaluate.jpg',
-      emoji: '✨',
-      icon: 'ph-sparkle',
-      accent: '#15803D',
-      accentBg: 'linear-gradient(135deg, #E4F6E7 0%, #C2EBC9 100%)',
-      glow: 'rgba(21, 128, 61, 0.22)',
-      maxScore: 450,
-      scienceTip: 'Phân tử D-Limonene không phân cực hòa tan vết dầu mỡ trên mặt bàn, giúp khăn lau cuốn sạch chỉ trong một lần lau!',
-      desc: 'Thử thách tương tác mô phỏng việc làm sạch bàn ăn: xịt dung dịch PEELVERSE và lau sạch vết bẩn tính điểm!'
+      id: 'mint',
+      name: 'Lá bạc hà',
+      type: 'solid',
+      imgSrc: 'assets/images/la-bac-ha.png',
+      color: '#4A7C59',
+      phDelta: 0.1,
+      mlPerUnit: 10,
+      role: 'Menthol the mát'
     }
-  ],
+  ];
 
-  getStarsForScore(stage, score) {
-    if (!score || score <= 0) return 0;
-    const ratio = score / (stage.maxScore || 200);
-    if (ratio >= 0.85) return 3;
-    if (ratio >= 0.55) return 2;
-    return 1;
-  },
-
-  activeTimer: null,
-
-  cleanup() {
-    if (this.activeTimer) {
-      clearInterval(this.activeTimer);
-      this.activeTimer = null;
+  const ORDERS = [
+    {
+      id: 'degreaser',
+      recipeName: 'Tẩy dầu mỡ Vỏ Cam',
+      title: 'Bàn bếp dính dầu mỡ chiên rán',
+      brief: 'Cần pH 3.5–4.5, giàu tinh dầu D-Limonene từ Vỏ cam + Giấm trắng (pha chút Nước).',
+      targetPh: [3.4, 4.6],
+      reqSolids: { citrus: 2 },
+      reqVinegarMin: 45,
+      reqWaterMin: 25,
+      stainTheme: 'grease',
+      stainLabel: 'Dầu mỡ chiên rán',
+      scienceNote: 'D-Limonene không phân cực hòa tan vết dầu mỡ, kết hợp axit axetic nhẹ làm sạch mảng bám.'
+    },
+    {
+      id: 'mint-fresh',
+      recipeName: 'Xịt thơm Bạc Hà The Mát',
+      title: 'Bàn ăn ám mùi tanh thực phẩm',
+      brief: 'Cần Vỏ cam + Lá bạc hà + Giấm trắng & Nước cân bằng (pH 3.8–5.0).',
+      targetPh: [3.7, 5.1],
+      reqSolids: { citrus: 1, mint: 2 },
+      reqVinegarMin: 35,
+      reqWaterMin: 40,
+      stainTheme: 'fishy',
+      stainLabel: 'Vết bám & mùi thực phẩm',
+      scienceNote: 'Menthol từ Lá bạc hà cùng Terpene vỏ cam giúp trung hòa mùi hôi và giữ hương thanh mát.'
+    },
+    {
+      id: 'cinnamon-warm',
+      recipeName: 'Dung dịch Quế Ấm Khử Mùi',
+      title: 'Tủ gỗ & bàn trà ẩm mốc nhẹ',
+      brief: 'Cần Vỏ cam + Quế + Giấm trắng & Nước (pH 3.6–4.8) để làm sạch dịu nhẹ.',
+      targetPh: [3.6, 4.9],
+      reqSolids: { citrus: 1, cinnamon: 2 },
+      reqVinegarMin: 40,
+      reqWaterMin: 35,
+      stainTheme: 'mold',
+      stainLabel: 'Vết ẩm & cặn trà',
+      scienceNote: 'Cinnamaldehyde từ Quế tạo hương ấm bền mùi và hỗ trợ giảm mùi ẩm mốc trên bề mặt gỗ.'
+    },
+    {
+      id: 'glass-balance',
+      recipeName: 'Lau kính pH Cân Bằng',
+      title: 'Mặt kính mờ bụi & dấu vân tay',
+      brief: 'Cần tỷ lệ Nước nhiều + ít Giấm trắng dịu nhẹ (pH 4.5–5.8) và 1 phần Vỏ cam.',
+      targetPh: [4.4, 5.9],
+      reqSolids: { citrus: 1 },
+      reqVinegarMin: 18,
+      reqWaterMin: 70,
+      stainTheme: 'dust',
+      stainLabel: 'Vết mờ bụi & vân tay',
+      scienceNote: 'Tỷ lệ nước cao đưa pH về mức dịu nhẹ, giúp mặt kính khô nhanh mà không để lại vệt.'
+    },
+    {
+      id: 'herbal-multi',
+      recipeName: 'Hợp chất Thảo Mộc Đa Năng',
+      title: 'Bàn học & bếp tổng hợp nhiều vết bẩn',
+      brief: 'Cần đủ Vỏ cam + Quế + Lá bạc hà cùng Giấm trắng & Nước (pH 3.8–4.8).',
+      targetPh: [3.7, 4.9],
+      reqSolids: { citrus: 1, cinnamon: 1, mint: 1 },
+      reqVinegarMin: 40,
+      reqWaterMin: 45,
+      stainTheme: 'mixed',
+      stainLabel: 'Vết bẩn tổng hợp',
+      scienceNote: 'Sự kết hợp hài hòa giữa D-Limonene, Menthol và Quế giúp làm sạch nhẹ và khử mùi tự nhiên.'
     }
-  },
+  ];
 
-  mountStage(stageId, container, onComplete, onBack) {
-    this.cleanup();
-    const stage = this.stages.find((s) => s.id === stageId);
-    if (!stage) return;
+  // ===== WEB AUDIO API SYNTHESIZER (ZERO EXTERNAL FILES) =====
+  class LabAudio {
+    constructor() {
+      this.ctx = null;
+      this.enabled = true;
+      this.pourOsc = null;
+      this.pourGain = null;
+      this.lastTick = 0;
+    }
 
-    container.innerHTML = `
-      <button class="btn-back" id="gameBackBtn">← Quay lại danh sách màn chơi</button>
-      <div class="game-arena" style="--stage-accent:${stage.accent};">
-        <div class="game-hud game-hud-modern" style="background:${stage.accentBg};">
-          <div class="game-hud-title">
-            <span class="game-hud-icon" style="color:${stage.accent};">
-              <i class="ph-duotone ${stage.icon} pv-duotone" style="font-size:24px;"></i>
-            </span>
-            <div>
-              <span class="stage-num" style="background:#FFFFFF;color:${stage.accent};">Màn ${stage.num} / 06</span>
-              <h2 style="margin-top:4px;font-size:1.3rem;">${stage.title}</h2>
+    ensure() {
+      if (!this.enabled) return null;
+      if (!this.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) this.ctx = new AC();
+      }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume().catch(() => {});
+      }
+      return this.ctx;
+    }
+
+    playPlop(pitch = 320) {
+      const ctx = this.ensure();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(pitch * 0.7, now);
+      osc.frequency.exponentialRampToValueAtTime(pitch * 1.45, now + 0.08);
+      osc.frequency.exponentialRampToValueAtTime(pitch * 0.9, now + 0.14);
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.18, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.17);
+    }
+
+    startPour() {
+      const ctx = this.ensure();
+      if (!ctx || this.pourOsc) return;
+      const bufferSize = ctx.sampleRate * 1.0;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      noise.loop = true;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 650;
+      filter.Q.value = 1.8;
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.001, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 0.08);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start();
+      this.pourOsc = noise;
+      this.pourGain = gain;
+    }
+
+    stopPour() {
+      if (this.pourOsc && this.ctx && this.pourGain) {
+        const now = this.ctx.currentTime;
+        this.pourGain.gain.linearRampToValueAtTime(0.0001, now + 0.06);
+        try {
+          this.pourOsc.stop(now + 0.07);
+        } catch {
+          // ignore
+        }
+      }
+      this.pourOsc = null;
+      this.pourGain = null;
+    }
+
+    playSwirlTick() {
+      const nowMs = performance.now();
+      if (nowMs - this.lastTick < 110) return;
+      this.lastTick = nowMs;
+      const ctx = this.ensure();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(420 + Math.random() * 140, now);
+      gain.gain.setValueAtTime(0.03, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    }
+
+    playSpray() {
+      const ctx = this.ensure();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const bufferSize = Math.floor(ctx.sampleRate * 0.18);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 1800;
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.17);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start(now);
+    }
+
+    playComboChime(combo = 1) {
+      const ctx = this.ensure();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const base = 440 * Math.pow(1.06, Math.min(combo, 10));
+      [base, base * 1.25].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+        gain.gain.setValueAtTime(0.001, now + idx * 0.06);
+        gain.gain.linearRampToValueAtTime(0.09, now + idx * 0.06 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.24);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.06);
+        osc.stop(now + idx * 0.06 + 0.25);
+      });
+    }
+
+    playSpoilBuzz() {
+      const ctx = this.ensure();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.linearRampToValueAtTime(95, now + 0.22);
+      gain.gain.setValueAtTime(0.11, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    }
+
+    playShiftComplete() {
+      const ctx = this.ensure();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + i * 0.075);
+        gain.gain.setValueAtTime(0.001, now + i * 0.075);
+        gain.gain.linearRampToValueAtTime(0.1, now + i * 0.075 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.075 + 0.45);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.075);
+        osc.stop(now + i * 0.075 + 0.48);
+      });
+    }
+  }
+
+  function loadProgress() {
+    try {
+      const raw = localStorage.getItem(LAB_STORAGE_KEY);
+      if (!raw) return { bestScore: 0, totalShifts: 0, unlockedRecipes: [], soundEnabled: true };
+      const parsed = JSON.parse(raw);
+      return {
+        bestScore: Number(parsed.bestScore || 0),
+        totalShifts: Number(parsed.totalShifts || 0),
+        unlockedRecipes: Array.isArray(parsed.unlockedRecipes) ? parsed.unlockedRecipes : [],
+        soundEnabled: parsed.soundEnabled !== false
+      };
+    } catch {
+      return { bestScore: 0, totalShifts: 0, unlockedRecipes: [], soundEnabled: true };
+    }
+  }
+
+  function saveProgress(data) {
+    try {
+      localStorage.setItem(LAB_STORAGE_KEY, JSON.stringify(data));
+    } catch {
+      // ignore
+    }
+  }
+
+  function getRankTitle(bestScore, unlockedCount) {
+    if (unlockedCount >= 4 || bestScore >= 1200) return 'Nghệ nhân Tinh dầu';
+    if (unlockedCount >= 2 || bestScore >= 500) return 'Pha chế viên';
+    return 'Tập sự';
+  }
+
+  let activeCleanup = null;
+
+  window.PEELVERSE_GAMES = {
+    stages: ORDERS.map((o, idx) => ({ id: idx + 1, num: `0${idx + 1}`, title: o.recipeName, desc: o.brief })),
+
+    cleanup() {
+      if (typeof activeCleanup === 'function') {
+        activeCleanup();
+        activeCleanup = null;
+      }
+    },
+
+    mountLab(container, onScoreSaved) {
+      this.cleanup();
+      const progress = loadProgress();
+      const audio = new LabAudio();
+      audio.enabled = progress.soundEnabled;
+
+      // Preload ingredient images
+      const imgMap = new Map();
+      INGREDIENTS.forEach((ing) => {
+        const img = new Image();
+        img.src = ing.imgSrc;
+        imgMap.set(ing.id, img);
+      });
+
+      let shiftNumber = 1;
+      let score = 0;
+      let combo = 1;
+      let timeLeft = 75;
+      let phase = 1; // 1 = Brew, 2 = Swirl, 3 = Spray & Wipe, 4 = Shift Summary
+      let currentOrder = ORDERS[0];
+
+      // Brew state
+      let liquidMl = 0; // max 220
+      let vinegarMl = 0;
+      let waterMl = 0;
+      let solids = { citrus: 0, cinnamon: 0, mint: 0 };
+      let currentPh = 7.0;
+      let targetDisplayPh = 7.0;
+      let spoiledCount = 0;
+      let shakeFrames = 0;
+      let swirlProgress = 0; // 0..100
+      let swirlAnglePrev = null;
+      let formulaQuality = { scorePct: 0, rank: 'A', reason: '' };
+
+      // 1D wave physics for liquid surface
+      const WAVE_N = 28;
+      const waveY = new Float32Array(WAVE_N);
+      const waveV = new Float32Array(WAVE_N);
+
+      // Particles & pouring & drag
+      const droplets = [];
+      const oilParticles = [];
+      const mistParticles = [];
+      const sparkles = [];
+      let pouringId = null;
+      let dragging = null; // { id, x, y, spoiled }
+      let spoiledItem = null; // { x, y, vx, vy, r }
+      let nextSpoilTimer = 7.5;
+
+      // Phase 3 Tabletop & dirt mask
+      let dirtCanvas = null;
+      let dirtCtx = null;
+      let sprayedStains = []; // { x, y, r, sprayed }
+      let cleanPct = 0;
+      let wipeTool = 'spray'; // 'spray' | 'cloth'
+      let lastPointer = null;
+      let pointerDown = false;
+      let shiftCompletedFlag = false;
+
+      container.innerHTML = `
+        <div class="peel-lab-shell">
+          <!-- Top Dark Status Bar -->
+          <div class="peel-lab-topbar">
+            <div class="peel-lab-status-left">
+              <span class="peel-lab-rank-pill" id="labRankPill">${getRankTitle(progress.bestScore, progress.unlockedRecipes.length)}</span>
+              <span class="peel-lab-meta-chip" id="labShiftChip">Ca #01</span>
+              <span class="peel-lab-meta-chip" id="labScoreChip">0 điểm</span>
+              <span class="peel-lab-combo-chip" id="labComboChip">x1</span>
+            </div>
+            <div class="peel-lab-status-right">
+              <div class="peel-lab-timer-wrap" aria-label="Thời gian ca">
+                <div class="peel-lab-timer-fill" id="labTimerFill" style="width:100%;"></div>
+              </div>
+              <span class="peel-lab-timer-num" id="labTimerNum">75s</span>
+              <button type="button" class="peel-lab-top-btn" id="labRecipeBookBtn">Sổ công thức (${progress.unlockedRecipes.length}/${ORDERS.length})</button>
+              <button type="button" class="peel-lab-top-btn" id="labSoundBtn">${audio.enabled ? 'Âm thanh: Bật' : 'Âm thanh: Tắt'}</button>
             </div>
           </div>
-          <div class="hud-pills" id="gameHudPills"></div>
+
+          <!-- Pinned Ivory Order Ticket -->
+          <div class="peel-lab-ticket" id="labOrderTicket">
+            <div class="peel-lab-ticket-pin" aria-hidden="true"></div>
+            <div class="peel-lab-ticket-body">
+              <div class="peel-lab-ticket-head">
+                <span class="eyebrow-tag" id="labPhaseTag">PHA 1 / 3 • PHA CHẾ VẬT LÝ</span>
+                <strong id="labOrderTitle">${currentOrder.title}</strong>
+              </div>
+              <p id="labOrderBrief">${currentOrder.brief}</p>
+            </div>
+            <div class="peel-lab-ticket-actions">
+              <button type="button" class="btn btn-primary btn-sm hidden" id="labNextPhaseBtn">Chuyển sang Khuấy →</button>
+              <button type="button" class="btn btn-secondary btn-sm hidden" id="labClothModeBtn">Chuyển sang Khăn lau</button>
+            </div>
+          </div>
+
+          <!-- Interactive 60fps HTML5 Canvas -->
+          <div class="peel-lab-stage-wrap">
+            <canvas id="peelLabCanvas" class="peel-lab-canvas"></canvas>
+            <div id="labOverlayCard" class="peel-lab-overlay hidden"></div>
+          </div>
         </div>
-        <div id="gameBoard" class="game-board"></div>
-        <div id="gameFeedback" class="game-feedback-bar"></div>
-      </div>
-    `;
 
-    container.querySelector('#gameBackBtn').addEventListener('click', () => {
-      this.cleanup();
-      onBack();
-    });
-
-    const board = container.querySelector('#gameBoard');
-    const hud = container.querySelector('#gameHudPills');
-    const feedback = container.querySelector('#gameFeedback');
-
-    const finishStage = (score, message) => {
-      this.cleanup();
-      onComplete(stageId, score);
-      const stars = this.getStarsForScore(stage, score);
-      const starsHtml = [1, 2, 3]
-        .map(
-          (i) =>
-            `<i class="ph-duotone ph-star pv-duotone result-star ${i <= stars ? 'lit' : ''}" style="font-size:32px;"></i>`
-        )
-        .join('');
-
-      board.innerHTML = `
-        <div class="game-result-modal">
-          <div class="game-result-emblem" style="background:${stage.accentBg};color:${stage.accent};">
-            <i class="ph-duotone ph-trophy pv-duotone" style="font-size:42px;"></i>
-          </div>
-          <div class="game-result-stars" aria-label="Đạt ${stars} trên 3 sao">${starsHtml}</div>
-          <h2 style="margin-bottom:6px;">Hoàn thành Màn ${stage.num}: ${stage.title}!</h2>
-          <p style="color:var(--text-muted);max-width:480px;margin:0 auto 14px;">${message}</p>
-          <div class="game-result-score-pill" style="border-color:${stage.accent};color:${stage.accent};">
-            <i class="ph-duotone ph-sparkle pv-duotone" style="font-size:18px;"></i>
-            <span>Điểm số: <strong>${score}</strong> điểm</span>
-          </div>
-          <div class="game-science-tip">
-            <i class="ph-duotone ph-lightbulb pv-duotone" style="font-size:20px;color:#D97706;flex-shrink:0;"></i>
-            <div><strong>Mẹo khoa học nhanh:</strong> ${stage.scienceTip}</div>
-          </div>
-          <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:20px;">
-            <button class="btn btn-secondary" id="replayStageBtn">Chơi lại màn này</button>
-            ${stageId < 6
-              ? `<button class="btn btn-primary" id="nextStageBtn">Tiếp tục Màn ${stageId + 1} →</button>`
-              : `<button class="btn btn-orange" id="allDoneBtn">Xem bảng thành tích →</button>`}
+        <!-- Recipe Book Modal -->
+        <div id="labRecipeModal" class="contact-modal-overlay" aria-hidden="true">
+          <div class="contact-modal" role="dialog" aria-modal="true" aria-labelledby="labRecipeTitle">
+            <div class="contact-modal-header">
+              <div>
+                <span class="eyebrow-tag">LƯU TRỮ PHÒNG LAB</span>
+                <h3 id="labRecipeTitle" class="serif-heading" style="font-size:1.6rem;">Sổ Công Thức Chiết Xuất</h3>
+              </div>
+              <button type="button" id="closeLabRecipeBtn" class="icon-btn" aria-label="Đóng">×</button>
+            </div>
+            <div id="labRecipeList" class="peel-lab-recipe-list"></div>
           </div>
         </div>
       `;
-      board.querySelector('#replayStageBtn').addEventListener('click', () => {
-        this.mountStage(stageId, container, onComplete, onBack);
-      });
-      const nextBtn = board.querySelector('#nextStageBtn');
-      if (nextBtn) {
-        nextBtn.addEventListener('click', () => {
-          this.mountStage(stageId + 1, container, onComplete, onBack);
+
+      const canvas = container.querySelector('#peelLabCanvas');
+      const ctx = canvas.getContext('2d');
+      const stageWrap = container.querySelector('.peel-lab-stage-wrap');
+      const nextPhaseBtn = container.querySelector('#labNextPhaseBtn');
+      const clothModeBtn = container.querySelector('#labClothModeBtn');
+      const overlayCard = container.querySelector('#labOverlayCard');
+
+      let W = 800;
+      let H = 480;
+      let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      function resizeCanvas() {
+        const rect = stageWrap.getBoundingClientRect();
+        W = Math.max(320, Math.floor(rect.width));
+        H = Math.max(340, Math.floor(rect.height));
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(W * dpr);
+        canvas.height = Math.floor(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        if (phase === 3 && !dirtCanvas) initTabletopDirt();
+      }
+
+      function triggerWaveImpulse(normX, strength) {
+        const idx = Math.max(1, Math.min(WAVE_N - 2, Math.floor(normX * (WAVE_N - 1))));
+        waveV[idx] += strength;
+        waveV[idx - 1] += strength * 0.5;
+        waveV[idx + 1] += strength * 0.5;
+      }
+
+      function computeLivePh() {
+        const totalLiq = vinegarMl + waterMl;
+        let basePh = 7.0;
+        if (totalLiq > 0) {
+          basePh = (vinegarMl * 2.6 + waterMl * 7.0) / totalLiq;
+        }
+        basePh += solids.citrus * -0.22 + solids.mint * 0.08 + solids.cinnamon * 0.04;
+        return Math.max(2.0, Math.min(9.0, basePh));
+      }
+
+      function computeLiquidColor() {
+        if (spoiledCount > 0) return 'rgba(116, 108, 72, 0.78)';
+        let r = 212;
+        let g = 224;
+        let b = 216;
+        const total = Math.max(1, liquidMl);
+        const cRatio = Math.min(1, (solids.citrus * 22) / total);
+        const mRatio = Math.min(1, (solids.mint * 20) / total);
+        const cinRatio = Math.min(1, (solids.cinnamon * 20) / total);
+        r = Math.round(r + cRatio * 30 + cinRatio * -35 - mRatio * 70);
+        g = Math.round(g + cRatio * -40 + mRatio * -25 - cinRatio * 65);
+        b = Math.round(b - cRatio * 135 - cinRatio * 120 - mRatio * 65);
+        return `rgba(${Math.max(40, Math.min(255, r))}, ${Math.max(40, Math.min(255, g))}, ${Math.max(40, Math.min(255, b))}, 0.82)`;
+      }
+
+      function evaluateFormula() {
+        const ord = currentOrder;
+        let pts = 100;
+        const reasons = [];
+
+        if (spoiledCount > 0) {
+          pts -= 35;
+          reasons.push('Có nguyên liệu mốc làm đục dung dịch');
+        }
+        const [phMin, phMax] = ord.targetPh;
+        if (currentPh < phMin || currentPh > phMax) {
+          pts -= 28;
+          reasons.push(`pH ${currentPh.toFixed(1)} lệch vùng chuẩn (${phMin}–${phMax})`);
+        }
+        Object.entries(ord.reqSolids).forEach(([k, need]) => {
+          if ((solids[k] || 0) < need) {
+            pts -= 18;
+            const ingName = INGREDIENTS.find((x) => x.id === k)?.name || k;
+            reasons.push(`Thiếu ${ingName}`);
+          }
+        });
+        if (vinegarMl < ord.reqVinegarMin) {
+          pts -= 15;
+          reasons.push('Thiếu Giấm trắng');
+        }
+        if (waterMl < ord.reqWaterMin) {
+          pts -= 12;
+          reasons.push('Thiếu Nước pha loãng');
+        }
+
+        const pct = Math.max(20, Math.min(100, pts));
+        const rank = pct >= 88 ? 'S' : pct >= 68 ? 'A' : 'B';
+        const reason =
+          reasons.length === 0
+            ? `Chuẩn công thức! ${ord.scienceNote}`
+            : `${reasons[0]}. ${ord.scienceNote}`;
+        return { scorePct: pct, rank, reason };
+      }
+
+      function initTabletopDirt() {
+        const tb = getTableRect();
+        dirtCanvas = document.createElement('canvas');
+        dirtCanvas.width = Math.max(200, Math.floor(tb.w));
+        dirtCanvas.height = Math.max(140, Math.floor(tb.h));
+        dirtCtx = dirtCanvas.getContext('2d');
+
+        sprayedStains = [];
+        const count = 6;
+        for (let i = 0; i < count; i++) {
+          const sx = tb.w * (0.18 + (i % 3) * 0.31 + (Math.random() - 0.5) * 0.06);
+          const sy = tb.h * (0.28 + Math.floor(i / 3) * 0.42 + (Math.random() - 0.5) * 0.06);
+          const sr = Math.min(tb.w, tb.h) * (0.11 + Math.random() * 0.035);
+          sprayedStains.push({ x: tb.x + sx, y: tb.y + sy, r: sr, sprayed: false });
+
+          // Draw realistic organic grease/stain patch onto offscreen mask
+          const grad = dirtCtx.createRadialGradient(sx, sy, sr * 0.15, sx, sy, sr);
+          if (currentOrder.stainTheme === 'grease' || currentOrder.stainTheme === 'mixed') {
+            grad.addColorStop(0, 'rgba(186, 122, 42, 0.86)');
+            grad.addColorStop(0.65, 'rgba(168, 98, 34, 0.68)');
+            grad.addColorStop(1, 'rgba(168, 98, 34, 0)');
+          } else if (currentOrder.stainTheme === 'mold') {
+            grad.addColorStop(0, 'rgba(92, 108, 78, 0.85)');
+            grad.addColorStop(0.7, 'rgba(72, 86, 62, 0.65)');
+            grad.addColorStop(1, 'rgba(72, 86, 62, 0)');
+          } else if (currentOrder.stainTheme === 'dust') {
+            grad.addColorStop(0, 'rgba(148, 152, 146, 0.78)');
+            grad.addColorStop(0.7, 'rgba(148, 152, 146, 0.48)');
+            grad.addColorStop(1, 'rgba(148, 152, 146, 0)');
+          } else {
+            grad.addColorStop(0, 'rgba(168, 84, 50, 0.82)');
+            grad.addColorStop(0.7, 'rgba(168, 84, 50, 0.55)');
+            grad.addColorStop(1, 'rgba(168, 84, 50, 0)');
+          }
+          dirtCtx.fillStyle = grad;
+          dirtCtx.beginPath();
+          dirtCtx.arc(sx, sy, sr, 0, Math.PI * 2);
+          dirtCtx.fill();
+
+          // Extra smaller splatters
+          for (let k = 0; k < 4; k++) {
+            const ang = Math.random() * Math.PI * 2;
+            const dist = sr * (0.45 + Math.random() * 0.45);
+            dirtCtx.beginPath();
+            dirtCtx.arc(sx + Math.cos(ang) * dist, sy + Math.sin(ang) * dist, sr * 0.24, 0, Math.PI * 2);
+            dirtCtx.fill();
+          }
+        }
+        cleanPct = 0;
+        wipeTool = 'spray';
+        updateTopbarAndTicket();
+      }
+
+      function measureDirtRemainingPct() {
+        if (!dirtCtx || !dirtCanvas) return 100;
+        const data = dirtCtx.getImageData(0, 0, dirtCanvas.width, dirtCanvas.height).data;
+        let nonZero = 0;
+        let sampled = 0;
+        for (let i = 3; i < data.length; i += 64) {
+          sampled += 1;
+          if (data[i] > 28) nonZero += 1;
+        }
+        if (sampled === 0) return 0;
+        return Math.round((nonZero / sampled) * 100);
+      }
+
+      function getFlaskRect() {
+        const isMobile = W < 560;
+        const fw = isMobile ? Math.min(165, W * 0.42) : Math.min(200, W * 0.28);
+        const fh = isMobile ? Math.min(205, H * 0.44) : Math.min(240, H * 0.5);
+        const fx = (W - fw) * 0.5 - (isMobile ? 16 : 24);
+        const fy = isMobile ? H * 0.14 : H * 0.12;
+        return { x: fx, y: fy, w: fw, h: fh };
+      }
+
+      function getShelfCards() {
+        const padX = W < 560 ? 10 : 28;
+        const cardGap = W < 560 ? 6 : 12;
+        const totalW = W - padX * 2;
+        const cw = (totalW - cardGap * 4) / 5;
+        const ch = W < 560 ? 74 : 84;
+        const cy = H - ch - 12;
+        return INGREDIENTS.map((ing, i) => ({
+          ing,
+          x: padX + i * (cw + cardGap),
+          y: cy,
+          w: cw,
+          h: ch
+        }));
+      }
+
+      function getTableRect() {
+        const pad = W < 560 ? 16 : 36;
+        return { x: pad, y: 24, w: W - pad * 2, h: H - 56 };
+      }
+
+      function updateTopbarAndTicket() {
+        const rankEl = container.querySelector('#labRankPill');
+        const shiftEl = container.querySelector('#labShiftChip');
+        const scoreEl = container.querySelector('#labScoreChip');
+        const comboEl = container.querySelector('#labComboChip');
+        const phaseTag = container.querySelector('#labPhaseTag');
+        const orderTitle = container.querySelector('#labOrderTitle');
+        const orderBrief = container.querySelector('#labOrderBrief');
+        const recipeBtn = container.querySelector('#labRecipeBookBtn');
+
+        if (rankEl) rankEl.textContent = getRankTitle(Math.max(progress.bestScore, score), progress.unlockedRecipes.length);
+        if (shiftEl) shiftEl.textContent = `Ca #0${shiftNumber}`;
+        if (scoreEl) scoreEl.textContent = `${score} điểm`;
+        if (comboEl) comboEl.textContent = `x${combo}`;
+        if (recipeBtn) recipeBtn.textContent = `Sổ công thức (${progress.unlockedRecipes.length}/${ORDERS.length})`;
+        if (orderTitle) orderTitle.textContent = currentOrder.title;
+
+        if (phase === 1) {
+          if (phaseTag) phaseTag.textContent = 'PHA 1 / 3 • KÉO NGUYÊN LIỆU & GIỮ ĐỂ RÓT';
+          if (orderBrief) orderBrief.textContent = currentOrder.brief;
+          nextPhaseBtn.classList.toggle('hidden', liquidMl < 95);
+          clothModeBtn.classList.add('hidden');
+        } else if (phase === 2) {
+          if (phaseTag) phaseTag.textContent = 'PHA 2 / 3 • XOAY VÒNG TRÒN TRÊN BÌNH ĐỂ KHUẤY';
+          if (orderBrief) orderBrief.textContent = 'Di chuyển chuột hoặc ngón tay xoay tròn quanh bình thủy tinh để chiết xuất tinh dầu D-Limonene.';
+          nextPhaseBtn.classList.add('hidden');
+          clothModeBtn.classList.add('hidden');
+        } else if (phase === 3) {
+          if (phaseTag) {
+            phaseTag.textContent =
+              wipeTool === 'spray'
+                ? 'PHA 3 / 3 • CHẠM VÀO CÁC VẾT BẨN ĐỂ XỊT TINH DẦU'
+                : 'PHA 3 / 3 • QUẸT KHĂN LAU SẠCH BỀ MẶT BÀN';
+          }
+          if (orderBrief) {
+            orderBrief.textContent =
+              wipeTool === 'spray'
+                ? `Đã xịt ${sprayedStains.filter((s) => s.sprayed).length}/${sprayedStains.length} vùng bẩn. Chạm từng vết bẩn để phun sương tinh dầu.`
+                : `Độ sạch mặt bàn: ${cleanPct}% — Quẹt đều tay để lau sạch hoàn toàn!`;
+          }
+          nextPhaseBtn.classList.add('hidden');
+          clothModeBtn.classList.toggle('hidden', wipeTool !== 'spray');
+        }
+      }
+
+      function resetShift(nextIdx) {
+        shiftNumber = nextIdx;
+        currentOrder = ORDERS[(shiftNumber - 1) % ORDERS.length];
+        phase = 1;
+        liquidMl = 0;
+        vinegarMl = 0;
+        waterMl = 0;
+        solids = { citrus: 0, cinnamon: 0, mint: 0 };
+        currentPh = 7.0;
+        targetDisplayPh = 7.0;
+        spoiledCount = 0;
+        swirlProgress = 0;
+        swirlAnglePrev = null;
+        oilParticles.length = 0;
+        droplets.length = 0;
+        mistParticles.length = 0;
+        sparkles.length = 0;
+        dirtCanvas = null;
+        dirtCtx = null;
+        sprayedStains = [];
+        cleanPct = 0;
+        timeLeft = 75;
+        shiftCompletedFlag = false;
+        spoiledItem = null;
+        nextSpoilTimer = 6.5;
+        overlayCard.classList.add('hidden');
+        updateTopbarAndTicket();
+      }
+
+      function completeShift() {
+        if (shiftCompletedFlag) return;
+        shiftCompletedFlag = true;
+        phase = 4;
+        audio.stopPour();
+        audio.playShiftComplete();
+
+        const bonus = Math.round(timeLeft * 2) + (formulaQuality.rank === 'S' ? 180 : formulaQuality.rank === 'A' ? 110 : 60);
+        const gained = bonus * combo;
+        score += gained;
+        if (formulaQuality.rank === 'S') combo = Math.min(5, combo + 1);
+        else if (formulaQuality.rank === 'B') combo = 1;
+
+        progress.totalShifts += 1;
+        if (score > progress.bestScore) progress.bestScore = score;
+        if (formulaQuality.scorePct >= 68 && !progress.unlockedRecipes.includes(currentOrder.id)) {
+          progress.unlockedRecipes.push(currentOrder.id);
+        }
+        saveProgress(progress);
+        if (typeof onScoreSaved === 'function') onScoreSaved(score, progress.bestScore);
+        updateTopbarAndTicket();
+
+        const rankLabel =
+          formulaQuality.rank === 'S'
+            ? 'HOÀN HẢO (S-RANK)'
+            : formulaQuality.rank === 'A'
+            ? 'ĐẠT CHUẨN (A-RANK)'
+            : 'CẦN ĐIỀU CHỈNH (B-RANK)';
+
+        overlayCard.innerHTML = `
+          <div class="peel-lab-result-box">
+            <span class="eyebrow-tag">KẾT QUẢ CA #0${shiftNumber}</span>
+            <div class="peel-lab-rank-badge rank-${formulaQuality.rank}">${rankLabel}</div>
+            <h3 class="serif-heading" style="font-size:1.55rem;margin:6px 0;">${currentOrder.recipeName}</h3>
+            <p class="peel-lab-result-note">${formulaQuality.reason}</p>
+            <div class="peel-lab-result-stats">
+              <div><span>Điểm ca</span><strong>+${gained}</strong></div>
+              <div><span>Tổng điểm</span><strong>${score}</strong></div>
+              <div><span>Độ pH pha</span><strong>${currentPh.toFixed(1)}</strong></div>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px;">
+              <button type="button" class="btn btn-secondary btn-sm" id="labReplayShiftBtn">Làm lại ca này</button>
+              <button type="button" class="btn btn-primary btn-sm" id="labNextShiftBtn">Ca tiếp theo →</button>
+            </div>
+          </div>
+        `;
+        overlayCard.classList.remove('hidden');
+
+        overlayCard.querySelector('#labReplayShiftBtn').addEventListener('click', () => {
+          resetShift(shiftNumber);
+        });
+        overlayCard.querySelector('#labNextShiftBtn').addEventListener('click', () => {
+          resetShift(shiftNumber + 1);
         });
       }
-      const allDoneBtn = board.querySelector('#allDoneBtn');
-      if (allDoneBtn) {
-        allDoneBtn.addEventListener('click', onBack);
+
+      // ===== POINTER INTERACTIONS (MOUSE + TOUCH) =====
+      function getCanvasPoint(e) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        };
       }
-    };
 
-    if (stageId === 1) this.runStage1(board, hud, feedback, finishStage);
-    if (stageId === 2) this.runStage2(board, hud, feedback, finishStage);
-    if (stageId === 3) this.runStage3(board, hud, feedback, finishStage);
-    if (stageId === 4) this.runStage4(board, hud, feedback, finishStage);
-    if (stageId === 5) this.runStage5(board, hud, feedback, finishStage);
-    if (stageId === 6) this.runStage6(board, hud, feedback, finishStage);
-  },
+      function addSolidToFlask(ingId, dropX) {
+        const ing = INGREDIENTS.find((x) => x.id === ingId);
+        if (!ing) return;
+        solids[ingId] = (solids[ingId] || 0) + 1;
+        liquidMl = Math.min(220, liquidMl + ing.mlPerUnit);
+        targetDisplayPh = computeLivePh();
+        const flask = getFlaskRect();
+        const normX = Math.max(0.15, Math.min(0.85, (dropX - flask.x) / flask.w));
+        triggerWaveImpulse(normX, -11);
+        audio.playPlop(ingId === 'citrus' ? 340 : ingId === 'mint' ? 420 : 280);
+        audio.playComboChime(combo);
 
-  // STAGE 1: Collect good Lab ingredients, avoid bad/unsuitable items
-  runStage1(board, hud, feedback, finishStage) {
-    const items = [
-      { id: 1, img: 'assets/images/ing-citrus.jpg', emoji: '🍊', name: 'Vỏ cam tươi', good: true, note: 'Giàu tinh dầu D-Limonene!' },
-      { id: 2, img: 'assets/images/ing-vinegar.jpg', emoji: '🧪', name: 'Giấm trắng sạch', good: true, note: 'Tạo môi trường axit nhẹ hỗ trợ chiết xuất!' },
-      { id: 3, emoji: '🧫', name: 'Vỏ cam bị mốc', good: false, note: 'Không dùng vỏ bị nấm mốc vì làm hỏng mẫu thử.' },
-      { id: 4, img: 'assets/images/la-bac-ha.png', emoji: '🌿', name: 'Lá bạc hà tươi', good: true, note: 'Giàu tinh dầu menthol tạo hương the mát!' },
-      { id: 5, emoji: '🥤', name: 'Ống hút nhựa', good: false, note: 'Rác thải nhựa không thể dùng để chiết xuất!' },
-      { id: 6, img: 'assets/images/ing-cinnamon.jpg', emoji: '🪵', name: 'Thanh quế khô', good: true, note: 'Tạo hương thơm ấm áp tự nhiên.' },
-      { id: 7, img: 'assets/images/ing-water.jpg', emoji: '💧', name: 'Nước lọc sạch', good: true, note: 'Dung môi pha loãng an toàn!' },
-      { id: 8, emoji: '🗑️', name: 'Giấy ăn bẩn', good: false, note: 'Tạp chất không phù hợp với quy trình nghiên cứu.' }
-    ].sort(() => Math.random() - 0.5);
-
-    let collected = 0;
-    const totalGood = items.filter((i) => i.good).length;
-    let score = 100;
-
-    const updateHud = () => {
-      hud.innerHTML = `
-        <span class="hud-pill">🧺 Đã thu thập: ${collected}/${totalGood}</span>
-        <span class="hud-pill">⭐ Điểm: ${score}</span>
-      `;
-    };
-    updateHud();
-
-    board.innerHTML = `
-      <p style="font-weight:700;color:var(--green-dark);margin-bottom:6px;">
-        Nhiệm vụ: Chạm để thu thập <strong>${totalGood} nguyên liệu sạch phù hợp</strong> vào giỏ nghiên cứu (tránh rác nhựa và vỏ bị mốc!).
-      </p>
-      <div class="collect-grid">
-        ${items.map((item) => `
-          <button class="collect-item" data-id="${item.id}">
-            ${item.img
-              ? `<img src="${item.img}" alt="${item.name}" class="collect-item-img" />`
-              : `<span class="item-emoji">${item.emoji}</span>`}
-            <span class="item-name">${item.name}</span>
-          </button>
-        `).join('')}
-      </div>
-    `;
-
-    board.querySelectorAll('.collect-item').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const item = items.find((i) => i.id === Number(btn.dataset.id));
-        if (item.good) {
-          btn.classList.add('good-picked');
-          collected += 1;
-          score += 20;
-          feedback.textContent = `✅ Chính xác! ${item.name}: ${item.note}`;
-          updateHud();
-          if (collected === totalGood) {
-            setTimeout(() => {
-              finishStage(score, 'Bạn đã phân loại và thu thập đủ nguyên liệu đạt chuẩn để bước sang khâu làm sạch!');
-            }, 500);
-          }
-        } else {
-          btn.classList.add('bad-picked');
-          score = Math.max(0, score - 15);
-          feedback.textContent = `❌ Chưa đúng! ${item.name}: ${item.note}`;
-          updateHud();
-          setTimeout(() => btn.classList.remove('bad-picked'), 450);
+        for (let i = 0; i < 12; i++) {
+          oilParticles.push({
+            x: flask.x + flask.w * (0.2 + Math.random() * 0.6),
+            y: flask.y + flask.h * 0.65,
+            vx: (Math.random() - 0.5) * 26,
+            vy: -14 - Math.random() * 24,
+            r: 2.5 + Math.random() * 3.5,
+            color: ing.color,
+            alpha: 0.9
+          });
         }
-      });
-    });
-  },
-
-  // STAGE 2: Wash dirt spots off orange peels
-  runStage2(board, hud, feedback, finishStage) {
-    const spots = [
-      { id: 1, x: 26, y: 28, icon: '💨' },
-      { id: 2, x: 46, y: 22, icon: '🟤' },
-      { id: 3, x: 64, y: 34, icon: '💨' },
-      { id: 4, x: 34, y: 56, icon: '🟤' },
-      { id: 5, x: 54, y: 60, icon: '💨' },
-      { id: 6, x: 44, y: 42, icon: '🟤' },
-      { id: 7, x: 62, y: 54, icon: '💨' }
-    ];
-    let cleaned = 0;
-
-    const updateHud = () => {
-      const pct = Math.round((cleaned / spots.length) * 100);
-      hud.innerHTML = `
-        <span class="hud-pill">🫧 Độ sạch: ${pct}%</span>
-        <span class="hud-pill">💧 Vết bụi còn lại: ${spots.length - cleaned}</span>
-      `;
-    };
-    updateHud();
-
-    board.innerHTML = `
-      <div class="wash-stage">
-        <p style="font-weight:700;color:var(--green-dark);text-align:center;">
-          Nhiệm vụ: Chạm hoặc di chuột giữ qua các vết bụi bẩn trên vỏ cam để rửa sạch hoàn toàn!
-        </p>
-        <div class="peel-wash-basin" id="washBasin">
-          <div class="wash-peel-shape">🍊</div>
-          ${spots.map((s) => `
-            <div class="dirt-spot" data-id="${s.id}" style="left:${s.x}%;top:${s.y}%;">${s.icon}</div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-
-    let pointerDown = false;
-    const basin = board.querySelector('#washBasin');
-    basin.style.touchAction = 'none';
-    basin.addEventListener('pointerdown', (e) => {
-      pointerDown = true;
-      const target = document.elementFromPoint(e.clientX, e.clientY);
-      if (target && target.classList.contains('dirt-spot')) cleanSpot(target);
-    });
-    basin.addEventListener('pointermove', (e) => {
-      if (!pointerDown) return;
-      const target = document.elementFromPoint(e.clientX, e.clientY);
-      if (target && target.classList.contains('dirt-spot')) cleanSpot(target);
-    });
-    window.addEventListener('pointerup', () => { pointerDown = false; });
-    window.addEventListener('pointercancel', () => { pointerDown = false; });
-
-    const cleanSpot = (el) => {
-      if (el.classList.contains('cleaned')) return;
-      el.classList.add('cleaned');
-      cleaned += 1;
-      feedback.textContent = `💧 Đã rửa trôi ${cleaned}/${spots.length} vết bụi bám trên bề mặt vỏ!`;
-      updateHud();
-      if (cleaned === spots.length) {
-        setTimeout(() => {
-          finishStage(180, 'Vỏ cam đã sạch bóng bụi bẩn và sẵn sàng cho bước sơ chế cắt nhỏ!');
-        }, 450);
+        updateTopbarAndTicket();
       }
-    };
 
-    board.querySelectorAll('.dirt-spot').forEach((el) => {
-      el.addEventListener('click', () => cleanSpot(el));
-      el.addEventListener('pointerenter', () => {
-        if (pointerDown) cleanSpot(el);
-      });
-    });
-  },
+      function handlePointerDown(e) {
+        if (phase === 4) return;
+        e.preventDefault();
+        const pt = getCanvasPoint(e);
+        pointerDown = true;
+        lastPointer = pt;
+        audio.ensure();
 
-  // STAGE 3: Prep / Slice peel strips into uniform pieces
-  runStage3(board, hud, feedback, finishStage) {
-    const totalStrips = 4;
-    let slicedCount = 0;
-
-    const updateHud = () => {
-      hud.innerHTML = `
-        <span class="hud-pill">✂️ Đã sơ chế: ${slicedCount}/${totalStrips} dải vỏ</span>
-        <span class="hud-pill">📐 Kích thước: Đồng đều</span>
-      `;
-    };
-    updateHud();
-
-    board.innerHTML = `
-      <div class="slice-area">
-        <p style="font-weight:700;color:var(--green-dark);text-align:center;">
-          Nhiệm vụ: Chạm vào từng dải vỏ cam để cắt nhỏ thành các miếng đồng đều giúp tăng diện tích tiếp xúc khi chiết xuất!
-        </p>
-        <div class="peel-strip-container">
-          ${Array.from({ length: totalStrips }).map((_, idx) => `
-            <div class="peel-strip" data-idx="${idx}" title="Chạm để cắt nhỏ">
-              <div class="cut-line"></div>
-              <div class="cut-line"></div>
-              <div class="cut-line"></div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-
-    board.querySelectorAll('.peel-strip').forEach((strip) => {
-      strip.addEventListener('click', () => {
-        if (strip.classList.contains('sliced')) return;
-        strip.classList.add('sliced');
-        strip.innerHTML = `
-          <div class="peel-cube">🍊</div>
-          <div class="peel-cube">🍊</div>
-          <div class="peel-cube">🍊</div>
-          <div class="peel-cube">🍊</div>
-        `;
-        slicedCount += 1;
-        feedback.textContent = `✂️ Tuyệt vời! Đã cắt đều ${slicedCount}/${totalStrips} dải vỏ — diện tích tiếp xúc tăng lên đáng kể!`;
-        updateHud();
-        if (slicedCount === totalStrips) {
-          setTimeout(() => {
-            finishStage(200, 'Các miếng vỏ đã có kích thước đồng đều, giúp tinh dầu khuếch tán nhanh và đều hơn!');
-          }, 550);
-        }
-      });
-    });
-  },
-
-  // STAGE 4: Match the 5 Lab ingredients to their scientific roles
-  runStage4(board, hud, feedback, finishStage) {
-    const pairs = [
-      { id: 'citrus', img: 'assets/images/ing-citrus.jpg', left: 'Vỏ cam', right: 'Cung cấp tinh dầu tự nhiên & Limonene' },
-      { id: 'vinegar', img: 'assets/images/ing-vinegar.jpg', left: 'Giấm trắng', right: 'Tạo môi trường axit nhẹ, hỗ trợ làm sạch cặn khoáng' },
-      { id: 'water', img: 'assets/images/ing-water.jpg', left: 'Nước', right: 'Pha loãng dung dịch và hỗ trợ tiếp xúc' },
-      { id: 'cinnamon', img: 'assets/images/ing-cinnamon.jpg', left: 'Quế', right: 'Tạo hương thơm ấm áp có nguồn gốc thực vật' },
-      { id: 'mint', img: 'assets/images/la-bac-ha.png', left: 'Lá bạc hà', right: 'Tạo hương the mát, cân bằng mùi giấm & khử mùi' }
-    ];
-    const shuffledRight = [...pairs].sort(() => Math.random() - 0.5);
-
-    let selectedLeft = null;
-    let matched = 0;
-    let score = 120;
-
-    const updateHud = () => {
-      hud.innerHTML = `
-        <span class="hud-pill">🔗 Đã ghép đúng: ${matched}/${pairs.length}</span>
-        <span class="hud-pill">⭐ Điểm: ${score}</span>
-      `;
-    };
-    updateHud();
-
-    board.innerHTML = `
-      <p style="font-weight:700;color:var(--green-dark);margin-bottom:14px;">
-        Nhiệm vụ: Chọn 1 nguyên liệu ở cột trái, sau đó chọn vai trò tương ứng ở cột phải để nạp vào bình chiết xuất!
-      </p>
-      <div class="match-layout">
-        <div class="match-col" id="leftCol">
-          ${pairs.map((p) => `<button class="match-card" data-side="left" data-id="${p.id}"><img src="${p.img}" alt="${p.left}" class="match-card-thumb" /><span>${p.left}</span></button>`).join('')}
-        </div>
-        <div class="match-col" id="rightCol">
-          ${shuffledRight.map((p) => `<button class="match-card" data-side="right" data-id="${p.id}">${p.right}</button>`).join('')}
-        </div>
-      </div>
-    `;
-
-    board.querySelectorAll('[data-side="left"]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        board.querySelectorAll('[data-side="left"]').forEach((b) => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        selectedLeft = btn.dataset.id;
-        feedback.textContent = '👉 Bây giờ hãy chọn vai trò tương ứng ở cột bên phải!';
-      });
-    });
-
-    board.querySelectorAll('[data-side="right"]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        if (!selectedLeft) {
-          feedback.textContent = '⚠️ Hãy chọn một nguyên liệu ở cột bên trái trước nhé!';
-          return;
-        }
-        if (btn.dataset.id === selectedLeft) {
-          const leftBtn = board.querySelector(`[data-side="left"][data-id="${selectedLeft}"]`);
-          leftBtn.classList.remove('selected');
-          leftBtn.classList.add('matched');
-          btn.classList.add('matched');
-          matched += 1;
-          score += 25;
-          selectedLeft = null;
-          feedback.textContent = `✅ Ghép chính xác! Đã nạp ${matched}/${pairs.length} thành phần vào bình chiết xuất.`;
-          updateHud();
-          if (matched === pairs.length) {
-            setTimeout(() => {
-              finishStage(score, 'Bạn đã nắm vững vai trò khoa học của từng thành phần trong công thức PEELVERSE!');
-            }, 500);
+        if (phase === 1) {
+          // Check spoiled floating item
+          if (spoiledItem && Math.hypot(pt.x - spoiledItem.x, pt.y - spoiledItem.y) <= spoiledItem.r + 12) {
+            dragging = { id: 'spoiled', x: pt.x, y: pt.y, spoiled: true };
+            return;
           }
-        } else {
-          score = Math.max(0, score - 10);
-          feedback.textContent = '❌ Chưa khớp vai trò rồi! Hãy đọc kỹ lại công dụng của nguyên liệu nhé.';
-          updateHud();
-        }
-      });
-    });
-  },
-
-  // STAGE 5: Filtration minigame (remove solid pulp caught on mesh, keep golden liquid)
-  runStage5(board, hud, feedback, finishStage) {
-    const solids = [
-      { id: 1, icon: '🍊', x: 16, y: 38 },
-      { id: 2, icon: '🌿', x: 34, y: 40 },
-      { id: 3, icon: '🍊', x: 52, y: 37 },
-      { id: 4, icon: '🍂', x: 68, y: 41 },
-      { id: 5, icon: '🍊', x: 80, y: 38 },
-      { id: 6, icon: '🌿', x: 25, y: 24 },
-      { id: 7, icon: '🍊', x: 60, y: 22 }
-    ];
-    let removed = 0;
-
-    const updateHud = () => {
-      const clarity = Math.round((removed / solids.length) * 100);
-      hud.innerHTML = `
-        <span class="hud-pill">🫖 Độ trong dung dịch: ${clarity}%</span>
-        <span class="hud-pill">🍊 Bã rắn còn lại: ${solids.length - removed}</span>
-      `;
-    };
-    updateHud();
-
-    board.innerHTML = `
-      <div class="filter-stage">
-        <p style="font-weight:700;color:var(--green-dark);text-align:center;">
-          Nhiệm vụ: Chạm để tách toàn bộ <strong>bã vỏ cam & vụn quế</strong> mắc trên màng lọc, giúp dung dịch vàng trong chảy xuống bình!
-        </p>
-        <div class="filter-pipe">
-          <div style="position:absolute;top:10px;left:14px;font-size:0.78rem;font-weight:700;color:#8D5A1C;">Hỗn hợp sau ngâm chiết</div>
-          <div class="filter-mesh-line" title="Màng lọc mịn"></div>
-          <div style="position:absolute;bottom:14px;left:14px;font-size:0.82rem;font-weight:700;color:#1D638A;" id="filteredLiquidLabel">
-            💧 Dung dịch lọc thu được: 0%
-          </div>
-          ${solids.map((s) => `
-            <button class="filter-particle" data-id="${s.id}" style="left:${s.x}%;top:${s.y}%;background:#FFF;border:1.5px solid #D96E13;">
-              ${s.icon}
-            </button>
-          `).join('')}
-        </div>
-      </div>
-    `;
-
-    board.querySelectorAll('.filter-particle').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        btn.style.transform = 'translateY(-40px) scale(0)';
-        btn.style.opacity = '0';
-        btn.disabled = true;
-        removed += 1;
-        const pct = Math.round((removed / solids.length) * 100);
-        board.querySelector('#filteredLiquidLabel').textContent = `✨ Dung dịch vàng trong thu được: ${pct}%`;
-        feedback.textContent = `🫖 Đã tách ${removed}/${solids.length} phần bã rắn khỏi màng lọc!`;
-        updateHud();
-        if (removed === solids.length) {
-          setTimeout(() => {
-            finishStage(220, 'Dung dịch đã được lọc trong suốt, không còn cặn lơ lửng và sẵn sàng nạp vào bình xịt!');
-          }, 500);
-        }
-      });
-    });
-  },
-
-  // STAGE 6: Table cleaning challenge (spray PEELVERSE -> wipe with cloth)
-  runStage6(board, hud, feedback, finishStage) {
-    const stains = [
-      { id: 1, icon: '☕', label: 'Vết cà phê', x: 14, y: 20 },
-      { id: 2, icon: '🍜', label: 'Vết dầu mỡ', x: 42, y: 18 },
-      { id: 3, icon: '🧃', label: 'Vết nước ép', x: 72, y: 24 },
-      { id: 4, icon: '🥫', label: 'Vết nước sốt', x: 24, y: 58 },
-      { id: 5, icon: '🧈', label: 'Vết bơ', x: 56, y: 56 },
-      { id: 6, icon: '🍵', label: 'Vết trà', x: 78, y: 60 }
-    ];
-
-    let tool = 'spray'; // 'spray' | 'wipe'
-    let cleaned = 0;
-    let score = 0;
-    let timeLeft = 35;
-
-    const updateHud = () => {
-      hud.innerHTML = `
-        <span class="hud-pill">✨ Đã làm sạch: ${cleaned}/${stains.length}</span>
-        <span class="hud-pill">⏱️ Thời gian: ${timeLeft}s</span>
-        <span class="hud-pill">⭐ Điểm: ${score}</span>
-      `;
-    };
-    updateHud();
-
-    board.innerHTML = `
-      <p style="font-weight:700;color:var(--green-dark);text-align:center;margin-bottom:10px;">
-        Nhiệm vụ: Chọn <strong>🧴 Xịt PEELVERSE</strong> để xịt vào các vết bẩn trên bàn ăn, sau đó chuyển sang <strong>🧽 Khăn lau</strong> để lau sạch bóng!
-      </p>
-      <div class="table-tools">
-        <button class="tool-btn active" data-tool="spray">🧴 1. Xịt dung dịch PEELVERSE</button>
-        <button class="tool-btn" data-tool="wipe">🧽 2. Khăn lau sạch</button>
-      </div>
-      <div class="dining-table" id="diningTable">
-        ${stains.map((st) => `
-          <button class="table-stain unsprayed" data-id="${st.id}" data-state="unsprayed" style="left:${st.x}%;top:${st.y}%;" title="${st.label}">
-            <span>${st.icon}</span>
-          </button>
-        `).join('')}
-      </div>
-    `;
-
-    board.querySelectorAll('.tool-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        board.querySelectorAll('.tool-btn').forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-        tool = btn.dataset.tool;
-      });
-    });
-
-    this.activeTimer = setInterval(() => {
-      timeLeft -= 1;
-      updateHud();
-      if (timeLeft <= 0) {
-        this.cleanup();
-        feedback.textContent = '⏰ Hết giờ rồi! Nhấn "Chơi lại" hoặc tiếp tục lau nhanh tay hơn nhé!';
-        finishStage(score, `Bạn đã làm sạch được ${cleaned}/${stains.length} vết bẩn trên bàn ăn nội trú!`);
-      }
-    }, 1000);
-
-    board.querySelectorAll('.table-stain').forEach((el) => {
-      el.addEventListener('click', () => {
-        const state = el.dataset.state;
-        if (tool === 'spray') {
-          if (state === 'unsprayed') {
-            el.dataset.state = 'sprayed';
-            el.classList.remove('unsprayed');
-            el.classList.add('sprayed');
-            score += 20;
-            feedback.textContent = '💦 Đã xịt dung dịch PEELVERSE! Giờ hãy dùng Khăn lau để lau sạch nhé.';
-            updateHud();
-          } else {
-            feedback.textContent = '💧 Vết này đã được xịt rồi — chuyển sang Khăn lau để lau sạch!';
-          }
-        } else if (tool === 'wipe') {
-          if (state === 'sprayed') {
-            el.dataset.state = 'sparkling';
-            el.classList.remove('sprayed');
-            el.classList.add('sparkling');
-            cleaned += 1;
-            score += 40;
-            feedback.textContent = `✨ Sạch bóng! (${cleaned}/${stains.length} vết bẩn đã biến mất kèm hương cam quế thơm mát!)`;
-            updateHud();
-            if (cleaned === stains.length) {
-              const timeBonus = timeLeft * 5;
-              setTimeout(() => {
-                finishStage(score + timeBonus, `Xuất sắc! Mặt bàn ăn sạch bóng thơm hương cam quế (Thưởng tốc độ: +${timeBonus} điểm)!`);
-              }, 450);
+          const cards = getShelfCards();
+          for (const c of cards) {
+            if (pt.x >= c.x && pt.x <= c.x + c.w && pt.y >= c.y && pt.y <= c.y + c.h) {
+              if (c.ing.type === 'liquid') {
+                pouringId = c.ing.id;
+                audio.startPour();
+              } else {
+                dragging = { id: c.ing.id, x: pt.x, y: pt.y, spoiled: false };
+              }
+              return;
             }
-          } else if (state === 'unsprayed') {
-            feedback.textContent = '🧴 Hãy xịt dung dịch PEELVERSE vào vết bẩn trước khi lau nhé!';
+          }
+        } else if (phase === 2) {
+          const flask = getFlaskRect();
+          swirlAnglePrev = Math.atan2(pt.y - (flask.y + flask.h * 0.55), pt.x - (flask.x + flask.w * 0.5));
+        } else if (phase === 3) {
+          if (wipeTool === 'spray') {
+            audio.playSpray();
+            for (let i = 0; i < 16; i++) {
+              mistParticles.push({
+                x: pt.x + (Math.random() - 0.5) * 14,
+                y: pt.y + (Math.random() - 0.5) * 14,
+                vx: (Math.random() - 0.5) * 90,
+                vy: (Math.random() - 0.5) * 90,
+                r: 2 + Math.random() * 3.5,
+                life: 0.75
+              });
+            }
+            sprayedStains.forEach((st) => {
+              if (!st.sprayed && Math.hypot(pt.x - st.x, pt.y - st.y) <= st.r + 36) {
+                st.sprayed = true;
+                audio.playComboChime(2);
+              }
+            });
+            if (sprayedStains.every((s) => s.sprayed)) {
+              wipeTool = 'cloth';
+            }
+            updateTopbarAndTicket();
+          } else {
+            eraseDirtAt(pt.x, pt.y);
           }
         }
+      }
+
+      function eraseDirtAt(x, y) {
+        if (!dirtCtx) return;
+        const tb = getTableRect();
+        const lx = x - tb.x;
+        const ly = y - tb.y;
+        const radius = formulaQuality.rank === 'S' ? 42 : formulaQuality.rank === 'A' ? 32 : 22;
+
+        dirtCtx.save();
+        dirtCtx.globalCompositeOperation = 'destination-out';
+        const grad = dirtCtx.createRadialGradient(lx, ly, radius * 0.25, lx, ly, radius);
+        grad.addColorStop(0, 'rgba(0,0,0,1)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        dirtCtx.fillStyle = grad;
+        dirtCtx.beginPath();
+        dirtCtx.arc(lx, ly, radius, 0, Math.PI * 2);
+        dirtCtx.fill();
+        dirtCtx.restore();
+
+        if (Math.random() < 0.35) {
+          sparkles.push({
+            x: x + (Math.random() - 0.5) * 24,
+            y: y + (Math.random() - 0.5) * 24,
+            r: 3 + Math.random() * 4,
+            life: 0.55
+          });
+        }
+      }
+
+      function handlePointerMove(e) {
+        if (!pointerDown) return;
+        e.preventDefault();
+        const pt = getCanvasPoint(e);
+
+        if (phase === 1 && dragging) {
+          dragging.x = pt.x;
+          dragging.y = pt.y;
+        } else if (phase === 2) {
+          const flask = getFlaskRect();
+          const cx = flask.x + flask.w * 0.5;
+          const cy = flask.y + flask.h * 0.55;
+          const angle = Math.atan2(pt.y - cy, pt.x - cx);
+          if (swirlAnglePrev !== null) {
+            let delta = angle - swirlAnglePrev;
+            if (delta > Math.PI) delta -= Math.PI * 2;
+            if (delta < -Math.PI) delta += Math.PI * 2;
+            const mag = Math.abs(delta);
+            if (mag > 0.03 && mag < 1.2) {
+              swirlProgress = Math.min(100, swirlProgress + mag * 14);
+              triggerWaveImpulse(0.25 + Math.random() * 0.5, (Math.random() - 0.5) * 4);
+              audio.playSwirlTick();
+              if (swirlProgress >= 100) {
+                formulaQuality = evaluateFormula();
+                phase = 3;
+                initTabletopDirt();
+                audio.playComboChime(4);
+              }
+            }
+          }
+          swirlAnglePrev = angle;
+        } else if (phase === 3 && wipeTool === 'cloth') {
+          if (lastPointer) {
+            const dist = Math.hypot(pt.x - lastPointer.x, pt.y - lastPointer.y);
+            const steps = Math.max(1, Math.ceil(dist / 10));
+            for (let i = 1; i <= steps; i++) {
+              const ix = lastPointer.x + ((pt.x - lastPointer.x) * i) / steps;
+              const iy = lastPointer.y + ((pt.y - lastPointer.y) * i) / steps;
+              eraseDirtAt(ix, iy);
+            }
+          } else {
+            eraseDirtAt(pt.x, pt.y);
+          }
+          const rem = measureDirtRemainingPct();
+          cleanPct = Math.max(cleanPct, 100 - rem);
+          updateTopbarAndTicket();
+          if (cleanPct >= 94) {
+            completeShift();
+          }
+        }
+        lastPointer = pt;
+      }
+
+      function handlePointerUp() {
+        pointerDown = false;
+        pouringId = null;
+        audio.stopPour();
+        swirlAnglePrev = null;
+
+        if (phase === 1 && dragging) {
+          const flask = getFlaskRect();
+          const droppedInFlask =
+            dragging.x >= flask.x - 18 &&
+            dragging.x <= flask.x + flask.w + 18 &&
+            dragging.y >= flask.y - 40 &&
+            dragging.y <= flask.y + flask.h;
+          if (droppedInFlask) {
+            if (dragging.spoiled) {
+              spoiledCount += 1;
+              spoiledItem = null;
+              combo = 1;
+              shakeFrames = 18;
+              triggerWaveImpulse(0.5, -15);
+              audio.playSpoilBuzz();
+              updateTopbarAndTicket();
+            } else {
+              addSolidToFlask(dragging.id, dragging.x);
+            }
+          }
+          dragging = null;
+        }
+      }
+
+      canvas.addEventListener('pointerdown', handlePointerDown);
+      window.addEventListener('pointermove', handlePointerMove, { passive: false });
+      window.addEventListener('pointerup', handlePointerUp);
+      window.addEventListener('pointercancel', handlePointerUp);
+
+      nextPhaseBtn.addEventListener('click', () => {
+        if (phase === 1 && liquidMl >= 95) {
+          phase = 2;
+          swirlProgress = 0;
+          audio.playComboChime(2);
+          updateTopbarAndTicket();
+        }
       });
-    });
-  }
-};
+
+      clothModeBtn.addEventListener('click', () => {
+        if (phase === 3) {
+          wipeTool = 'cloth';
+          updateTopbarAndTicket();
+        }
+      });
+
+      container.querySelector('#labSoundBtn').addEventListener('click', (e) => {
+        audio.enabled = !audio.enabled;
+        progress.soundEnabled = audio.enabled;
+        saveProgress(progress);
+        if (!audio.enabled) audio.stopPour();
+        e.target.textContent = audio.enabled ? 'Âm thanh: Bật' : 'Âm thanh: Tắt';
+      });
+
+      const recipeModal = container.querySelector('#labRecipeModal');
+      const recipeList = container.querySelector('#labRecipeList');
+      container.querySelector('#labRecipeBookBtn').addEventListener('click', () => {
+        recipeList.innerHTML = ORDERS.map((ord) => {
+          const unlocked = progress.unlockedRecipes.includes(ord.id);
+          return `
+            <div class="peel-lab-recipe-row ${unlocked ? 'unlocked' : ''}">
+              <div>
+                <strong>${ord.recipeName}</strong>
+                <p>${unlocked ? ord.brief : 'Hoàn thành ca với độ chuẩn >= 68% để mở khóa.'}</p>
+              </div>
+              <span class="peel-lab-recipe-badge">${unlocked ? 'Đã mở' : 'Chưa mở'}</span>
+            </div>
+          `;
+        }).join('');
+        recipeModal.classList.add('open');
+        recipeModal.setAttribute('aria-hidden', 'false');
+      });
+      container.querySelector('#closeLabRecipeBtn').addEventListener('click', () => {
+        recipeModal.classList.remove('open');
+        recipeModal.setAttribute('aria-hidden', 'true');
+      });
+      recipeModal.addEventListener('click', (e) => {
+        if (e.target === recipeModal) {
+          recipeModal.classList.remove('open');
+          recipeModal.setAttribute('aria-hidden', 'true');
+        }
+      });
+
+      // ===== 60FPS RENDER LOOP =====
+      let rafId = null;
+      let prevTime = performance.now();
+
+      function updatePhysics(dt) {
+        if (phase === 1 || phase === 2) {
+          // Pouring liquid
+          if (phase === 1 && pouringId && liquidMl < 220) {
+            const add = 38 * dt;
+            liquidMl = Math.min(220, liquidMl + add);
+            if (pouringId === 'vinegar') vinegarMl += add;
+            else if (pouringId === 'water') waterMl += add;
+            targetDisplayPh = computeLivePh();
+            triggerWaveImpulse(0.5, 1.4);
+            if (Math.random() < 0.45) {
+              const flask = getFlaskRect();
+              droplets.push({
+                x: flask.x + flask.w * 0.5 + (Math.random() - 0.5) * 8,
+                y: flask.y - 6,
+                vy: 140 + Math.random() * 40,
+                color: pouringId === 'vinegar' ? '#E6DFC8' : '#BFD8D2'
+              });
+            }
+            updateTopbarAndTicket();
+          }
+
+          // Smooth pH needle
+          currentPh += (targetDisplayPh - currentPh) * Math.min(1, dt * 8);
+
+          // 1D wave spring physics
+          const k = 120;
+          const damp = 4.2;
+          for (let i = 1; i < WAVE_N - 1; i++) {
+            const accel = k * ((waveY[i - 1] + waveY[i + 1]) * 0.5 - waveY[i]) - damp * waveV[i];
+            waveV[i] += accel * dt;
+          }
+          for (let i = 1; i < WAVE_N - 1; i++) {
+            waveY[i] += waveV[i] * dt;
+          }
+
+          // Spoiled peel hazard drift
+          if (phase === 1) {
+            nextSpoilTimer -= dt;
+            if (nextSpoilTimer <= 0 && !spoiledItem) {
+              spoiledItem = { x: -30, y: H * 0.34, vx: 58, r: 22 };
+              nextSpoilTimer = 11 + Math.random() * 6;
+            }
+            if (spoiledItem && !(dragging && dragging.spoiled)) {
+              spoiledItem.x += spoiledItem.vx * dt;
+              if (spoiledItem.x > W + 40) spoiledItem = null;
+            }
+          }
+        }
+
+        // Particles
+        for (let i = droplets.length - 1; i >= 0; i--) {
+          droplets[i].y += droplets[i].vy * dt;
+          if (droplets[i].y > H) droplets.splice(i, 1);
+        }
+        for (let i = oilParticles.length - 1; i >= 0; i--) {
+          const p = oilParticles[i];
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.vy *= 0.96;
+          p.vx *= 0.96;
+          if (phase === 2) {
+            const flask = getFlaskRect();
+            const cx = flask.x + flask.w * 0.5;
+            const cy = flask.y + flask.h * 0.62;
+            const ang = Math.atan2(p.y - cy, p.x - cx) + 0.08;
+            const rad = Math.max(12, Math.hypot(p.x - cx, p.y - cy) * 0.99);
+            p.x = cx + Math.cos(ang) * rad;
+            p.y = cy + Math.sin(ang) * rad;
+          }
+        }
+        for (let i = mistParticles.length - 1; i >= 0; i--) {
+          const m = mistParticles[i];
+          m.x += m.vx * dt;
+          m.y += m.vy * dt;
+          m.life -= dt;
+          if (m.life <= 0) mistParticles.splice(i, 1);
+        }
+        for (let i = sparkles.length - 1; i >= 0; i--) {
+          sparkles[i].life -= dt;
+          if (sparkles[i].life <= 0) sparkles.splice(i, 1);
+        }
+
+        if (shakeFrames > 0) shakeFrames -= 1;
+
+        // Timer countdown
+        if (phase < 4) {
+          timeLeft = Math.max(0, timeLeft - dt);
+          const fill = container.querySelector('#labTimerFill');
+          const num = container.querySelector('#labTimerNum');
+          if (fill) fill.style.width = `${Math.round((timeLeft / 75) * 100)}%`;
+          if (num) num.textContent = `${Math.ceil(timeLeft)}s`;
+          if (timeLeft <= 0) {
+            formulaQuality = evaluateFormula();
+            completeShift();
+          }
+        }
+      }
+
+      function drawBrewScene() {
+        const flask = getFlaskRect();
+        const shakeX = shakeFrames > 0 ? (Math.random() - 0.5) * 8 : 0;
+        const fx = flask.x + shakeX;
+        const fy = flask.y;
+        const fw = flask.w;
+        const fh = flask.h;
+
+        // Workbench surface line
+        ctx.fillStyle = '#EAE5D9';
+        ctx.fillRect(0, fy + fh - 10, W, H - (fy + fh - 10));
+
+        // Flask liquid fill clipped inside glass silhouette
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(fx + 6, fy + 18, fw - 12, fh - 24, [10, 10, 28, 28]);
+        ctx.clip();
+
+        if (liquidMl > 0) {
+          const fillRatio = Math.min(0.88, liquidMl / 220);
+          const surfaceY = fy + fh - 10 - (fh - 34) * fillRatio;
+
+          ctx.fillStyle = computeLiquidColor();
+          ctx.beginPath();
+          ctx.moveTo(fx, fy + fh);
+          for (let i = 0; i < WAVE_N; i++) {
+            const wx = fx + (i / (WAVE_N - 1)) * fw;
+            ctx.lineTo(wx, surfaceY + waveY[i]);
+          }
+          ctx.lineTo(fx + fw, fy + fh);
+          ctx.closePath();
+          ctx.fill();
+
+          // Suspended essential oil droplets
+          oilParticles.forEach((p) => {
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }
+        ctx.restore();
+
+        // Pouring stream
+        if (pouringId) {
+          ctx.strokeStyle = pouringId === 'vinegar' ? '#DFD6BA' : '#9DC2BC';
+          ctx.lineWidth = 6;
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          ctx.moveTo(fx + fw * 0.5, fy - 24);
+          ctx.lineTo(fx + fw * 0.5, fy + fh * 0.55);
+          ctx.stroke();
+        }
+
+        // Glass flask outline + specular highlight + ml ticks
+        ctx.strokeStyle = '#162A22';
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.roundRect(fx, fy + 16, fw, fh - 16, [8, 8, 30, 30]);
+        ctx.stroke();
+
+        // Rim
+        ctx.fillStyle = '#F6F4EE';
+        ctx.strokeStyle = '#162A22';
+        ctx.beginPath();
+        ctx.roundRect(fx - 8, fy + 6, fw + 16, 12, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        // Glass reflection
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(fx + 14, fy + 34);
+        ctx.lineTo(fx + 14, fy + fh - 32);
+        ctx.stroke();
+
+        // ml ticks
+        ctx.fillStyle = 'rgba(22, 42, 34, 0.55)';
+        ctx.font = '600 10px "Be Vietnam Pro", sans-serif';
+        [50, 100, 150, 200].forEach((ml) => {
+          const ty = fy + fh - 10 - (fh - 34) * (ml / 220);
+          ctx.fillRect(fx + fw - 16, ty, 10, 1.5);
+          ctx.fillText(`${ml}`, fx + fw - 38, ty + 3);
+        });
+
+        // Live pH Meter Column on the right of flask
+        const phX = fx + fw + (W < 560 ? 18 : 34);
+        const phY = fy + 22;
+        const phH = fh - 36;
+        const phW = 14;
+        const phGrad = ctx.createLinearGradient(0, phY, 0, phY + phH);
+        phGrad.addColorStop(0, '#A85432'); // pH 2
+        phGrad.addColorStop(0.35, '#D98A2B'); // pH 4
+        phGrad.addColorStop(0.7, '#4A7C59'); // pH 7
+        phGrad.addColorStop(1, '#2B4C7E'); // pH 9
+        ctx.fillStyle = phGrad;
+        ctx.beginPath();
+        ctx.roundRect(phX, phY, phW, phH, 7);
+        ctx.fill();
+
+        // Target pH bracket
+        const [tMin, tMax] = currentOrder.targetPh;
+        const yMin = phY + ((tMin - 2) / 7) * phH;
+        const yMax = phY + ((tMax - 2) / 7) * phH;
+        ctx.strokeStyle = '#162A22';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(phX - 3, yMin, phW + 6, yMax - yMin);
+
+        // Current pH pointer
+        const ptrY = phY + ((currentPh - 2) / 7) * phH;
+        ctx.fillStyle = '#162A22';
+        ctx.beginPath();
+        ctx.moveTo(phX + phW + 4, ptrY);
+        ctx.lineTo(phX + phW + 13, ptrY - 5);
+        ctx.lineTo(phX + phW + 13, ptrY + 5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.font = '700 11px "Be Vietnam Pro", sans-serif';
+        ctx.fillText(`pH ${currentPh.toFixed(1)}`, phX - 6, phY - 8);
+
+        // Phase 2 swirl ring
+        if (phase === 2) {
+          const cx = fx + fw * 0.5;
+          const cy = fy + fh * 0.55;
+          ctx.strokeStyle = 'rgba(217, 138, 43, 0.45)';
+          ctx.lineWidth = 4;
+          ctx.setLineDash([8, 6]);
+          ctx.beginPath();
+          ctx.arc(cx, cy, 46, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          ctx.strokeStyle = '#D98A2B';
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 46, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * swirlProgress) / 100);
+          ctx.stroke();
+
+          ctx.fillStyle = '#162A22';
+          ctx.font = '700 13px "Be Vietnam Pro", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`Khuấy ${Math.round(swirlProgress)}%`, cx, cy + 5);
+          ctx.textAlign = 'left';
+        }
+
+        // Shelf 5 ingredients
+        if (phase === 1) {
+          getShelfCards().forEach(({ ing, x, y, w, h }) => {
+            const active = pouringId === ing.id;
+            ctx.fillStyle = active ? '#E8E3D8' : '#FFFFFF';
+            ctx.strokeStyle = active ? '#162A22' : 'rgba(22, 42, 34, 0.16)';
+            ctx.lineWidth = active ? 2 : 1;
+            ctx.beginPath();
+            ctx.roundRect(x, y, w, h, 8);
+            ctx.fill();
+            ctx.stroke();
+
+            const im = imgMap.get(ing.id);
+            const imgSize = W < 560 ? 34 : 40;
+            if (im && im.complete && im.naturalWidth > 0) {
+              ctx.save();
+              ctx.beginPath();
+              ctx.roundRect(x + (w - imgSize) * 0.5, y + 7, imgSize, imgSize, 6);
+              ctx.clip();
+              ctx.drawImage(im, x + (w - imgSize) * 0.5, y + 7, imgSize, imgSize);
+              ctx.restore();
+            } else {
+              ctx.fillStyle = ing.color;
+              ctx.beginPath();
+              ctx.arc(x + w * 0.5, y + 26, 15, 0, Math.PI * 2);
+              ctx.fill();
+            }
+
+            ctx.fillStyle = '#162A22';
+            ctx.font = `600 ${W < 560 ? 10 : 11.5}px "Be Vietnam Pro", sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.fillText(ing.name, x + w * 0.5, y + h - 14);
+            ctx.fillStyle = '#525B54';
+            ctx.font = `500 ${W < 560 ? 8.5 : 9.5}px "Be Vietnam Pro", sans-serif`;
+            ctx.fillText(ing.type === 'liquid' ? 'Giữ để rót' : 'Kéo thả', x + w * 0.5, y + h - 4);
+            ctx.textAlign = 'left';
+          });
+
+          // Spoiled hazard floating
+          if (spoiledItem && !(dragging && dragging.spoiled)) {
+            ctx.fillStyle = '#6D6547';
+            ctx.beginPath();
+            ctx.arc(spoiledItem.x, spoiledItem.y, spoiledItem.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#3F3A26';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.fillStyle = '#F6F4EE';
+            ctx.font = '700 9.5px "Be Vietnam Pro", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Vỏ mốc', spoiledItem.x, spoiledItem.y + 3);
+            ctx.textAlign = 'left';
+          }
+
+          // Dragged item
+          if (dragging) {
+            ctx.fillStyle = dragging.spoiled ? '#6D6547' : INGREDIENTS.find((x) => x.id === dragging.id)?.color || '#D98A2B';
+            ctx.beginPath();
+            ctx.arc(dragging.x, dragging.y, 20, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#162A22';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+        }
+      }
+
+      function drawTabletopScene() {
+        const tb = getTableRect();
+        // Bright stone tabletop
+        ctx.fillStyle = '#EAE6DC';
+        ctx.strokeStyle = 'rgba(22, 42, 34, 0.2)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(tb.x, tb.y, tb.w, tb.h, 14);
+        ctx.fill();
+        ctx.stroke();
+
+        // Offscreen dirt mask
+        if (dirtCanvas) {
+          ctx.drawImage(dirtCanvas, tb.x, tb.y);
+        }
+
+        // Spray targets indicators in spray mode
+        if (wipeTool === 'spray') {
+          sprayedStains.forEach((st) => {
+            ctx.strokeStyle = st.sprayed ? '#4A7C59' : '#A85432';
+            ctx.lineWidth = 2;
+            ctx.setLineDash(st.sprayed ? [] : [5, 4]);
+            ctx.beginPath();
+            ctx.arc(st.x, st.y, st.r * 0.72, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          });
+        }
+
+        // Golden mist particles
+        mistParticles.forEach((m) => {
+          ctx.fillStyle = `rgba(217, 138, 43, ${Math.max(0, m.life)})`;
+          ctx.beginPath();
+          ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Clean sparkles
+        sparkles.forEach((sp) => {
+          ctx.strokeStyle = `rgba(22, 42, 34, ${Math.max(0, sp.life)})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(sp.x - sp.r, sp.y);
+          ctx.lineTo(sp.x + sp.r, sp.y);
+          ctx.moveTo(sp.x, sp.y - sp.r);
+          ctx.lineTo(sp.x, sp.y + sp.r);
+          ctx.stroke();
+        });
+      }
+
+      function loop(now) {
+        const dt = Math.min(0.05, (now - prevTime) / 1000);
+        prevTime = now;
+
+        updatePhysics(dt);
+
+        ctx.clearRect(0, 0, W, H);
+        ctx.fillStyle = '#F6F4EE';
+        ctx.fillRect(0, 0, W, H);
+
+        if (phase === 1 || phase === 2) {
+          drawBrewScene();
+        } else {
+          drawTabletopScene();
+        }
+
+        rafId = requestAnimationFrame(loop);
+      }
+
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      resetShift(1);
+      rafId = requestAnimationFrame(loop);
+
+      activeCleanup = () => {
+        if (rafId) cancelAnimationFrame(rafId);
+        audio.stopPour();
+        window.removeEventListener('resize', resizeCanvas);
+        window.removeEventListener('pointermove', handlePointerMove);
+        window.removeEventListener('pointerup', handlePointerUp);
+        window.removeEventListener('pointercancel', handlePointerUp);
+      };
+    }
+  };
+})();

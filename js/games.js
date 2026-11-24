@@ -1176,20 +1176,33 @@
           ctx.fillRect(0, fy + fh - 10, W, H - (fy + fh - 10));
         }
 
-        // Customer avatar at counter corner (assets/game/customers-sheet.png)
+        // Customer avatar at counter corner (assets/game/customers-sheet.png 4x2 grid: 256x286/cell)
         if (gameAssets.customersSheet.complete && gameAssets.customersSheet.naturalWidth > 0) {
-          const custIdx = (shiftNumber - 1) % 4;
-          const custSize = W < 560 ? 64 : 88;
+          const cw = gameAssets.customersSheet.naturalWidth / 4;
+          const ch = gameAssets.customersSheet.naturalHeight / 2;
+          const custCol = (shiftNumber - 1) % 4;
+          const custRow = phase === 4 ? 1 : 0;
+          const custSize = W < 560 ? 74 : 104;
           ctx.save();
           ctx.beginPath();
-          ctx.arc(20 + custSize * 0.5, 20 + custSize * 0.5, custSize * 0.48, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(246, 244, 238, 0.92)';
+          ctx.arc(16 + custSize * 0.5, 16 + custSize * 0.5, custSize * 0.48, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(246, 244, 238, 0.94)';
           ctx.fill();
           ctx.strokeStyle = 'rgba(22, 42, 34, 0.25)';
           ctx.lineWidth = 2;
           ctx.stroke();
           ctx.clip();
-          ctx.drawImage(gameAssets.customersSheet, custIdx * 256, 0, 256, 256, 20, 20, custSize, custSize);
+          ctx.drawImage(
+            gameAssets.customersSheet,
+            custCol * cw,
+            custRow * ch,
+            cw,
+            ch,
+            16,
+            16,
+            custSize,
+            custSize
+          );
           ctx.restore();
         }
 
@@ -1327,32 +1340,56 @@
           ctx.textAlign = 'left';
         }
 
-        // Shelf 5 ingredients
+        // Shelf 5 ingredients (using props-sheet.png 4x2 grid when loaded)
+        const propCellMap = {
+          citrus: [0, 1],
+          cinnamon: [1, 1],
+          mint: [2, 1],
+          vinegar: [2, 0],
+          water: [3, 0]
+        };
         if (phase === 1) {
           getShelfCards().forEach(({ ing, x, y, w, h }) => {
             const active = pouringId === ing.id;
-            ctx.fillStyle = active ? '#E8E3D8' : '#FFFFFF';
-            ctx.strokeStyle = active ? '#162A22' : 'rgba(22, 42, 34, 0.16)';
+            ctx.fillStyle = active ? '#E8E3D8' : 'rgba(255, 255, 255, 0.94)';
+            ctx.strokeStyle = active ? '#162A22' : 'rgba(22, 42, 34, 0.18)';
             ctx.lineWidth = active ? 2 : 1;
             ctx.beginPath();
             ctx.roundRect(x, y, w, h, 8);
             ctx.fill();
             ctx.stroke();
 
-            const im = imgMap.get(ing.id);
-            const imgSize = W < 560 ? 34 : 40;
-            if (im && im.complete && im.naturalWidth > 0) {
-              ctx.save();
-              ctx.beginPath();
-              ctx.roundRect(x + (w - imgSize) * 0.5, y + 7, imgSize, imgSize, 6);
-              ctx.clip();
-              ctx.drawImage(im, x + (w - imgSize) * 0.5, y + 7, imgSize, imgSize);
-              ctx.restore();
+            const imgSize = W < 560 ? 38 : 46;
+            const cell = propCellMap[ing.id];
+            if (cell && gameAssets.propsSheet.complete && gameAssets.propsSheet.naturalWidth > 0) {
+              const pw = gameAssets.propsSheet.naturalWidth / 4;
+              const ph = gameAssets.propsSheet.naturalHeight / 2;
+              ctx.drawImage(
+                gameAssets.propsSheet,
+                cell[0] * pw,
+                cell[1] * ph,
+                pw,
+                ph,
+                x + (w - imgSize) * 0.5,
+                y + 4,
+                imgSize,
+                imgSize
+              );
             } else {
-              ctx.fillStyle = ing.color;
-              ctx.beginPath();
-              ctx.arc(x + w * 0.5, y + 26, 15, 0, Math.PI * 2);
-              ctx.fill();
+              const im = imgMap.get(ing.id);
+              if (im && im.complete && im.naturalWidth > 0) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.roundRect(x + (w - imgSize) * 0.5, y + 6, imgSize, imgSize, 6);
+                ctx.clip();
+                ctx.drawImage(im, x + (w - imgSize) * 0.5, y + 6, imgSize, imgSize);
+                ctx.restore();
+              } else {
+                ctx.fillStyle = ing.color;
+                ctx.beginPath();
+                ctx.arc(x + w * 0.5, y + 26, 15, 0, Math.PI * 2);
+                ctx.fill();
+              }
             }
 
             ctx.fillStyle = '#162A22';

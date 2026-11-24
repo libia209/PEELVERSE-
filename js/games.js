@@ -351,13 +351,24 @@
       const audio = new LabAudio();
       audio.enabled = progress.soundEnabled;
 
-      // Preload ingredient images
+      // Preload ingredient images + game sprite/background assets
       const imgMap = new Map();
       INGREDIENTS.forEach((ing) => {
         const img = new Image();
         img.src = ing.imgSrc;
         imgMap.set(ing.id, img);
       });
+
+      const gameAssets = {
+        bgShop: new Image(),
+        tableTop: new Image(),
+        propsSheet: new Image(),
+        customersSheet: new Image()
+      };
+      gameAssets.bgShop.src = 'assets/game/bg-shop.png';
+      gameAssets.tableTop.src = 'assets/game/table-top.png';
+      gameAssets.propsSheet.src = 'assets/game/props-sheet.png';
+      gameAssets.customersSheet.src = 'assets/game/customers-sheet.png';
 
       let shiftNumber = 1;
       let score = 0;
@@ -1154,9 +1165,33 @@
         const fw = flask.w;
         const fh = flask.h;
 
-        // Workbench surface line
-        ctx.fillStyle = '#EAE5D9';
-        ctx.fillRect(0, fy + fh - 10, W, H - (fy + fh - 10));
+        // Background shop scene (assets/game/bg-shop.png)
+        if (gameAssets.bgShop.complete && gameAssets.bgShop.naturalWidth > 0) {
+          ctx.save();
+          ctx.globalAlpha = 0.88;
+          ctx.drawImage(gameAssets.bgShop, 0, 0, W, H);
+          ctx.restore();
+        } else {
+          ctx.fillStyle = '#EAE5D9';
+          ctx.fillRect(0, fy + fh - 10, W, H - (fy + fh - 10));
+        }
+
+        // Customer avatar at counter corner (assets/game/customers-sheet.png)
+        if (gameAssets.customersSheet.complete && gameAssets.customersSheet.naturalWidth > 0) {
+          const custIdx = (shiftNumber - 1) % 4;
+          const custSize = W < 560 ? 64 : 88;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(20 + custSize * 0.5, 20 + custSize * 0.5, custSize * 0.48, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(246, 244, 238, 0.92)';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(22, 42, 34, 0.25)';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.clip();
+          ctx.drawImage(gameAssets.customersSheet, custIdx * 256, 0, 256, 256, 20, 20, custSize, custSize);
+          ctx.restore();
+        }
 
         // Flask liquid fill clipped inside glass silhouette
         ctx.save();
@@ -1361,13 +1396,22 @@
 
       function drawTabletopScene() {
         const tb = getTableRect();
-        // Bright stone tabletop
-        ctx.fillStyle = '#EAE6DC';
+        // Bright stone tabletop (assets/game/table-top.png)
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(tb.x, tb.y, tb.w, tb.h, 14);
+        ctx.clip();
+        if (gameAssets.tableTop.complete && gameAssets.tableTop.naturalWidth > 0) {
+          ctx.drawImage(gameAssets.tableTop, tb.x, tb.y, tb.w, tb.h);
+        } else {
+          ctx.fillStyle = '#EAE6DC';
+          ctx.fillRect(tb.x, tb.y, tb.w, tb.h);
+        }
+        ctx.restore();
         ctx.strokeStyle = 'rgba(22, 42, 34, 0.2)';
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.roundRect(tb.x, tb.y, tb.w, tb.h, 14);
-        ctx.fill();
         ctx.stroke();
 
         // Offscreen dirt mask

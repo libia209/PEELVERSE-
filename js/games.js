@@ -1,137 +1,163 @@
 (() => {
-  const LAB_STORAGE_KEY = 'peelverse_peel_lab_v1';
+  const SAVE_KEY = 'peelverse_peel_lab_v2';
 
-  const INGREDIENTS = [
+  const DEFAULT_SAVE = {
+    day: 1,
+    coins: 0,
+    bestScore: 0,
+    combo: 1,
+    unlockedRecipes: [],
+    upgrades: {
+      wideSpray: false,
+      crystalFlask: false,
+      labPhMeter: false,
+      herbChime: false
+    },
+    musicEnabled: true,
+    sfxEnabled: true
+  };
+
+  function loadSave() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return JSON.parse(JSON.stringify(DEFAULT_SAVE));
+      const p = JSON.parse(raw);
+      return {
+        day: Math.max(1, Number(p.day || 1)),
+        coins: Math.max(0, Number(p.coins || 0)),
+        bestScore: Math.max(0, Number(p.bestScore || 0)),
+        combo: Math.max(1, Number(p.combo || 1)),
+        unlockedRecipes: Array.isArray(p.unlockedRecipes) ? p.unlockedRecipes : [],
+        upgrades: { ...DEFAULT_SAVE.upgrades, ...(p.upgrades || {}) },
+        musicEnabled: p.musicEnabled !== false,
+        sfxEnabled: p.sfxEnabled !== false
+      };
+    } catch {
+      return JSON.parse(JSON.stringify(DEFAULT_SAVE));
+    }
+  }
+
+  function writeSave(data) {
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    } catch {
+      // ignore
+    }
+  }
+
+  const UPGRADES = [
     {
-      id: 'citrus',
-      name: 'Vỏ cam',
-      type: 'solid',
-      imgSrc: 'assets/images/ing-citrus.jpg',
-      color: '#D98A2B',
-      phDelta: -0.25,
-      mlPerUnit: 12,
-      role: 'Tinh dầu D-Limonene'
+      id: 'wideSpray',
+      name: 'Đầu xịt Phun Sương Rộng',
+      desc: 'Tăng 40% bán kính xịt và lau ở Pha 3.',
+      cost: 120
     },
     {
-      id: 'vinegar',
-      name: 'Giấm trắng',
-      type: 'liquid',
-      imgSrc: 'assets/images/ing-vinegar.jpg',
-      color: '#E6DFC8',
-      phTarget: 2.6,
-      role: 'Axit axetic nhẹ'
+      id: 'crystalFlask',
+      name: 'Bình Chiết Pha Lê',
+      desc: 'Tăng +25% Xu Tinh Dầu thưởng mỗi ca.',
+      cost: 160
     },
     {
-      id: 'water',
-      name: 'Nước',
-      type: 'liquid',
-      imgSrc: 'assets/images/ing-water.jpg',
-      color: '#BFD8D2',
-      phTarget: 7.0,
-      role: 'Dung môi pha loãng'
+      id: 'labPhMeter',
+      name: 'Đồng Hồ pH Chuẩn Lab',
+      desc: 'Hiện khung xanh chính xác vùng pH mục tiêu.',
+      cost: 140
     },
     {
-      id: 'cinnamon',
-      name: 'Quế',
-      type: 'solid',
-      imgSrc: 'assets/images/ing-cinnamon.jpg',
-      color: '#A85432',
-      phDelta: 0.05,
-      mlPerUnit: 10,
-      role: 'Hương ấm khử mùi'
-    },
-    {
-      id: 'mint',
-      name: 'Lá bạc hà',
-      type: 'solid',
-      imgSrc: 'assets/images/la-bac-ha.png',
-      color: '#4A7C59',
-      phDelta: 0.1,
-      mlPerUnit: 10,
-      role: 'Menthol the mát'
+      id: 'herbChime',
+      name: 'Chuông Gió Thảo Mộc',
+      desc: 'Tăng thêm 35% thời gian kiên nhẫn của khách.',
+      cost: 150
     }
   ];
 
   const ORDERS = [
     {
       id: 'degreaser',
+      custIdx: 0,
+      custName: 'Cô chủ tiệm bánh',
       recipeName: 'Tẩy dầu mỡ Vỏ Cam',
-      title: 'Bàn bếp dính dầu mỡ chiên rán',
-      brief: 'Cần pH 3.5–4.5, giàu tinh dầu D-Limonene từ Vỏ cam + Giấm trắng (pha chút Nước).',
+      dialogue: 'Bếp nhà chị vừa chiên cá xong, dầu mỡ bám dày đặc luôn, pha giúp chị chai nào tẩy nhẹ mà thơm mùi vỏ cam nha!',
+      hint: 'pH 3.5–4.5 • Vỏ cam (2+) + Giấm + Nước',
       targetPh: [3.4, 4.6],
-      reqSolids: { citrus: 2 },
+      reqSolids: { orange: 2 },
       reqVinegarMin: 45,
       reqWaterMin: 25,
       stainTheme: 'grease',
-      stainLabel: 'Dầu mỡ chiên rán',
-      scienceNote: 'D-Limonene không phân cực hòa tan vết dầu mỡ, kết hợp axit axetic nhẹ làm sạch mảng bám.'
+      scienceNote: 'D-Limonene không phân cực hòa tan vết dầu mỡ, kết hợp axit nhẹ làm sạch bề mặt.'
     },
     {
       id: 'mint-fresh',
+      custIdx: 1,
+      custName: 'Anh đầu bếp',
       recipeName: 'Xịt thơm Bạc Hà The Mát',
-      title: 'Bàn ăn ám mùi tanh thực phẩm',
-      brief: 'Cần Vỏ cam + Lá bạc hà + Giấm trắng & Nước cân bằng (pH 3.8–5.0).',
+      dialogue: 'Quầy sơ chế bên anh đang ám mùi thức ăn, em pha giúp chai xịt Vỏ cam kết hợp Lá bạc hà cho mát dịu nhé!',
+      hint: 'pH 3.8–5.0 • Vỏ cam + Lá bạc hà (2+) + Giấm + Nước',
       targetPh: [3.7, 5.1],
-      reqSolids: { citrus: 1, mint: 2 },
+      reqSolids: { orange: 1, mint: 2 },
       reqVinegarMin: 35,
       reqWaterMin: 40,
       stainTheme: 'fishy',
-      stainLabel: 'Vết bám & mùi thực phẩm',
-      scienceNote: 'Menthol từ Lá bạc hà cùng Terpene vỏ cam giúp trung hòa mùi hôi và giữ hương thanh mát.'
-    },
-    {
-      id: 'cinnamon-warm',
-      recipeName: 'Dung dịch Quế Ấm Khử Mùi',
-      title: 'Tủ gỗ & bàn trà ẩm mốc nhẹ',
-      brief: 'Cần Vỏ cam + Quế + Giấm trắng & Nước (pH 3.6–4.8) để làm sạch dịu nhẹ.',
-      targetPh: [3.6, 4.9],
-      reqSolids: { citrus: 1, cinnamon: 2 },
-      reqVinegarMin: 40,
-      reqWaterMin: 35,
-      stainTheme: 'mold',
-      stainLabel: 'Vết ẩm & cặn trà',
-      scienceNote: 'Cinnamaldehyde từ Quế tạo hương ấm bền mùi và hỗ trợ giảm mùi ẩm mốc trên bề mặt gỗ.'
+      scienceNote: 'Menthol từ Lá bạc hà và Terpene vỏ cam giúp trung hòa mùi hôi rất tự nhiên.'
     },
     {
       id: 'glass-balance',
+      custIdx: 2,
+      custName: 'Bạn sinh viên',
       recipeName: 'Lau kính pH Cân Bằng',
-      title: 'Mặt kính mờ bụi & dấu vân tay',
-      brief: 'Cần tỷ lệ Nước nhiều + ít Giấm trắng dịu nhẹ (pH 4.5–5.8) và 1 phần Vỏ cam.',
+      dialogue: 'Bàn học và cửa kính phòng mình bám bụi mờ quá, pha giúp mình chai nhiều Nước, ít Giấm dịu nhẹ kèm chút Vỏ cam nhé!',
+      hint: 'pH 4.5–5.8 • Nhiều Nước + Giấm nhẹ + Vỏ cam',
       targetPh: [4.4, 5.9],
-      reqSolids: { citrus: 1 },
+      reqSolids: { orange: 1 },
       reqVinegarMin: 18,
       reqWaterMin: 70,
       stainTheme: 'dust',
-      stainLabel: 'Vết mờ bụi & vân tay',
-      scienceNote: 'Tỷ lệ nước cao đưa pH về mức dịu nhẹ, giúp mặt kính khô nhanh mà không để lại vệt.'
+      scienceNote: 'Tỷ lệ nước cao đưa pH về mức dịu nhẹ, giúp bề mặt kính khô nhanh không vệt.'
+    },
+    {
+      id: 'cinnamon-warm',
+      custIdx: 3,
+      custName: 'Bác làm vườn',
+      recipeName: 'Dung dịch Quế Ấm Khử Mùi',
+      dialogue: 'Tủ trà gỗ nhà bác hơi có mùi ẩm, cháu pha giúp bác chai có Vỏ cam và Quế hương ấm dịu nhẹ nhé!',
+      hint: 'pH 3.6–4.8 • Vỏ cam + Quế (2+) + Giấm + Nước',
+      targetPh: [3.6, 4.9],
+      reqSolids: { orange: 1, cinnamon: 2 },
+      reqVinegarMin: 40,
+      reqWaterMin: 35,
+      stainTheme: 'mold',
+      scienceNote: 'Cinnamaldehyde từ Quế tạo hương ấm bền mùi và hỗ trợ giảm mùi ẩm trên gỗ.'
     },
     {
       id: 'herbal-multi',
+      custIdx: 0,
+      custName: 'Cô chủ tiệm bánh',
       recipeName: 'Hợp chất Thảo Mộc Đa Năng',
-      title: 'Bàn học & bếp tổng hợp nhiều vết bẩn',
-      brief: 'Cần đủ Vỏ cam + Quế + Lá bạc hà cùng Giấm trắng & Nước (pH 3.8–4.8).',
+      dialogue: 'Hôm nay tiệm đông khách quá, pha giúp chị chai tổng hợp đủ Vỏ cam, Quế và Lá bạc hà để lau mọi mặt bàn nha!',
+      hint: 'pH 3.8–4.8 • Vỏ cam + Quế + Bạc hà + Giấm + Nước',
       targetPh: [3.7, 4.9],
-      reqSolids: { citrus: 1, cinnamon: 1, mint: 1 },
+      reqSolids: { orange: 1, cinnamon: 1, mint: 1 },
       reqVinegarMin: 40,
       reqWaterMin: 45,
       stainTheme: 'mixed',
-      stainLabel: 'Vết bẩn tổng hợp',
-      scienceNote: 'Sự kết hợp hài hòa giữa D-Limonene, Menthol và Quế giúp làm sạch nhẹ và khử mùi tự nhiên.'
+      scienceNote: 'Sự kết hợp hài hòa giữa D-Limonene, Menthol và Quế giúp làm sạch nhẹ và khử mùi.'
     }
   ];
 
-  // ===== WEB AUDIO API SYNTHESIZER (ZERO EXTERNAL FILES) =====
-  class LabAudio {
-    constructor() {
+  // ===== WEB AUDIO API: LO-FI BACKGROUND MUSIC + SFX =====
+  class PeelSoundEngine {
+    constructor(saveData) {
+      this.save = saveData;
       this.ctx = null;
-      this.enabled = true;
-      this.pourOsc = null;
+      this.pourSrc = null;
       this.pourGain = null;
+      this.musicTimer = null;
+      this.chordStep = 0;
       this.lastTick = 0;
     }
 
     ensure() {
-      if (!this.enabled) return null;
       if (!this.ctx) {
         const AC = window.AudioContext || window.webkitAudioContext;
         if (AC) this.ctx = new AC();
@@ -142,148 +168,216 @@
       return this.ctx;
     }
 
-    playPlop(pitch = 320) {
+    startMusic() {
+      if (!this.save.musicEnabled || this.musicTimer) return;
+      this.ensure();
+      // Warm Coffee-Talk style Lo-Fi progression: Fmaj7 -> Em7 -> Dm7 -> Cmaj7
+      const chords = [
+        [174.61, 220.0, 261.63, 329.63],
+        [164.81, 196.0, 246.94, 293.66],
+        [146.83, 174.61, 220.0, 261.63],
+        [130.81, 164.81, 196.0, 246.94]
+      ];
+      const playChord = () => {
+        if (!this.save.musicEnabled) return;
+        const ctx = this.ensure();
+        if (!ctx) return;
+        const notes = chords[this.chordStep % chords.length];
+        this.chordStep += 1;
+        const now = ctx.currentTime;
+        notes.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const filter = ctx.createBiquadFilter();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + i * 0.06);
+          filter.type = 'lowpass';
+          filter.frequency.value = 620;
+          gain.gain.setValueAtTime(0.0001, now + i * 0.06);
+          gain.gain.linearRampToValueAtTime(0.022, now + i * 0.06 + 0.14);
+          gain.gain.exponentialRampToValueAtTime(0.0005, now + i * 0.06 + 2.1);
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + i * 0.06);
+          osc.stop(now + i * 0.06 + 2.2);
+        });
+      };
+      playChord();
+      this.musicTimer = setInterval(playChord, 2400);
+    }
+
+    stopMusic() {
+      if (this.musicTimer) {
+        clearInterval(this.musicTimer);
+        this.musicTimer = null;
+      }
+    }
+
+    playClick() {
+      if (!this.save.sfxEnabled) return;
       const ctx = this.ensure();
       if (!ctx) return;
       const now = ctx.currentTime;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(pitch * 0.7, now);
-      osc.frequency.exponentialRampToValueAtTime(pitch * 1.45, now + 0.08);
-      osc.frequency.exponentialRampToValueAtTime(pitch * 0.9, now + 0.14);
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.18, now + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start(now);
-      osc.stop(now + 0.17);
+      osc.stop(now + 0.065);
+    }
+
+    playDoorbell() {
+      if (!this.save.sfxEnabled) return;
+      const ctx = this.ensure();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      [880, 1174.66].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+        gain.gain.setValueAtTime(0.001, now + idx * 0.12);
+        gain.gain.linearRampToValueAtTime(0.09, now + idx * 0.12 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 0.42);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + idx * 0.12);
+        osc.stop(now + idx * 0.12 + 0.45);
+      });
+    }
+
+    playPlop(pitch = 340) {
+      if (!this.save.sfxEnabled) return;
+      const ctx = this.ensure();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(pitch * 0.65, now);
+      osc.frequency.exponentialRampToValueAtTime(pitch * 1.4, now + 0.08);
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.16);
     }
 
     startPour() {
+      if (!this.save.sfxEnabled || this.pourSrc) return;
       const ctx = this.ensure();
-      if (!ctx || this.pourOsc) return;
-      const bufferSize = ctx.sampleRate * 1.0;
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-      const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
-      noise.loop = true;
-
+      if (!ctx) return;
+      const len = ctx.sampleRate;
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const ch = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
       const filter = ctx.createBiquadFilter();
       filter.type = 'bandpass';
-      filter.frequency.value = 650;
-      filter.Q.value = 1.8;
-
+      filter.frequency.value = 680;
+      filter.Q.value = 1.6;
       const gain = ctx.createGain();
       gain.gain.setValueAtTime(0.001, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 0.08);
-
-      noise.connect(filter);
+      gain.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 0.08);
+      src.connect(filter);
       filter.connect(gain);
       gain.connect(ctx.destination);
-      noise.start();
-      this.pourOsc = noise;
+      src.start();
+      this.pourSrc = src;
       this.pourGain = gain;
     }
 
     stopPour() {
-      if (this.pourOsc && this.ctx && this.pourGain) {
+      if (this.pourSrc && this.ctx && this.pourGain) {
         const now = this.ctx.currentTime;
-        this.pourGain.gain.linearRampToValueAtTime(0.0001, now + 0.06);
+        this.pourGain.gain.linearRampToValueAtTime(0.0001, now + 0.05);
         try {
-          this.pourOsc.stop(now + 0.07);
+          this.pourSrc.stop(now + 0.06);
         } catch {
           // ignore
         }
       }
-      this.pourOsc = null;
+      this.pourSrc = null;
       this.pourGain = null;
     }
 
     playSwirlTick() {
+      if (!this.save.sfxEnabled) return;
       const nowMs = performance.now();
       if (nowMs - this.lastTick < 110) return;
       this.lastTick = nowMs;
       const ctx = this.ensure();
       if (!ctx) return;
-      const now = ctx.currentTime;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(420 + Math.random() * 140, now);
-      gain.gain.setValueAtTime(0.03, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+      osc.frequency.setValueAtTime(440 + Math.random() * 140, ctx.currentTime);
+      gain.gain.setValueAtTime(0.03, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.07);
       osc.connect(gain);
       gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.08);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.08);
     }
 
     playSpray() {
+      if (!this.save.sfxEnabled) return;
       const ctx = this.ensure();
       if (!ctx) return;
-      const now = ctx.currentTime;
-      const bufferSize = Math.floor(ctx.sampleRate * 0.18);
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
-      const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
-
+      const len = Math.floor(ctx.sampleRate * 0.16);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const ch = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * (1 - i / len);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
       const filter = ctx.createBiquadFilter();
       filter.type = 'highpass';
       filter.frequency.value = 1800;
-
       const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.14, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.17);
-      noise.connect(filter);
+      gain.gain.setValueAtTime(0.11, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+      src.connect(filter);
       filter.connect(gain);
       gain.connect(ctx.destination);
-      noise.start(now);
+      src.start();
     }
 
-    playComboChime(combo = 1) {
+    playWipe() {
+      if (!this.save.sfxEnabled) return;
+      const nowMs = performance.now();
+      if (nowMs - this.lastTick < 130) return;
+      this.lastTick = nowMs;
       const ctx = this.ensure();
       if (!ctx) return;
-      const now = ctx.currentTime;
-      const base = 440 * Math.pow(1.06, Math.min(combo, 10));
-      [base, base * 1.25].forEach((freq, idx) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now + idx * 0.06);
-        gain.gain.setValueAtTime(0.001, now + idx * 0.06);
-        gain.gain.linearRampToValueAtTime(0.09, now + idx * 0.06 + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.24);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now + idx * 0.06);
-        osc.stop(now + idx * 0.06 + 0.25);
-      });
-    }
-
-    playSpoilBuzz() {
-      const ctx = this.ensure();
-      if (!ctx) return;
-      const now = ctx.currentTime;
-      const osc = ctx.createOscillator();
+      const len = Math.floor(ctx.sampleRate * 0.09);
+      const buf = ctx.createBuffer(1, len, ctx.sampleRate);
+      const ch = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * (1 - i / len);
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 950;
       const gain = ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(140, now);
-      osc.frequency.linearRampToValueAtTime(95, now + 0.22);
-      gain.gain.setValueAtTime(0.11, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
-      osc.connect(gain);
+      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      src.connect(filter);
+      filter.connect(gain);
       gain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.25);
+      src.start();
     }
 
-    playShiftComplete() {
+    playComplete() {
+      if (!this.save.sfxEnabled) return;
       const ctx = this.ensure();
       if (!ctx) return;
       const now = ctx.currentTime;
@@ -293,1235 +387,1327 @@
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, now + i * 0.075);
         gain.gain.setValueAtTime(0.001, now + i * 0.075);
-        gain.gain.linearRampToValueAtTime(0.1, now + i * 0.075 + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.075 + 0.45);
+        gain.gain.linearRampToValueAtTime(0.09, now + i * 0.075 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.075 + 0.42);
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start(now + i * 0.075);
-        osc.stop(now + i * 0.075 + 0.48);
+        osc.stop(now + i * 0.075 + 0.45);
       });
     }
   }
 
-  function loadProgress() {
-    try {
-      const raw = localStorage.getItem(LAB_STORAGE_KEY);
-      if (!raw) return { bestScore: 0, totalShifts: 0, unlockedRecipes: [], soundEnabled: true };
-      const parsed = JSON.parse(raw);
-      return {
-        bestScore: Number(parsed.bestScore || 0),
-        totalShifts: Number(parsed.totalShifts || 0),
-        unlockedRecipes: Array.isArray(parsed.unlockedRecipes) ? parsed.unlockedRecipes : [],
-        soundEnabled: parsed.soundEnabled !== false
+  // ===== SMART EDGE-CONNECTED BFS FLOOD-FILL BACKGROUND REMOVAL =====
+  function sliceAndRemoveBg(scene, rawKey, keys2x4) {
+    const tex = scene.textures.get(rawKey);
+    const srcImg = tex.getSourceImage();
+    const cellW = Math.floor(srcImg.width / 4);
+    const cellH = Math.floor(srcImg.height / 2);
+
+    keys2x4.forEach((outKey, idx) => {
+      if (scene.textures.exists(outKey)) return;
+      const col = idx % 4;
+      const row = Math.floor(idx / 4);
+
+      const c = document.createElement('canvas');
+      c.width = cellW;
+      c.height = cellH;
+      const g = c.getContext('2d');
+      g.drawImage(srcImg, col * cellW, row * cellH, cellW, cellH, 0, 0, cellW, cellH);
+
+      const imgData = g.getImageData(0, 0, cellW, cellH);
+      const data = imgData.data;
+      const visited = new Uint8Array(cellW * cellH);
+      const queue = new Int32Array(cellW * cellH);
+      let head = 0;
+      let tail = 0;
+
+      const pushIfWhite = (x, y) => {
+        if (x < 0 || x >= cellW || y < 0 || y >= cellH) return;
+        const p = y * cellW + x;
+        if (visited[p]) return;
+        const i = p * 4;
+        if (data[i] > 236 && data[i + 1] > 236 && data[i + 2] > 236) {
+          visited[p] = 1;
+          queue[tail++] = p;
+        }
       };
-    } catch {
-      return { bestScore: 0, totalShifts: 0, unlockedRecipes: [], soundEnabled: true };
-    }
+
+      for (let x = 0; x < cellW; x++) {
+        pushIfWhite(x, 0);
+        pushIfWhite(x, cellH - 1);
+      }
+      for (let y = 0; y < cellH; y++) {
+        pushIfWhite(0, y);
+        pushIfWhite(cellW - 1, y);
+      }
+
+      while (head < tail) {
+        const p = queue[head++];
+        data[p * 4 + 3] = 0;
+        const x = p % cellW;
+        const y = (p - x) / cellW;
+        pushIfWhite(x + 1, y);
+        pushIfWhite(x - 1, y);
+        pushIfWhite(x, y + 1);
+        pushIfWhite(x, y - 1);
+      }
+
+      // Soft 1px feathering on border pixels touching transparent background
+      for (let y = 1; y < cellH - 1; y++) {
+        for (let x = 1; x < cellW - 1; x++) {
+          const p = y * cellW + x;
+          const i = p * 4;
+          if (data[i + 3] === 0) continue;
+          const hasTransparentNeighbor =
+            data[(p - 1) * 4 + 3] === 0 ||
+            data[(p + 1) * 4 + 3] === 0 ||
+            data[(p - cellW) * 4 + 3] === 0 ||
+            data[(p + cellW) * 4 + 3] === 0;
+          if (hasTransparentNeighbor && data[i] > 215 && data[i + 1] > 215 && data[i + 2] > 215) {
+            data[i + 3] = Math.round(data[i + 3] * 0.45);
+          }
+        }
+      }
+
+      g.putImageData(imgData, 0, 0);
+      scene.textures.addCanvas(outKey, c);
+    });
   }
 
-  function saveProgress(data) {
-    try {
-      localStorage.setItem(LAB_STORAGE_KEY, JSON.stringify(data));
-    } catch {
-      // ignore
-    }
+  function makeCozyButton(scene, x, y, w, h, label, bgColor, textColor, onClick) {
+    const container = scene.add.container(x, y);
+    const bg = scene.add.graphics();
+    const drawBg = (fill) => {
+      bg.clear();
+      bg.fillStyle(fill, 1);
+      bg.lineStyle(2, 0x162a22, 0.85);
+      bg.fillRoundedRect(-w / 2, -h / 2, w, h, 10);
+      bg.strokeRoundedRect(-w / 2, -h / 2, w, h, 10);
+    };
+    drawBg(bgColor);
+
+    const txt = scene.add
+      .text(0, 0, label, {
+        fontFamily: '"Be Vietnam Pro", sans-serif',
+        fontSize: '15px',
+        fontWeight: '600',
+        color: textColor
+      })
+      .setOrigin(0.5);
+
+    container.add([bg, txt]);
+    container.setSize(w, h);
+    container.setInteractive({ useHandCursor: true });
+
+    container.on('pointerover', () => {
+      scene.tweens.add({ targets: container, scaleX: 1.04, scaleY: 1.04, duration: 110, ease: 'Sine.easeOut' });
+    });
+    container.on('pointerout', () => {
+      scene.tweens.add({ targets: container, scaleX: 1, scaleY: 1, duration: 110, ease: 'Sine.easeOut' });
+    });
+    container.on('pointerdown', () => {
+      scene.tweens.add({ targets: container, scaleX: 0.96, scaleY: 0.96, duration: 70, yoyo: true });
+      if (onClick) onClick();
+    });
+    container.setLabel = (newLbl) => txt.setText(newLbl);
+    return container;
   }
 
-  function getRankTitle(bestScore, unlockedCount) {
-    if (unlockedCount >= 4 || bestScore >= 1200) return 'Nghệ nhân Tinh dầu';
-    if (unlockedCount >= 2 || bestScore >= 500) return 'Pha chế viên';
-    return 'Tập sự';
-  }
-
-  let activeCleanup = null;
+  let activeGame = null;
 
   window.PEELVERSE_GAMES = {
-    stages: ORDERS.map((o, idx) => ({ id: idx + 1, num: `0${idx + 1}`, title: o.recipeName, desc: o.brief })),
+    stages: ORDERS.map((o, idx) => ({ id: idx + 1, num: `0${idx + 1}`, title: o.recipeName, desc: o.hint })),
 
     cleanup() {
-      if (typeof activeCleanup === 'function') {
-        activeCleanup();
-        activeCleanup = null;
+      if (activeGame) {
+        if (activeGame._soundEngine) {
+          activeGame._soundEngine.stopPour();
+          activeGame._soundEngine.stopMusic();
+        }
+        activeGame.destroy(true);
+        activeGame = null;
       }
     },
 
     mountLab(container, onScoreSaved) {
       this.cleanup();
-      const progress = loadProgress();
-      const audio = new LabAudio();
-      audio.enabled = progress.soundEnabled;
+      if (!window.Phaser) {
+        container.innerHTML = `<div class="info-box" style="padding:28px;text-align:center;">Đang tải Phaser 3 Engine... Vui lòng kiểm tra kết nối mạng và thử lại.</div>`;
+        return;
+      }
 
-      // Preload ingredient images + game sprite/background assets
-      const imgMap = new Map();
-      INGREDIENTS.forEach((ing) => {
-        const img = new Image();
-        img.src = ing.imgSrc;
-        imgMap.set(ing.id, img);
-      });
-
-      const gameAssets = {
-        bgShop: new Image(),
-        tableTop: new Image(),
-        propsSheet: new Image(),
-        customersSheet: new Image()
-      };
-      gameAssets.bgShop.src = 'assets/game/bg-shop.png';
-      gameAssets.tableTop.src = 'assets/game/table-top.png';
-      gameAssets.propsSheet.src = 'assets/game/props-sheet.png';
-      gameAssets.customersSheet.src = 'assets/game/customers-sheet.png';
-
-      let shiftNumber = 1;
-      let score = 0;
-      let combo = 1;
-      let timeLeft = 75;
-      let phase = 1; // 1 = Brew, 2 = Swirl, 3 = Spray & Wipe, 4 = Shift Summary
-      let currentOrder = ORDERS[0];
-
-      // Brew state
-      let liquidMl = 0; // max 220
-      let vinegarMl = 0;
-      let waterMl = 0;
-      let solids = { citrus: 0, cinnamon: 0, mint: 0 };
-      let currentPh = 7.0;
-      let targetDisplayPh = 7.0;
-      let spoiledCount = 0;
-      let shakeFrames = 0;
-      let swirlProgress = 0; // 0..100
-      let swirlAnglePrev = null;
-      let formulaQuality = { scorePct: 0, rank: 'A', reason: '' };
-
-      // 1D wave physics for liquid surface
-      const WAVE_N = 28;
-      const waveY = new Float32Array(WAVE_N);
-      const waveV = new Float32Array(WAVE_N);
-
-      // Particles & pouring & drag
-      const droplets = [];
-      const oilParticles = [];
-      const mistParticles = [];
-      const sparkles = [];
-      let pouringId = null;
-      let dragging = null; // { id, x, y, spoiled }
-      let spoiledItem = null; // { x, y, vx, vy, r }
-      let nextSpoilTimer = 7.5;
-
-      // Phase 3 Tabletop & dirt mask
-      let dirtCanvas = null;
-      let dirtCtx = null;
-      let sprayedStains = []; // { x, y, r, sprayed }
-      let cleanPct = 0;
-      let wipeTool = 'spray'; // 'spray' | 'cloth'
-      let lastPointer = null;
-      let pointerDown = false;
-      let shiftCompletedFlag = false;
+      const saveData = loadSave();
+      const soundEngine = new PeelSoundEngine(saveData);
 
       container.innerHTML = `
-        <div class="peel-lab-shell">
-          <!-- Top Dark Status Bar -->
-          <div class="peel-lab-topbar">
-            <div class="peel-lab-status-left">
-              <span class="peel-lab-rank-pill" id="labRankPill">${getRankTitle(progress.bestScore, progress.unlockedRecipes.length)}</span>
-              <span class="peel-lab-meta-chip" id="labShiftChip">Ca #01</span>
-              <span class="peel-lab-meta-chip" id="labScoreChip">0 điểm</span>
-              <span class="peel-lab-combo-chip" id="labComboChip">x1</span>
-            </div>
-            <div class="peel-lab-status-right">
-              <div class="peel-lab-timer-wrap" aria-label="Thời gian ca">
-                <div class="peel-lab-timer-fill" id="labTimerFill" style="width:100%;"></div>
-              </div>
-              <span class="peel-lab-timer-num" id="labTimerNum">75s</span>
-              <button type="button" class="peel-lab-top-btn" id="labRecipeBookBtn">Sổ công thức (${progress.unlockedRecipes.length}/${ORDERS.length})</button>
-              <button type="button" class="peel-lab-top-btn" id="labSoundBtn">${audio.enabled ? 'Âm thanh: Bật' : 'Âm thanh: Tắt'}</button>
-            </div>
-          </div>
-
-          <!-- Pinned Ivory Order Ticket -->
-          <div class="peel-lab-ticket" id="labOrderTicket">
-            <div class="peel-lab-ticket-pin" aria-hidden="true"></div>
-            <div class="peel-lab-ticket-body">
-              <div class="peel-lab-ticket-head">
-                <span class="eyebrow-tag" id="labPhaseTag">PHA 1 / 3 • PHA CHẾ VẬT LÝ</span>
-                <strong id="labOrderTitle">${currentOrder.title}</strong>
-              </div>
-              <p id="labOrderBrief">${currentOrder.brief}</p>
-            </div>
-            <div class="peel-lab-ticket-actions">
-              <button type="button" class="btn btn-primary btn-sm hidden" id="labNextPhaseBtn">Chuyển sang Khuấy →</button>
-              <button type="button" class="btn btn-secondary btn-sm hidden" id="labClothModeBtn">Chuyển sang Khăn lau</button>
-            </div>
-          </div>
-
-          <!-- Interactive 60fps HTML5 Canvas -->
-          <div class="peel-lab-stage-wrap">
-            <canvas id="peelLabCanvas" class="peel-lab-canvas"></canvas>
-            <div id="labOverlayCard" class="peel-lab-overlay hidden"></div>
-          </div>
-        </div>
-
-        <!-- Recipe Book Modal -->
-        <div id="labRecipeModal" class="contact-modal-overlay" aria-hidden="true">
-          <div class="contact-modal" role="dialog" aria-modal="true" aria-labelledby="labRecipeTitle">
-            <div class="contact-modal-header">
-              <div>
-                <span class="eyebrow-tag">LƯU TRỮ PHÒNG LAB</span>
-                <h3 id="labRecipeTitle" class="serif-heading" style="font-size:1.6rem;">Sổ Công Thức Chiết Xuất</h3>
-              </div>
-              <button type="button" id="closeLabRecipeBtn" class="icon-btn" aria-label="Đóng">×</button>
-            </div>
-            <div id="labRecipeList" class="peel-lab-recipe-list"></div>
-          </div>
+        <div class="peel-lab-frame" id="peelLabFrame">
+          <div id="phaserMount" style="width:100%;height:100%;"></div>
+          <button type="button" class="peel-lab-fs-btn" id="peelLabFsBtn" aria-label="Toàn màn hình">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+            <span>Toàn màn hình</span>
+          </button>
         </div>
       `;
 
-      const canvas = container.querySelector('#peelLabCanvas');
-      const ctx = canvas.getContext('2d');
-      const stageWrap = container.querySelector('.peel-lab-stage-wrap');
-      const nextPhaseBtn = container.querySelector('#labNextPhaseBtn');
-      const clothModeBtn = container.querySelector('#labClothModeBtn');
-      const overlayCard = container.querySelector('#labOverlayCard');
-
-      let W = 800;
-      let H = 480;
-      let dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-      function resizeCanvas() {
-        const rect = stageWrap.getBoundingClientRect();
-        W = Math.max(320, Math.floor(rect.width));
-        H = Math.max(340, Math.floor(rect.height));
-        dpr = Math.min(window.devicePixelRatio || 1, 2);
-        canvas.width = Math.floor(W * dpr);
-        canvas.height = Math.floor(H * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        if (phase === 3 && !dirtCanvas) initTabletopDirt();
-      }
-
-      function triggerWaveImpulse(normX, strength) {
-        const idx = Math.max(1, Math.min(WAVE_N - 2, Math.floor(normX * (WAVE_N - 1))));
-        waveV[idx] += strength;
-        waveV[idx - 1] += strength * 0.5;
-        waveV[idx + 1] += strength * 0.5;
-      }
-
-      function computeLivePh() {
-        const totalLiq = vinegarMl + waterMl;
-        let basePh = 7.0;
-        if (totalLiq > 0) {
-          basePh = (vinegarMl * 2.6 + waterMl * 7.0) / totalLiq;
-        }
-        basePh += solids.citrus * -0.22 + solids.mint * 0.08 + solids.cinnamon * 0.04;
-        return Math.max(2.0, Math.min(9.0, basePh));
-      }
-
-      function computeLiquidColor() {
-        if (spoiledCount > 0) return 'rgba(116, 108, 72, 0.78)';
-        let r = 212;
-        let g = 224;
-        let b = 216;
-        const total = Math.max(1, liquidMl);
-        const cRatio = Math.min(1, (solids.citrus * 22) / total);
-        const mRatio = Math.min(1, (solids.mint * 20) / total);
-        const cinRatio = Math.min(1, (solids.cinnamon * 20) / total);
-        r = Math.round(r + cRatio * 30 + cinRatio * -35 - mRatio * 70);
-        g = Math.round(g + cRatio * -40 + mRatio * -25 - cinRatio * 65);
-        b = Math.round(b - cRatio * 135 - cinRatio * 120 - mRatio * 65);
-        return `rgba(${Math.max(40, Math.min(255, r))}, ${Math.max(40, Math.min(255, g))}, ${Math.max(40, Math.min(255, b))}, 0.82)`;
-      }
-
-      function evaluateFormula() {
-        const ord = currentOrder;
-        let pts = 100;
-        const reasons = [];
-
-        if (spoiledCount > 0) {
-          pts -= 35;
-          reasons.push('Có nguyên liệu mốc làm đục dung dịch');
-        }
-        const [phMin, phMax] = ord.targetPh;
-        if (currentPh < phMin || currentPh > phMax) {
-          pts -= 28;
-          reasons.push(`pH ${currentPh.toFixed(1)} lệch vùng chuẩn (${phMin}–${phMax})`);
-        }
-        Object.entries(ord.reqSolids).forEach(([k, need]) => {
-          if ((solids[k] || 0) < need) {
-            pts -= 18;
-            const ingName = INGREDIENTS.find((x) => x.id === k)?.name || k;
-            reasons.push(`Thiếu ${ingName}`);
+      const frameEl = container.querySelector('#peelLabFrame');
+      const fsBtn = container.querySelector('#peelLabFsBtn');
+      if (fsBtn && frameEl) {
+        fsBtn.addEventListener('click', () => {
+          if (!document.fullscreenElement) {
+            if (frameEl.requestFullscreen) frameEl.requestFullscreen().catch(() => {});
+          } else if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
           }
         });
-        if (vinegarMl < ord.reqVinegarMin) {
-          pts -= 15;
-          reasons.push('Thiếu Giấm trắng');
+      }
+
+      // ===== BOOT SCENE: PRELOAD & BFS FLOOD-FILL =====
+      class BootScene extends Phaser.Scene {
+        constructor() {
+          super({ key: 'BootScene' });
         }
-        if (waterMl < ord.reqWaterMin) {
-          pts -= 12;
-          reasons.push('Thiếu Nước pha loãng');
+        preload() {
+          const loadTxt = this.add
+            .text(640, 360, 'Đang chuẩn bị Tiệm Pha Chế Tinh Dầu...', {
+              fontFamily: '"Cormorant Garamond", Georgia, serif',
+              fontSize: '32px',
+              color: '#F6F4EE'
+            })
+            .setOrigin(0.5);
+          this.load.image('bg_shop', 'assets/game/bg-shop.png');
+          this.load.image('table_top', 'assets/game/table-top.png');
+          this.load.image('props_raw', 'assets/game/props-sheet.png');
+          this.load.image('customers_raw', 'assets/game/customers-sheet.png');
+          this.load.on('complete', () => loadTxt.destroy());
         }
+        create() {
+          sliceAndRemoveBg(this, 'props_raw', [
+            'prop_flask',
+            'prop_spray',
+            'prop_vinegar',
+            'prop_water',
+            'prop_orange',
+            'prop_cinnamon',
+            'prop_mint',
+            'prop_cloth'
+          ]);
+          sliceAndRemoveBg(this, 'customers_raw', [
+            'cust_0_sad',
+            'cust_1_sad',
+            'cust_2_sad',
+            'cust_3_sad',
+            'cust_0_happy',
+            'cust_1_happy',
+            'cust_2_happy',
+            'cust_3_happy'
+          ]);
 
-        const pct = Math.max(20, Math.min(100, pts));
-        const rank = pct >= 88 ? 'S' : pct >= 68 ? 'A' : 'B';
-        const reason =
-          reasons.length === 0
-            ? `Chuẩn công thức! ${ord.scienceNote}`
-            : `${reasons[0]}. ${ord.scienceNote}`;
-        return { scorePct: pct, rank, reason };
-      }
+          // Procedural soft particle textures
+          const g1 = this.make.graphics({ x: 0, y: 0, add: false });
+          g1.fillStyle(0xf6f4ee, 1);
+          g1.fillCircle(8, 8, 8);
+          g1.generateTexture('dust_dot', 16, 16);
 
-      function initTabletopDirt() {
-        const tb = getTableRect();
-        dirtCanvas = document.createElement('canvas');
-        dirtCanvas.width = Math.max(200, Math.floor(tb.w));
-        dirtCanvas.height = Math.max(140, Math.floor(tb.h));
-        dirtCtx = dirtCanvas.getContext('2d');
+          const g2 = this.make.graphics({ x: 0, y: 0, add: false });
+          g2.fillStyle(0xd98a2b, 1);
+          g2.fillCircle(8, 8, 8);
+          g2.generateTexture('oil_dot', 16, 16);
 
-        sprayedStains = [];
-        const count = 6;
-        for (let i = 0; i < count; i++) {
-          const sx = tb.w * (0.18 + (i % 3) * 0.31 + (Math.random() - 0.5) * 0.06);
-          const sy = tb.h * (0.28 + Math.floor(i / 3) * 0.42 + (Math.random() - 0.5) * 0.06);
-          const sr = Math.min(tb.w, tb.h) * (0.11 + Math.random() * 0.035);
-          sprayedStains.push({ x: tb.x + sx, y: tb.y + sy, r: sr, sprayed: false });
+          const g3 = this.make.graphics({ x: 0, y: 0, add: false });
+          g3.fillStyle(0xffffff, 1);
+          g3.fillCircle(32, 32, 32);
+          g3.generateTexture('wipe_brush', 64, 64);
 
-          // Draw realistic organic grease/stain patch onto offscreen mask
-          const grad = dirtCtx.createRadialGradient(sx, sy, sr * 0.15, sx, sy, sr);
-          if (currentOrder.stainTheme === 'grease' || currentOrder.stainTheme === 'mixed') {
-            grad.addColorStop(0, 'rgba(186, 122, 42, 0.86)');
-            grad.addColorStop(0.65, 'rgba(168, 98, 34, 0.68)');
-            grad.addColorStop(1, 'rgba(168, 98, 34, 0)');
-          } else if (currentOrder.stainTheme === 'mold') {
-            grad.addColorStop(0, 'rgba(92, 108, 78, 0.85)');
-            grad.addColorStop(0.7, 'rgba(72, 86, 62, 0.65)');
-            grad.addColorStop(1, 'rgba(72, 86, 62, 0)');
-          } else if (currentOrder.stainTheme === 'dust') {
-            grad.addColorStop(0, 'rgba(148, 152, 146, 0.78)');
-            grad.addColorStop(0.7, 'rgba(148, 152, 146, 0.48)');
-            grad.addColorStop(1, 'rgba(148, 152, 146, 0)');
-          } else {
-            grad.addColorStop(0, 'rgba(168, 84, 50, 0.82)');
-            grad.addColorStop(0.7, 'rgba(168, 84, 50, 0.55)');
-            grad.addColorStop(1, 'rgba(168, 84, 50, 0)');
-          }
-          dirtCtx.fillStyle = grad;
-          dirtCtx.beginPath();
-          dirtCtx.arc(sx, sy, sr, 0, Math.PI * 2);
-          dirtCtx.fill();
-
-          // Extra smaller splatters
-          for (let k = 0; k < 4; k++) {
-            const ang = Math.random() * Math.PI * 2;
-            const dist = sr * (0.45 + Math.random() * 0.45);
-            dirtCtx.beginPath();
-            dirtCtx.arc(sx + Math.cos(ang) * dist, sy + Math.sin(ang) * dist, sr * 0.24, 0, Math.PI * 2);
-            dirtCtx.fill();
-          }
-        }
-        cleanPct = 0;
-        wipeTool = 'spray';
-        updateTopbarAndTicket();
-      }
-
-      function measureDirtRemainingPct() {
-        if (!dirtCtx || !dirtCanvas) return 100;
-        const data = dirtCtx.getImageData(0, 0, dirtCanvas.width, dirtCanvas.height).data;
-        let nonZero = 0;
-        let sampled = 0;
-        for (let i = 3; i < data.length; i += 64) {
-          sampled += 1;
-          if (data[i] > 28) nonZero += 1;
-        }
-        if (sampled === 0) return 0;
-        return Math.round((nonZero / sampled) * 100);
-      }
-
-      function getFlaskRect() {
-        const isMobile = W < 560;
-        const fw = isMobile ? Math.min(165, W * 0.42) : Math.min(200, W * 0.28);
-        const fh = isMobile ? Math.min(205, H * 0.44) : Math.min(240, H * 0.5);
-        const fx = (W - fw) * 0.5 - (isMobile ? 16 : 24);
-        const fy = isMobile ? H * 0.14 : H * 0.12;
-        return { x: fx, y: fy, w: fw, h: fh };
-      }
-
-      function getShelfCards() {
-        const padX = W < 560 ? 10 : 28;
-        const cardGap = W < 560 ? 6 : 12;
-        const totalW = W - padX * 2;
-        const cw = (totalW - cardGap * 4) / 5;
-        const ch = W < 560 ? 74 : 84;
-        const cy = H - ch - 12;
-        return INGREDIENTS.map((ing, i) => ({
-          ing,
-          x: padX + i * (cw + cardGap),
-          y: cy,
-          w: cw,
-          h: ch
-        }));
-      }
-
-      function getTableRect() {
-        const pad = W < 560 ? 16 : 36;
-        return { x: pad, y: 24, w: W - pad * 2, h: H - 56 };
-      }
-
-      function updateTopbarAndTicket() {
-        const rankEl = container.querySelector('#labRankPill');
-        const shiftEl = container.querySelector('#labShiftChip');
-        const scoreEl = container.querySelector('#labScoreChip');
-        const comboEl = container.querySelector('#labComboChip');
-        const phaseTag = container.querySelector('#labPhaseTag');
-        const orderTitle = container.querySelector('#labOrderTitle');
-        const orderBrief = container.querySelector('#labOrderBrief');
-        const recipeBtn = container.querySelector('#labRecipeBookBtn');
-
-        if (rankEl) rankEl.textContent = getRankTitle(Math.max(progress.bestScore, score), progress.unlockedRecipes.length);
-        if (shiftEl) shiftEl.textContent = `Ca #0${shiftNumber}`;
-        if (scoreEl) scoreEl.textContent = `${score} điểm`;
-        if (comboEl) comboEl.textContent = `x${combo}`;
-        if (recipeBtn) recipeBtn.textContent = `Sổ công thức (${progress.unlockedRecipes.length}/${ORDERS.length})`;
-        if (orderTitle) orderTitle.textContent = currentOrder.title;
-
-        if (phase === 1) {
-          if (phaseTag) phaseTag.textContent = 'PHA 1 / 3 • KÉO NGUYÊN LIỆU & GIỮ ĐỂ RÓT';
-          if (orderBrief) orderBrief.textContent = currentOrder.brief;
-          nextPhaseBtn.classList.toggle('hidden', liquidMl < 95);
-          clothModeBtn.classList.add('hidden');
-        } else if (phase === 2) {
-          if (phaseTag) phaseTag.textContent = 'PHA 2 / 3 • XOAY VÒNG TRÒN TRÊN BÌNH ĐỂ KHUẤY';
-          if (orderBrief) orderBrief.textContent = 'Di chuyển chuột hoặc ngón tay xoay tròn quanh bình thủy tinh để chiết xuất tinh dầu D-Limonene.';
-          nextPhaseBtn.classList.add('hidden');
-          clothModeBtn.classList.add('hidden');
-        } else if (phase === 3) {
-          if (phaseTag) {
-            phaseTag.textContent =
-              wipeTool === 'spray'
-                ? 'PHA 3 / 3 • CHẠM VÀO CÁC VẾT BẨN ĐỂ XỊT TINH DẦU'
-                : 'PHA 3 / 3 • QUẸT KHĂN LAU SẠCH BỀ MẶT BÀN';
-          }
-          if (orderBrief) {
-            orderBrief.textContent =
-              wipeTool === 'spray'
-                ? `Đã xịt ${sprayedStains.filter((s) => s.sprayed).length}/${sprayedStains.length} vùng bẩn. Chạm từng vết bẩn để phun sương tinh dầu.`
-                : `Độ sạch mặt bàn: ${cleanPct}% — Quẹt đều tay để lau sạch hoàn toàn!`;
-          }
-          nextPhaseBtn.classList.add('hidden');
-          clothModeBtn.classList.toggle('hidden', wipeTool !== 'spray');
+          this.scene.start('ShopScene', { mode: 'title' });
         }
       }
 
-      function resetShift(nextIdx) {
-        shiftNumber = nextIdx;
-        currentOrder = ORDERS[(shiftNumber - 1) % ORDERS.length];
-        phase = 1;
-        liquidMl = 0;
-        vinegarMl = 0;
-        waterMl = 0;
-        solids = { citrus: 0, cinnamon: 0, mint: 0 };
-        currentPh = 7.0;
-        targetDisplayPh = 7.0;
-        spoiledCount = 0;
-        swirlProgress = 0;
-        swirlAnglePrev = null;
-        oilParticles.length = 0;
-        droplets.length = 0;
-        mistParticles.length = 0;
-        sparkles.length = 0;
-        dirtCanvas = null;
-        dirtCtx = null;
-        sprayedStains = [];
-        cleanPct = 0;
-        timeLeft = 75;
-        shiftCompletedFlag = false;
-        spoiledItem = null;
-        nextSpoilTimer = 6.5;
-        overlayCard.classList.add('hidden');
-        updateTopbarAndTicket();
-      }
-
-      function completeShift() {
-        if (shiftCompletedFlag) return;
-        shiftCompletedFlag = true;
-        phase = 4;
-        audio.stopPour();
-        audio.playShiftComplete();
-
-        const bonus = Math.round(timeLeft * 2) + (formulaQuality.rank === 'S' ? 180 : formulaQuality.rank === 'A' ? 110 : 60);
-        const gained = bonus * combo;
-        score += gained;
-        if (formulaQuality.rank === 'S') combo = Math.min(5, combo + 1);
-        else if (formulaQuality.rank === 'B') combo = 1;
-
-        progress.totalShifts += 1;
-        if (score > progress.bestScore) progress.bestScore = score;
-        if (formulaQuality.scorePct >= 68 && !progress.unlockedRecipes.includes(currentOrder.id)) {
-          progress.unlockedRecipes.push(currentOrder.id);
+      // ===== SHOP SCENE (TITLE, ORDER, BREW, SWIRL, DAY SUMMARY, UPGRADES) =====
+      class ShopScene extends Phaser.Scene {
+        constructor() {
+          super({ key: 'ShopScene' });
         }
-        saveProgress(progress);
-        if (typeof onScoreSaved === 'function') onScoreSaved(score, progress.bestScore);
-        updateTopbarAndTicket();
 
-        const rankLabel =
-          formulaQuality.rank === 'S'
-            ? 'HOÀN HẢO (S-RANK)'
-            : formulaQuality.rank === 'A'
-            ? 'ĐẠT CHUẨN (A-RANK)'
-            : 'CẦN ĐIỀU CHỈNH (B-RANK)';
+        init(data) {
+          this.entryData = data || { mode: 'title' };
+        }
 
-        overlayCard.innerHTML = `
-          <div class="peel-lab-result-box">
-            <span class="eyebrow-tag">KẾT QUẢ CA #0${shiftNumber}</span>
-            <div class="peel-lab-rank-badge rank-${formulaQuality.rank}">${rankLabel}</div>
-            <h3 class="serif-heading" style="font-size:1.55rem;margin:6px 0;">${currentOrder.recipeName}</h3>
-            <p class="peel-lab-result-note">${formulaQuality.reason}</p>
-            <div class="peel-lab-result-stats">
-              <div><span>Điểm ca</span><strong>+${gained}</strong></div>
-              <div><span>Tổng điểm</span><strong>${score}</strong></div>
-              <div><span>Độ pH pha</span><strong>${currentPh.toFixed(1)}</strong></div>
-            </div>
-            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px;">
-              <button type="button" class="btn btn-secondary btn-sm" id="labReplayShiftBtn">Làm lại ca này</button>
-              <button type="button" class="btn btn-primary btn-sm" id="labNextShiftBtn">Ca tiếp theo →</button>
-            </div>
-          </div>
-        `;
-        overlayCard.classList.remove('hidden');
+        create() {
+          this.cameras.main.fadeIn(260, 22, 42, 34);
+          this.add.image(640, 360, 'bg_shop').setDisplaySize(1280, 720);
 
-        overlayCard.querySelector('#labReplayShiftBtn').addEventListener('click', () => {
-          resetShift(shiftNumber);
-        });
-        overlayCard.querySelector('#labNextShiftBtn').addEventListener('click', () => {
-          resetShift(shiftNumber + 1);
-        });
-      }
-
-      // ===== POINTER INTERACTIONS (MOUSE + TOUCH) =====
-      function getCanvasPoint(e) {
-        const rect = canvas.getBoundingClientRect();
-        return {
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top
-        };
-      }
-
-      function addSolidToFlask(ingId, dropX) {
-        const ing = INGREDIENTS.find((x) => x.id === ingId);
-        if (!ing) return;
-        solids[ingId] = (solids[ingId] || 0) + 1;
-        liquidMl = Math.min(220, liquidMl + ing.mlPerUnit);
-        targetDisplayPh = computeLivePh();
-        const flask = getFlaskRect();
-        const normX = Math.max(0.15, Math.min(0.85, (dropX - flask.x) / flask.w));
-        triggerWaveImpulse(normX, -11);
-        audio.playPlop(ingId === 'citrus' ? 340 : ingId === 'mint' ? 420 : 280);
-        audio.playComboChime(combo);
-
-        for (let i = 0; i < 12; i++) {
-          oilParticles.push({
-            x: flask.x + flask.w * (0.2 + Math.random() * 0.6),
-            y: flask.y + flask.h * 0.65,
-            vx: (Math.random() - 0.5) * 26,
-            vy: -14 - Math.random() * 24,
-            r: 2.5 + Math.random() * 3.5,
-            color: ing.color,
-            alpha: 0.9
+          // Floating sunlit dust motes
+          this.add.particles(0, 0, 'dust_dot', {
+            x: { min: 150, max: 1130 },
+            y: { min: 80, max: 520 },
+            lifespan: 4500,
+            speedY: { min: -12, max: 8 },
+            speedX: { min: -10, max: 10 },
+            scale: { start: 0.16, end: 0.04 },
+            alpha: { start: 0.35, end: 0 },
+            frequency: 240
           });
+
+          // State for current customer & flask
+          this.customerNum = this.entryData.customerNum || 1;
+          this.dayCoins = this.entryData.dayCoins || 0;
+          this.currentOrder = this.entryData.order || ORDERS[(saveData.day + this.customerNum - 2) % ORDERS.length];
+          this.phase = 'brew'; // 'title' | 'brew' | 'swirl' | 'result'
+          this.liquidMl = 0;
+          this.vinegarMl = 0;
+          this.waterMl = 0;
+          this.solids = { orange: 0, cinnamon: 0, mint: 0 };
+          this.currentPh = 7.0;
+          this.targetPh = 7.0;
+          this.pouringId = null;
+          this.swirlProgress = 0;
+          this.swirlAnglePrev = null;
+          this.wavePhase = 0;
+          this.waveAmp = 0;
+          this.patienceMax = saveData.upgrades.herbChime ? 105 : 78;
+          this.patienceLeft = this.patienceMax;
+          this.customerActive = false;
+
+          // Customer sprite behind wooden counter (counter edge ~ y=515)
+          const custKey = `cust_${this.currentOrder.custIdx}_sad`;
+          this.customerSprite = this.add.image(640, 388, custKey).setDisplaySize(230, 256).setAlpha(0);
+          const maskG = this.make.graphics({ add: false });
+          maskG.fillStyle(0xffffff);
+          maskG.fillRect(360, 80, 560, 442);
+          this.customerSprite.setMask(maskG.createGeometryMask());
+
+          // Wooden counter overlay strip at y=522 so customer stands cleanly behind counter
+          const counterLip = this.add.graphics();
+          counterLip.fillStyle(0x9b6b43, 0.25);
+          counterLip.fillRect(0, 518, 1280, 8);
+
+          this.createDiegeticHud();
+          this.createWorkbenchProps();
+          this.createSpeechBubble();
+          this.createModalContainer();
+
+          if (this.entryData.mode === 'title') {
+            this.phase = 'title';
+            this.showTitleOverlay();
+          } else if (this.entryData.mode === 'cleaned') {
+            this.phase = 'result';
+            this.handleCustomerResult(this.entryData);
+          } else {
+            this.startCustomerVisit();
+          }
         }
-        updateTopbarAndTicket();
-      }
 
-      function handlePointerDown(e) {
-        if (phase === 4) return;
-        e.preventDefault();
-        const pt = getCanvasPoint(e);
-        pointerDown = true;
-        lastPointer = pt;
-        audio.ensure();
+        createDiegeticHud() {
+          const bar = this.add.container(0, 0).setDepth(30);
+          const pill = (x, y, w, textStr) => {
+            const g = this.add.graphics();
+            g.fillStyle(0xf6f4ee, 0.94);
+            g.lineStyle(1.5, 0x162a22, 0.85);
+            g.fillRoundedRect(x, y, w, 36, 9);
+            g.strokeRoundedRect(x, y, w, 36, 9);
+            const t = this.add
+              .text(x + w / 2, y + 18, textStr, {
+                fontFamily: '"Be Vietnam Pro", sans-serif',
+                fontSize: '14px',
+                fontWeight: '700',
+                color: '#162A22'
+              })
+              .setOrigin(0.5);
+            bar.add([g, t]);
+            return t;
+          };
 
-        if (phase === 1) {
-          // Check spoiled floating item
-          if (spoiledItem && Math.hypot(pt.x - spoiledItem.x, pt.y - spoiledItem.y) <= spoiledItem.r + 12) {
-            dragging = { id: 'spoiled', x: pt.x, y: pt.y, spoiled: true };
-            return;
-          }
-          const cards = getShelfCards();
-          for (const c of cards) {
-            if (pt.x >= c.x && pt.x <= c.x + c.w && pt.y >= c.y && pt.y <= c.y + c.h) {
-              if (c.ing.type === 'liquid') {
-                pouringId = c.ing.id;
-                audio.startPour();
-              } else {
-                dragging = { id: c.ing.id, x: pt.x, y: pt.y, spoiled: false };
-              }
-              return;
+          this.hudDayTxt = pill(20, 16, 110, `Ngày ${saveData.day}`);
+          this.hudCoinTxt = pill(140, 16, 165, `Xu: ${saveData.coins}`);
+          this.hudComboTxt = pill(315, 16, 115, `Combo x${saveData.combo}`);
+          this.hudCustTxt = pill(440, 16, 118, `Khách ${this.customerNum}/3`);
+
+          this.recipeBtn = makeCozyButton(this, 855, 34, 130, 36, 'Sổ công thức', 0xf6f4ee, '#162A22', () => {
+            soundEngine.playClick();
+            this.openRecipeModal();
+          });
+          this.upgradeBtn = makeCozyButton(this, 995, 34, 130, 36, 'Nâng cấp', 0xf6f4ee, '#162A22', () => {
+            soundEngine.playClick();
+            this.openUpgradeModal();
+          });
+          this.musicBtn = makeCozyButton(
+            this,
+            1115,
+            34,
+            92,
+            36,
+            saveData.musicEnabled ? 'Nhạc: Bật' : 'Nhạc: Tắt',
+            0x162a22,
+            '#F6F4EE',
+            () => {
+              soundEngine.playClick();
+              saveData.musicEnabled = !saveData.musicEnabled;
+              writeSave(saveData);
+              if (saveData.musicEnabled) soundEngine.startMusic();
+              else soundEngine.stopMusic();
+              this.musicBtn.setLabel(saveData.musicEnabled ? 'Nhạc: Bật' : 'Nhạc: Tắt');
             }
-          }
-        } else if (phase === 2) {
-          const flask = getFlaskRect();
-          swirlAnglePrev = Math.atan2(pt.y - (flask.y + flask.h * 0.55), pt.x - (flask.x + flask.w * 0.5));
-        } else if (phase === 3) {
-          if (wipeTool === 'spray') {
-            audio.playSpray();
-            for (let i = 0; i < 16; i++) {
-              mistParticles.push({
-                x: pt.x + (Math.random() - 0.5) * 14,
-                y: pt.y + (Math.random() - 0.5) * 14,
-                vx: (Math.random() - 0.5) * 90,
-                vy: (Math.random() - 0.5) * 90,
-                r: 2 + Math.random() * 3.5,
-                life: 0.75
-              });
+          );
+          this.sfxBtn = makeCozyButton(
+            this,
+            1214,
+            34,
+            92,
+            36,
+            saveData.sfxEnabled ? 'SFX: Bật' : 'SFX: Tắt',
+            0x162a22,
+            '#F6F4EE',
+            () => {
+              saveData.sfxEnabled = !saveData.sfxEnabled;
+              writeSave(saveData);
+              this.sfxBtn.setLabel(saveData.sfxEnabled ? 'SFX: Bật' : 'SFX: Tắt');
             }
-            sprayedStains.forEach((st) => {
-              if (!st.sprayed && Math.hypot(pt.x - st.x, pt.y - st.y) <= st.r + 36) {
-                st.sprayed = true;
-                audio.playComboChime(2);
-              }
+          );
+          bar.add([this.recipeBtn, this.upgradeBtn, this.musicBtn, this.sfxBtn]);
+        }
+
+        createSpeechBubble() {
+          this.bubble = this.add.container(865, 225).setDepth(20).setAlpha(0);
+          const bg = this.add.graphics();
+          bg.fillStyle(0xf6f4ee, 0.96);
+          bg.lineStyle(2, 0x162a22, 0.9);
+          bg.fillRoundedRect(-175, -108, 350, 210, 14);
+          bg.strokeRoundedRect(-175, -108, 350, 210, 14);
+
+          this.bubbleSpeaker = this.add.text(-155, -92, '', {
+            fontFamily: '"Cormorant Garamond", Georgia, serif',
+            fontSize: '21px',
+            fontWeight: '700',
+            color: '#A85432'
+          });
+          this.bubbleText = this.add.text(-155, -62, '', {
+            fontFamily: '"Be Vietnam Pro", sans-serif',
+            fontSize: '13.5px',
+            color: '#181816',
+            wordWrap: { width: 310 },
+            lineSpacing: 5
+          });
+          this.bubbleHint = this.add.text(-155, 48, '', {
+            fontFamily: '"Be Vietnam Pro", sans-serif',
+            fontSize: '12px',
+            fontWeight: '700',
+            color: '#162A22'
+          });
+
+          // Patience bar
+          const pTrack = this.add.graphics();
+          pTrack.fillStyle(0xe0dad0, 1);
+          pTrack.fillRoundedRect(-155, 76, 310, 10, 5);
+          this.patienceBar = this.add.graphics();
+
+          this.bubble.add([bg, this.bubbleSpeaker, this.bubbleText, this.bubbleHint, pTrack, this.patienceBar]);
+        }
+
+        createWorkbenchProps() {
+          const addShadow = (x, y, rx, ry) => {
+            const s = this.add.ellipse(x, y, rx, ry, 0x162a22, 0.24).setDepth(10);
+            return s;
+          };
+
+          // Center Flask + Dynamic Liquid Graphics
+          addShadow(640, 668, 150, 28);
+          this.liquidGraphics = this.add.graphics().setDepth(11);
+          this.flaskSprite = this.add.image(640, 590, 'prop_flask').setDisplaySize(165, 185).setDepth(12);
+
+          // Brass pH Column beside flask
+          this.phGraphics = this.add.graphics().setDepth(13);
+          this.phLabelTxt = this.add
+            .text(742, 495, 'pH 7.0', {
+              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontSize: '13px',
+              fontWeight: '700',
+              color: '#162A22',
+              backgroundColor: '#F6F4EE',
+              padding: { x: 6, y: 3 }
+            })
+            .setDepth(13);
+
+          // Pour stream & Swirl ring graphics
+          this.pourStreamG = this.add.graphics().setDepth(14);
+          this.swirlRingG = this.add.graphics().setDepth(15);
+          this.swirlTxt = this.add
+            .text(640, 472, '', {
+              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontSize: '15px',
+              fontWeight: '700',
+              color: '#162A22',
+              backgroundColor: '#F6F4EE',
+              padding: { x: 8, y: 4 }
+            })
+            .setOrigin(0.5)
+            .setDepth(16)
+            .setAlpha(0);
+
+          // Left Solids: Orange, Cinnamon, Mint (Draggable)
+          const solidDefs = [
+            { id: 'orange', key: 'prop_orange', label: 'Vỏ cam', x: 165, y: 618, homeX: 165, homeY: 618, pitch: 360 },
+            { id: 'cinnamon', key: 'prop_cinnamon', label: 'Quế', x: 305, y: 618, homeX: 305, homeY: 618, pitch: 280 },
+            { id: 'mint', key: 'prop_mint', label: 'Lá bạc hà', x: 445, y: 618, homeX: 445, homeY: 618, pitch: 430 }
+          ];
+          this.solidSprites = [];
+          solidDefs.forEach((def) => {
+            addShadow(def.x, def.y + 44, 108, 20);
+            const sp = this.add.image(def.x, def.y, def.key).setDisplaySize(120, 120).setDepth(14);
+            sp.setInteractive({ draggable: true, useHandCursor: true });
+            this.input.setDraggable(sp);
+            this.add
+              .text(def.x, def.y + 68, def.label, {
+                fontFamily: '"Be Vietnam Pro", sans-serif',
+                fontSize: '13px',
+                fontWeight: '700',
+                color: '#F6F4EE',
+                backgroundColor: '#162A22',
+                padding: { x: 8, y: 3 }
+              })
+              .setOrigin(0.5)
+              .setDepth(14);
+
+            sp.on('pointerover', () => {
+              if (this.phase !== 'brew') return;
+              this.tweens.add({ targets: sp, scaleX: sp.scaleX * 1.07, scaleY: sp.scaleY * 1.07, duration: 100 });
             });
-            if (sprayedStains.every((s) => s.sprayed)) {
-              wipeTool = 'cloth';
+            sp.on('pointerout', () => {
+              sp.setDisplaySize(120, 120);
+            });
+            sp.on('drag', (_p, dx, dy) => {
+              if (this.phase !== 'brew') return;
+              sp.x = dx;
+              sp.y = dy;
+              sp.setDepth(22);
+            });
+            sp.on('dragend', () => {
+              if (this.phase === 'brew' && Phaser.Math.Distance.Between(sp.x, sp.y, 640, 540) < 115) {
+                this.addSolid(def.id, def.pitch);
+              }
+              this.tweens.add({
+                targets: sp,
+                x: def.homeX,
+                y: def.homeY,
+                duration: 200,
+                ease: 'Back.easeOut',
+                onComplete: () => sp.setDepth(14)
+              });
+            });
+            this.solidSprites.push(sp);
+          });
+
+          // Right Liquids: Vinegar, Water (Press & Hold to Pour)
+          const liqDefs = [
+            { id: 'vinegar', key: 'prop_vinegar', label: 'Giấm trắng (Giữ)', x: 895, y: 600, homeX: 895, homeY: 600 },
+            { id: 'water', key: 'prop_water', label: 'Nước (Giữ)', x: 1065, y: 600, homeX: 1065, homeY: 600 }
+          ];
+          liqDefs.forEach((def) => {
+            addShadow(def.x, def.y + 56, 98, 22);
+            const sp = this.add.image(def.x, def.y, def.key).setDisplaySize(125, 145).setDepth(14);
+            sp.setInteractive({ useHandCursor: true });
+            this.add
+              .text(def.x, def.y + 84, def.label, {
+                fontFamily: '"Be Vietnam Pro", sans-serif',
+                fontSize: '13px',
+                fontWeight: '700',
+                color: '#F6F4EE',
+                backgroundColor: '#162A22',
+                padding: { x: 8, y: 3 }
+              })
+              .setOrigin(0.5)
+              .setDepth(14);
+
+            sp.on('pointerdown', () => {
+              if (this.phase !== 'brew') return;
+              this.pouringId = def.id;
+              this.pouringSprite = sp;
+              soundEngine.startPour();
+              this.tweens.add({
+                targets: sp,
+                x: 725,
+                y: 458,
+                angle: -46,
+                duration: 180,
+                ease: 'Sine.easeOut'
+              });
+            });
+            const stopPourThis = () => {
+              if (this.pouringId === def.id) {
+                this.pouringId = null;
+                soundEngine.stopPour();
+                this.pourStreamG.clear();
+                this.tweens.add({
+                  targets: sp,
+                  x: def.homeX,
+                  y: def.homeY,
+                  angle: 0,
+                  duration: 200,
+                  ease: 'Back.easeOut'
+                });
+              }
+            };
+            sp.on('pointerup', stopPourThis);
+            sp.on('pointerout', stopPourThis);
+            this.input.on('pointerup', stopPourThis);
+          });
+
+          // Action buttons: Khuấy chiết xuất & Đổ làm lại
+          this.swirlActionBtn = makeCozyButton(this, 640, 692, 175, 36, 'Khuấy chiết xuất →', 0xa85432, '#F6F4EE', () => {
+            if (this.phase === 'brew' && this.liquidMl >= 90) {
+              soundEngine.playClick();
+              this.enterSwirlPhase();
             }
-            updateTopbarAndTicket();
-          } else {
-            eraseDirtAt(pt.x, pt.y);
+          });
+          this.swirlActionBtn.setDepth(18).setVisible(false);
+
+          this.resetFlaskBtn = makeCozyButton(this, 495, 692, 100, 34, 'Đổ làm lại', 0xf6f4ee, '#162A22', () => {
+            if (this.phase === 'brew') {
+              soundEngine.playClick();
+              this.resetFlask();
+            }
+          });
+          this.resetFlaskBtn.setDepth(18).setVisible(false);
+        }
+
+        addSolid(id, pitch) {
+          this.solids[id] = (this.solids[id] || 0) + 1;
+          this.liquidMl = Math.min(220, this.liquidMl + 12);
+          this.waveAmp = 9;
+          soundEngine.playPlop(pitch);
+          this.recomputePh();
+          this.tweens.add({
+            targets: this.flaskSprite,
+            scaleX: this.flaskSprite.scaleX * 1.06,
+            scaleY: this.flaskSprite.scaleY * 0.94,
+            duration: 90,
+            yoyo: true
+          });
+          this.add.particles(640, 520, 'oil_dot', {
+            speed: { min: 40, max: 120 },
+            angle: { min: 220, max: 320 },
+            scale: { start: 0.45, end: 0 },
+            lifespan: 450,
+            quantity: 10,
+            emitting: false
+          }).explode(10, 640, 525);
+        }
+
+        resetFlask() {
+          this.liquidMl = 0;
+          this.vinegarMl = 0;
+          this.waterMl = 0;
+          this.solids = { orange: 0, cinnamon: 0, mint: 0 };
+          this.targetPh = 7.0;
+          this.swirlActionBtn.setVisible(false);
+          this.resetFlaskBtn.setVisible(false);
+        }
+
+        recomputePh() {
+          const totalLiq = this.vinegarMl + this.waterMl;
+          let ph = 7.0;
+          if (totalLiq > 0) ph = (this.vinegarMl * 2.6 + this.waterMl * 7.0) / totalLiq;
+          ph += this.solids.orange * -0.22 + this.solids.mint * 0.08 + this.solids.cinnamon * 0.04;
+          this.targetPh = Phaser.Math.Clamp(ph, 2.0, 9.0);
+          if (this.liquidMl >= 90 && this.phase === 'brew') {
+            this.swirlActionBtn.setVisible(true);
+            this.resetFlaskBtn.setVisible(true);
           }
         }
-      }
 
-      function eraseDirtAt(x, y) {
-        if (!dirtCtx) return;
-        const tb = getTableRect();
-        const lx = x - tb.x;
-        const ly = y - tb.y;
-        const radius = formulaQuality.rank === 'S' ? 42 : formulaQuality.rank === 'A' ? 32 : 22;
+        enterSwirlPhase() {
+          this.phase = 'swirl';
+          this.swirlProgress = 0;
+          this.swirlActionBtn.setVisible(false);
+          this.resetFlaskBtn.setVisible(false);
+          this.swirlTxt.setText('Xoáy tròn quanh bình để chiết xuất (0%)').setAlpha(1);
 
-        dirtCtx.save();
-        dirtCtx.globalCompositeOperation = 'destination-out';
-        const grad = dirtCtx.createRadialGradient(lx, ly, radius * 0.25, lx, ly, radius);
-        grad.addColorStop(0, 'rgba(0,0,0,1)');
-        grad.addColorStop(1, 'rgba(0,0,0,0)');
-        dirtCtx.fillStyle = grad;
-        dirtCtx.beginPath();
-        dirtCtx.arc(lx, ly, radius, 0, Math.PI * 2);
-        dirtCtx.fill();
-        dirtCtx.restore();
-
-        if (Math.random() < 0.35) {
-          sparkles.push({
-            x: x + (Math.random() - 0.5) * 24,
-            y: y + (Math.random() - 0.5) * 24,
-            r: 3 + Math.random() * 4,
-            life: 0.55
-          });
-        }
-      }
-
-      function handlePointerMove(e) {
-        if (!pointerDown) return;
-        e.preventDefault();
-        const pt = getCanvasPoint(e);
-
-        if (phase === 1 && dragging) {
-          dragging.x = pt.x;
-          dragging.y = pt.y;
-        } else if (phase === 2) {
-          const flask = getFlaskRect();
-          const cx = flask.x + flask.w * 0.5;
-          const cy = flask.y + flask.h * 0.55;
-          const angle = Math.atan2(pt.y - cy, pt.x - cx);
-          if (swirlAnglePrev !== null) {
-            let delta = angle - swirlAnglePrev;
-            if (delta > Math.PI) delta -= Math.PI * 2;
-            if (delta < -Math.PI) delta += Math.PI * 2;
-            const mag = Math.abs(delta);
-            if (mag > 0.03 && mag < 1.2) {
-              swirlProgress = Math.min(100, swirlProgress + mag * 14);
-              triggerWaveImpulse(0.25 + Math.random() * 0.5, (Math.random() - 0.5) * 4);
-              audio.playSwirlTick();
-              if (swirlProgress >= 100) {
-                formulaQuality = evaluateFormula();
-                phase = 3;
-                initTabletopDirt();
-                audio.playComboChime(4);
+          this.input.on('pointermove', (p) => {
+            if (this.phase !== 'swirl' || !p.isDown) return;
+            const ang = Phaser.Math.Angle.Between(640, 585, p.x, p.y);
+            if (this.swirlAnglePrev !== null) {
+              let delta = Phaser.Math.Angle.Wrap(ang - this.swirlAnglePrev);
+              const mag = Math.abs(delta);
+              if (mag > 0.03 && mag < 1.2) {
+                this.swirlProgress = Math.min(100, this.swirlProgress + mag * 18);
+                this.waveAmp = 8;
+                soundEngine.playSwirlTick();
+                this.swirlTxt.setText(`Đang chiết xuất tinh dầu (${Math.round(this.swirlProgress)}%)`);
+                if (this.swirlProgress >= 100) {
+                  this.finishBrewToTable();
+                }
               }
             }
+            this.swirlAnglePrev = ang;
+          });
+          this.input.on('pointerup', () => {
+            this.swirlAnglePrev = null;
+          });
+        }
+
+        evaluateFormula() {
+          const ord = this.currentOrder;
+          let pts = 100;
+          const notes = [];
+          const [pMin, pMax] = ord.targetPh;
+          if (this.currentPh < pMin || this.currentPh > pMax) {
+            pts -= 28;
+            notes.push(`pH ${this.currentPh.toFixed(1)} lệch vùng (${pMin}–${pMax})`);
           }
-          swirlAnglePrev = angle;
-        } else if (phase === 3 && wipeTool === 'cloth') {
-          if (lastPointer) {
-            const dist = Math.hypot(pt.x - lastPointer.x, pt.y - lastPointer.y);
-            const steps = Math.max(1, Math.ceil(dist / 10));
-            for (let i = 1; i <= steps; i++) {
-              const ix = lastPointer.x + ((pt.x - lastPointer.x) * i) / steps;
-              const iy = lastPointer.y + ((pt.y - lastPointer.y) * i) / steps;
-              eraseDirtAt(ix, iy);
+          Object.entries(ord.reqSolids).forEach(([k, need]) => {
+            if ((this.solids[k] || 0) < need) {
+              pts -= 20;
+              notes.push(k === 'orange' ? 'Thiếu Vỏ cam' : k === 'mint' ? 'Thiếu Lá bạc hà' : 'Thiếu Quế');
             }
-          } else {
-            eraseDirtAt(pt.x, pt.y);
+          });
+          if (this.vinegarMl < ord.reqVinegarMin) {
+            pts -= 14;
+            notes.push('Thiếu Giấm trắng');
           }
-          const rem = measureDirtRemainingPct();
-          cleanPct = Math.max(cleanPct, 100 - rem);
-          updateTopbarAndTicket();
-          if (cleanPct >= 94) {
-            completeShift();
+          if (this.waterMl < ord.reqWaterMin) {
+            pts -= 12;
+            notes.push('Thiếu Nước');
           }
+          const scorePct = Math.max(25, Math.min(100, pts));
+          const rank = scorePct >= 88 ? 'S' : scorePct >= 66 ? 'A' : 'B';
+          const reason = notes.length === 0 ? `Chuẩn công thức! ${ord.scienceNote}` : `${notes[0]}. ${ord.scienceNote}`;
+          return { scorePct, rank, reason };
         }
-        lastPointer = pt;
-      }
 
-      function handlePointerUp() {
-        pointerDown = false;
-        pouringId = null;
-        audio.stopPour();
-        swirlAnglePrev = null;
-
-        if (phase === 1 && dragging) {
-          const flask = getFlaskRect();
-          const droppedInFlask =
-            dragging.x >= flask.x - 18 &&
-            dragging.x <= flask.x + flask.w + 18 &&
-            dragging.y >= flask.y - 40 &&
-            dragging.y <= flask.y + flask.h;
-          if (droppedInFlask) {
-            if (dragging.spoiled) {
-              spoiledCount += 1;
-              spoiledItem = null;
-              combo = 1;
-              shakeFrames = 18;
-              triggerWaveImpulse(0.5, -15);
-              audio.playSpoilBuzz();
-              updateTopbarAndTicket();
-            } else {
-              addSolidToFlask(dragging.id, dragging.x);
-            }
-          }
-          dragging = null;
+        finishBrewToTable() {
+          this.phase = 'transition';
+          const quality = this.evaluateFormula();
+          this.swirlTxt.setText('Chiết xuất hoàn tất!');
+          this.cameras.main.fadeOut(320, 22, 42, 34);
+          this.cameras.main.once('camerafadeoutcomplete', () => {
+            this.scene.start('TableScene', {
+              order: this.currentOrder,
+              customerNum: this.customerNum,
+              dayCoins: this.dayCoins,
+              quality
+            });
+          });
         }
-      }
 
-      canvas.addEventListener('pointerdown', handlePointerDown);
-      window.addEventListener('pointermove', handlePointerMove, { passive: false });
-      window.addEventListener('pointerup', handlePointerUp);
-      window.addEventListener('pointercancel', handlePointerUp);
-
-      nextPhaseBtn.addEventListener('click', () => {
-        if (phase === 1 && liquidMl >= 95) {
-          phase = 2;
-          swirlProgress = 0;
-          audio.playComboChime(2);
-          updateTopbarAndTicket();
-        }
-      });
-
-      clothModeBtn.addEventListener('click', () => {
-        if (phase === 3) {
-          wipeTool = 'cloth';
-          updateTopbarAndTicket();
-        }
-      });
-
-      container.querySelector('#labSoundBtn').addEventListener('click', (e) => {
-        audio.enabled = !audio.enabled;
-        progress.soundEnabled = audio.enabled;
-        saveProgress(progress);
-        if (!audio.enabled) audio.stopPour();
-        e.target.textContent = audio.enabled ? 'Âm thanh: Bật' : 'Âm thanh: Tắt';
-      });
-
-      const recipeModal = container.querySelector('#labRecipeModal');
-      const recipeList = container.querySelector('#labRecipeList');
-      container.querySelector('#labRecipeBookBtn').addEventListener('click', () => {
-        recipeList.innerHTML = ORDERS.map((ord) => {
-          const unlocked = progress.unlockedRecipes.includes(ord.id);
-          return `
-            <div class="peel-lab-recipe-row ${unlocked ? 'unlocked' : ''}">
-              <div>
-                <strong>${ord.recipeName}</strong>
-                <p>${unlocked ? ord.brief : 'Hoàn thành ca với độ chuẩn >= 68% để mở khóa.'}</p>
-              </div>
-              <span class="peel-lab-recipe-badge">${unlocked ? 'Đã mở' : 'Chưa mở'}</span>
-            </div>
-          `;
-        }).join('');
-        recipeModal.classList.add('open');
-        recipeModal.setAttribute('aria-hidden', 'false');
-      });
-      container.querySelector('#closeLabRecipeBtn').addEventListener('click', () => {
-        recipeModal.classList.remove('open');
-        recipeModal.setAttribute('aria-hidden', 'true');
-      });
-      recipeModal.addEventListener('click', (e) => {
-        if (e.target === recipeModal) {
-          recipeModal.classList.remove('open');
-          recipeModal.setAttribute('aria-hidden', 'true');
-        }
-      });
-
-      // ===== 60FPS RENDER LOOP =====
-      let rafId = null;
-      let prevTime = performance.now();
-
-      function updatePhysics(dt) {
-        if (phase === 1 || phase === 2) {
-          // Pouring liquid
-          if (phase === 1 && pouringId && liquidMl < 220) {
-            const add = 38 * dt;
-            liquidMl = Math.min(220, liquidMl + add);
-            if (pouringId === 'vinegar') vinegarMl += add;
-            else if (pouringId === 'water') waterMl += add;
-            targetDisplayPh = computeLivePh();
-            triggerWaveImpulse(0.5, 1.4);
-            if (Math.random() < 0.45) {
-              const flask = getFlaskRect();
-              droplets.push({
-                x: flask.x + flask.w * 0.5 + (Math.random() - 0.5) * 8,
-                y: flask.y - 6,
-                vy: 140 + Math.random() * 40,
-                color: pouringId === 'vinegar' ? '#E6DFC8' : '#BFD8D2'
+        startCustomerVisit() {
+          this.phase = 'brew';
+          this.customerActive = true;
+          soundEngine.playDoorbell();
+          this.customerSprite.setTexture(`cust_${this.currentOrder.custIdx}_sad`).setPosition(460, 396).setAlpha(0);
+          this.tweens.add({
+            targets: this.customerSprite,
+            x: 640,
+            alpha: 1,
+            duration: 460,
+            ease: 'Back.easeOut',
+            onComplete: () => {
+              this.tweens.add({
+                targets: this.customerSprite,
+                y: 391,
+                duration: 1300,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
               });
             }
-            updateTopbarAndTicket();
+          });
+
+          this.bubbleSpeaker.setText(this.currentOrder.custName);
+          this.bubbleHint.setText(`Yêu cầu: ${this.currentOrder.hint}`);
+          this.bubbleText.setText('');
+          this.tweens.add({ targets: this.bubble, alpha: 1, duration: 240 });
+
+          // Typewriter dialogue
+          const fullTxt = this.currentOrder.dialogue;
+          let charIdx = 0;
+          this.time.addEvent({
+            delay: 18,
+            repeat: fullTxt.length - 1,
+            callback: () => {
+              charIdx += 1;
+              this.bubbleText.setText(fullTxt.slice(0, charIdx));
+            }
+          });
+        }
+
+        handleCustomerResult(res) {
+          const ord = res.order;
+          const q = res.quality;
+          this.customerSprite.setTexture(`cust_${ord.custIdx}_happy`).setPosition(640, 388).setAlpha(1);
+          this.tweens.add({
+            targets: this.customerSprite,
+            y: 372,
+            duration: 240,
+            yoyo: true,
+            repeat: 2,
+            ease: 'Sine.easeOut'
+          });
+
+          soundEngine.playComplete();
+          let earned = q.rank === 'S' ? 95 : q.rank === 'A' ? 65 : 35;
+          if (saveData.upgrades.crystalFlask) earned = Math.round(earned * 1.25);
+          if (q.rank === 'S') saveData.combo = Math.min(5, saveData.combo + 1);
+          else if (q.rank === 'B') saveData.combo = 1;
+          earned *= saveData.combo;
+
+          saveData.coins += earned;
+          saveData.bestScore = Math.max(saveData.bestScore, saveData.coins);
+          if (q.rank !== 'B' && !saveData.unlockedRecipes.includes(ord.id)) {
+            saveData.unlockedRecipes.push(ord.id);
+          }
+          writeSave(saveData);
+          if (typeof onScoreSaved === 'function') onScoreSaved(earned, saveData.bestScore);
+
+          this.hudCoinTxt.setText(`Xu: ${saveData.coins}`);
+          this.hudComboTxt.setText(`Combo x${saveData.combo}`);
+
+          // Burst stars
+          this.add.particles(640, 320, 'oil_dot', {
+            speed: { min: 70, max: 200 },
+            scale: { start: 0.6, end: 0 },
+            lifespan: 700,
+            quantity: 22,
+            emitting: false
+          }).explode(22, 640, 320);
+
+          const nextDayCoins = (res.dayCoins || 0) + earned;
+          const card = this.add.container(640, 360).setDepth(45);
+          const bg = this.add.graphics();
+          bg.fillStyle(0xf6f4ee, 0.98);
+          bg.lineStyle(2.5, 0x162a22, 1);
+          bg.fillRoundedRect(-250, -140, 500, 280, 16);
+          bg.strokeRoundedRect(-250, -140, 500, 280, 16);
+
+          const rankTitle = q.rank === 'S' ? 'HOÀN HẢO (HẠNG S)' : q.rank === 'A' ? 'ĐẠT CHUẨN (HẠNG A)' : 'CẦN CHỈNH TỶ LỆ (HẠNG B)';
+          const t1 = this.add.text(0, -104, rankTitle, {
+            fontFamily: '"Be Vietnam Pro", sans-serif',
+            fontSize: '14px',
+            fontWeight: '800',
+            color: q.rank === 'S' ? '#162A22' : '#A85432'
+          }).setOrigin(0.5);
+          const t2 = this.add.text(0, -68, `${ord.recipeName}  •  +${earned} Xu`, {
+            fontFamily: '"Cormorant Garamond", Georgia, serif',
+            fontSize: '28px',
+            fontWeight: '700',
+            color: '#162A22'
+          }).setOrigin(0.5);
+          const t3 = this.add.text(0, -5, q.reason, {
+            fontFamily: '"Be Vietnam Pro", sans-serif',
+            fontSize: '14px',
+            color: '#525B54',
+            align: 'center',
+            wordWrap: { width: 440 }
+          }).setOrigin(0.5);
+
+          const isEndOfDay = (res.customerNum || 1) >= 3;
+          const nextBtn = makeCozyButton(
+            this,
+            0,
+            88,
+            230,
+            44,
+            isEndOfDay ? 'Xem Tổng Kết Ngày →' : 'Khách tiếp theo →',
+            0x162a22,
+            '#F6F4EE',
+            () => {
+              soundEngine.playClick();
+              card.destroy();
+              if (isEndOfDay) {
+                this.showDaySummary(nextDayCoins);
+              } else {
+                this.scene.restart({ mode: 'play', customerNum: (res.customerNum || 1) + 1, dayCoins: nextDayCoins });
+              }
+            }
+          );
+
+          card.add([bg, t1, t2, t3, nextBtn]);
+        }
+
+        showDaySummary(dayCoins) {
+          const card = this.add.container(640, 360).setDepth(50);
+          const bg = this.add.graphics();
+          bg.fillStyle(0xf6f4ee, 0.99);
+          bg.lineStyle(3, 0x162a22, 1);
+          bg.fillRoundedRect(-260, -155, 520, 310, 16);
+          bg.strokeRoundedRect(-260, -155, 520, 310, 16);
+
+          const t1 = this.add.text(0, -110, `TỔNG KẾT NGÀY ${saveData.day}`, {
+            fontFamily: '"Cormorant Garamond", Georgia, serif',
+            fontSize: '34px',
+            fontWeight: '700',
+            color: '#162A22'
+          }).setOrigin(0.5);
+          const t2 = this.add.text(0, -50, `Doanh thu hôm nay: +${dayCoins} Xu Tinh Dầu\nTổng quỹ tiệm hiện có: ${saveData.coins} Xu`, {
+            fontFamily: '"Be Vietnam Pro", sans-serif',
+            fontSize: '16px',
+            color: '#525B54',
+            align: 'center',
+            lineSpacing: 8
+          }).setOrigin(0.5);
+
+          const upgBtn = makeCozyButton(this, -120, 68, 200, 44, 'Nâng cấp Tiệm', 0xf6f4ee, '#162A22', () => {
+            soundEngine.playClick();
+            this.openUpgradeModal();
+          });
+          const nextDayBtn = makeCozyButton(this, 120, 68, 210, 44, `Mở Ngày ${saveData.day + 1} →`, 0x162a22, '#F6F4EE', () => {
+            soundEngine.playClick();
+            saveData.day += 1;
+            writeSave(saveData);
+            card.destroy();
+            this.scene.restart({ mode: 'play', customerNum: 1, dayCoins: 0 });
+          });
+
+          card.add([bg, t1, t2, upgBtn, nextDayBtn]);
+        }
+
+        showTitleOverlay() {
+          const ov = this.add.container(640, 360).setDepth(55);
+          const dim = this.add.rectangle(0, 0, 1280, 720, 0x162a22, 0.45);
+          const card = this.add.graphics();
+          card.fillStyle(0xf6f4ee, 0.98);
+          card.lineStyle(2.5, 0x162a22, 1);
+          card.fillRoundedRect(-270, -170, 540, 340, 18);
+          card.strokeRoundedRect(-270, -170, 540, 340, 18);
+
+          const ey = this.add.text(0, -125, 'PEELVERSE • BOTANICAL LAB GAME', {
+            fontFamily: '"Be Vietnam Pro", sans-serif',
+            fontSize: '12px',
+            fontWeight: '700',
+            color: '#A85432'
+          }).setOrigin(0.5);
+          const title = this.add.text(0, -78, 'PEEL LAB', {
+            fontFamily: '"Cormorant Garamond", Georgia, serif',
+            fontSize: '52px',
+            fontWeight: '700',
+            color: '#162A22'
+          }).setOrigin(0.5);
+          const sub = this.add.text(0, -24, 'Tiệm Pha Chế Tinh Dầu Vỏ Cam\nKéo thả nguyên liệu • Khuấy chiết xuất • Xịt & lau sạch bề mặt', {
+            fontFamily: '"Be Vietnam Pro", sans-serif',
+            fontSize: '14.5px',
+            color: '#525B54',
+            align: 'center',
+            lineSpacing: 6
+          }).setOrigin(0.5);
+
+          const openBtn = makeCozyButton(this, 0, 62, 260, 48, `Mở cửa Tiệm (Ngày ${saveData.day})`, 0x162a22, '#F6F4EE', () => {
+            soundEngine.ensure();
+            soundEngine.playClick();
+            soundEngine.startMusic();
+            ov.destroy();
+            this.startCustomerVisit();
+          });
+          const upgBtn = makeCozyButton(this, 0, 124, 210, 40, `Nâng cấp Tiệm (${saveData.coins} Xu)`, 0xf6f4ee, '#162A22', () => {
+            soundEngine.ensure();
+            soundEngine.playClick();
+            this.openUpgradeModal();
+          });
+
+          ov.add([dim, card, ey, title, sub, openBtn, upgBtn]);
+        }
+
+        createModalContainer() {
+          this.modalGroup = this.add.container(640, 360).setDepth(70).setVisible(false);
+        }
+
+        openUpgradeModal() {
+          this.modalGroup.removeAll(true);
+          const dim = this.add.rectangle(0, 0, 1280, 720, 0x162a22, 0.55).setInteractive();
+          const bg = this.add.graphics();
+          bg.fillStyle(0xf6f4ee, 1);
+          bg.lineStyle(2.5, 0x162a22, 1);
+          bg.fillRoundedRect(-330, -230, 660, 460, 16);
+          bg.strokeRoundedRect(-330, -230, 660, 460, 16);
+
+          const title = this.add.text(-295, -200, `Cửa Hàng Nâng Cấp  •  Quỹ: ${saveData.coins} Xu`, {
+            fontFamily: '"Cormorant Garamond", Georgia, serif',
+            fontSize: '28px',
+            fontWeight: '700',
+            color: '#162A22'
+          });
+          const closeBtn = makeCozyButton(this, 275, -186, 70, 32, 'Đóng', 0x162a22, '#F6F4EE', () => {
+            soundEngine.playClick();
+            this.modalGroup.setVisible(false);
+          });
+          this.modalGroup.add([dim, bg, title, closeBtn]);
+
+          UPGRADES.forEach((up, idx) => {
+            const ry = -110 + idx * 82;
+            const owned = Boolean(saveData.upgrades[up.id]);
+            const rowBg = this.add.graphics();
+            rowBg.fillStyle(0xffffff, 1);
+            rowBg.lineStyle(1, 0x162a22, 0.18);
+            rowBg.fillRoundedRect(-295, ry - 28, 590, 66, 10);
+            rowBg.strokeRoundedRect(-295, ry - 28, 590, 66, 10);
+
+            const nm = this.add.text(-275, ry - 18, up.name, {
+              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontSize: '15px',
+              fontWeight: '700',
+              color: '#162A22'
+            });
+            const ds = this.add.text(-275, ry + 5, up.desc, {
+              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontSize: '12.5px',
+              color: '#525B54'
+            });
+            const actBtn = makeCozyButton(
+              this,
+              215,
+              ry + 4,
+              130,
+              36,
+              owned ? 'Đã sở hữu' : `Mua (${up.cost} Xu)`,
+              owned ? 0x4a7c59 : saveData.coins >= up.cost ? 0xa85432 : 0xd5d0c5,
+              '#FFFFFF',
+              () => {
+                if (owned || saveData.coins < up.cost) return;
+                soundEngine.playComplete();
+                saveData.coins -= up.cost;
+                saveData.upgrades[up.id] = true;
+                writeSave(saveData);
+                this.hudCoinTxt.setText(`Xu: ${saveData.coins}`);
+                this.openUpgradeModal();
+              }
+            );
+            this.modalGroup.add([rowBg, nm, ds, actBtn]);
+          });
+          this.modalGroup.setVisible(true);
+        }
+
+        openRecipeModal() {
+          this.modalGroup.removeAll(true);
+          const dim = this.add.rectangle(0, 0, 1280, 720, 0x162a22, 0.55).setInteractive();
+          const bg = this.add.graphics();
+          bg.fillStyle(0xf6f4ee, 1);
+          bg.lineStyle(2.5, 0x162a22, 1);
+          bg.fillRoundedRect(-330, -240, 660, 480, 16);
+          bg.strokeRoundedRect(-330, -240, 660, 480, 16);
+
+          const title = this.add.text(-295, -210, `Sổ Công Thức (${saveData.unlockedRecipes.length}/${ORDERS.length})`, {
+            fontFamily: '"Cormorant Garamond", Georgia, serif',
+            fontSize: '28px',
+            fontWeight: '700',
+            color: '#162A22'
+          });
+          const closeBtn = makeCozyButton(this, 275, -196, 70, 32, 'Đóng', 0x162a22, '#F6F4EE', () => {
+            soundEngine.playClick();
+            this.modalGroup.setVisible(false);
+          });
+          this.modalGroup.add([dim, bg, title, closeBtn]);
+
+          ORDERS.forEach((ord, idx) => {
+            const ry = -132 + idx * 72;
+            const unlocked = saveData.unlockedRecipes.includes(ord.id);
+            const rowBg = this.add.graphics();
+            rowBg.fillStyle(unlocked ? 0xffffff : 0xedeae2, 1);
+            rowBg.lineStyle(1, 0x162a22, 0.15);
+            rowBg.fillRoundedRect(-295, ry - 22, 590, 58, 8);
+            rowBg.strokeRoundedRect(-295, ry - 22, 590, 58, 8);
+            const nm = this.add.text(-275, ry - 14, ord.recipeName, {
+              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontSize: '14.5px',
+              fontWeight: '700',
+              color: '#162A22'
+            });
+            const ds = this.add.text(-275, ry + 8, unlocked ? ord.hint : 'Hoàn thành ca với Hạng A/S để mở khóa công thức.', {
+              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontSize: '12px',
+              color: '#525B54'
+            });
+            const badge = this.add.text(275, ry + 6, unlocked ? 'ĐÃ MỞ' : 'KHÓA', {
+              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontSize: '11px',
+              fontWeight: '700',
+              color: unlocked ? '#162A22' : '#7A7D78'
+            }).setOrigin(1, 0.5);
+            this.modalGroup.add([rowBg, nm, ds, badge]);
+          });
+          this.modalGroup.setVisible(true);
+        }
+
+        update(_time, delta) {
+          const dt = delta / 1000;
+          this.wavePhase += dt * 5.2;
+          this.waveAmp = Math.max(0.6, this.waveAmp * (1 - dt * 2.5));
+
+          // Pouring liquid
+          if (this.phase === 'brew' && this.pouringId && this.liquidMl < 220) {
+            const add = 44 * dt;
+            this.liquidMl = Math.min(220, this.liquidMl + add);
+            if (this.pouringId === 'vinegar') this.vinegarMl += add;
+            else this.waterMl += add;
+            this.waveAmp = 5.5;
+            this.recomputePh();
+
+            this.pourStreamG.clear();
+            this.pourStreamG.lineStyle(6, this.pouringId === 'vinegar' ? 0xdfd6ba : 0x9dc2bc, 0.9);
+            this.pourStreamG.beginPath();
+            this.pourStreamG.moveTo(662, 476);
+            this.pourStreamG.lineTo(645, 625);
+            this.pourStreamG.strokePath();
           }
 
           // Smooth pH needle
-          currentPh += (targetDisplayPh - currentPh) * Math.min(1, dt * 8);
+          this.currentPh += (this.targetPh - this.currentPh) * Math.min(1, dt * 8);
+          this.phLabelTxt.setText(`pH ${this.currentPh.toFixed(1)}`);
 
-          // 1D wave spring physics
-          const k = 120;
-          const damp = 4.2;
-          for (let i = 1; i < WAVE_N - 1; i++) {
-            const accel = k * ((waveY[i - 1] + waveY[i + 1]) * 0.5 - waveY[i]) - damp * waveV[i];
-            waveV[i] += accel * dt;
-          }
-          for (let i = 1; i < WAVE_N - 1; i++) {
-            waveY[i] += waveV[i] * dt;
-          }
+          // Draw dynamic liquid inside flask
+          this.liquidGraphics.clear();
+          if (this.liquidMl > 0) {
+            const ratio = Math.min(0.84, this.liquidMl / 220);
+            const bottomY = 668;
+            const topY = bottomY - 120 * ratio;
+            const halfW = 36 + (1 - ratio) * 24;
+            const colorHex =
+              this.solids.orange > 0 && this.solids.mint > 0
+                ? 0x7a9a58
+                : this.solids.orange > 0
+                ? 0xd98a2b
+                : this.solids.cinnamon > 0
+                ? 0xa85432
+                : this.solids.mint > 0
+                ? 0x4a7c59
+                : 0xbfd8d2;
 
-          // Spoiled peel hazard drift
-          if (phase === 1) {
-            nextSpoilTimer -= dt;
-            if (nextSpoilTimer <= 0 && !spoiledItem) {
-              spoiledItem = { x: -30, y: H * 0.34, vx: 58, r: 22 };
-              nextSpoilTimer = 11 + Math.random() * 6;
+            this.liquidGraphics.fillStyle(colorHex, 0.82);
+            this.liquidGraphics.beginPath();
+            this.liquidGraphics.moveTo(640 - 62, bottomY);
+            for (let x = -halfW; x <= halfW; x += 6) {
+              const wy = Math.sin(this.wavePhase + x * 0.08) * this.waveAmp;
+              this.liquidGraphics.lineTo(640 + x, topY + wy);
             }
-            if (spoiledItem && !(dragging && dragging.spoiled)) {
-              spoiledItem.x += spoiledItem.vx * dt;
-              if (spoiledItem.x > W + 40) spoiledItem = null;
-            }
+            this.liquidGraphics.lineTo(640 + 62, bottomY);
+            this.liquidGraphics.closePath();
+            this.liquidGraphics.fillPath();
           }
-        }
 
-        // Particles
-        for (let i = droplets.length - 1; i >= 0; i--) {
-          droplets[i].y += droplets[i].vy * dt;
-          if (droplets[i].y > H) droplets.splice(i, 1);
-        }
-        for (let i = oilParticles.length - 1; i >= 0; i--) {
-          const p = oilParticles[i];
-          p.x += p.vx * dt;
-          p.y += p.vy * dt;
-          p.vy *= 0.96;
-          p.vx *= 0.96;
-          if (phase === 2) {
-            const flask = getFlaskRect();
-            const cx = flask.x + flask.w * 0.5;
-            const cy = flask.y + flask.h * 0.62;
-            const ang = Math.atan2(p.y - cy, p.x - cx) + 0.08;
-            const rad = Math.max(12, Math.hypot(p.x - cx, p.y - cy) * 0.99);
-            p.x = cx + Math.cos(ang) * rad;
-            p.y = cy + Math.sin(ang) * rad;
+          // Draw Brass pH Column
+          this.phGraphics.clear();
+          const px = 748;
+          const py = 526;
+          const phH = 140;
+          this.phGraphics.fillStyle(0xf6f4ee, 0.95);
+          this.phGraphics.lineStyle(2, 0x162a22, 0.85);
+          this.phGraphics.fillRoundedRect(px, py, 16, phH, 7);
+          this.phGraphics.strokeRoundedRect(px, py, 16, phH, 7);
+
+          const [tMin, tMax] = this.currentOrder.targetPh;
+          const y1 = py + ((tMin - 2) / 7) * phH;
+          const y2 = py + ((tMax - 2) / 7) * phH;
+          this.phGraphics.fillStyle(0x4a7c59, saveData.upgrades.labPhMeter ? 0.85 : 0.45);
+          this.phGraphics.fillRect(px + 2, y1, 12, Math.max(8, y2 - y1));
+
+          const ptrY = py + ((this.currentPh - 2) / 7) * phH;
+          this.phGraphics.fillStyle(0xa85432, 1);
+          this.phGraphics.fillTriangle(px + 18, ptrY, px + 28, ptrY - 5, px + 28, ptrY + 5);
+
+          // Swirl ring
+          this.swirlRingG.clear();
+          if (this.phase === 'swirl') {
+            this.swirlRingG.lineStyle(4, 0xd98a2b, 0.35);
+            this.swirlRingG.strokeCircle(640, 585, 58);
+            this.swirlRingG.lineStyle(5, 0xd98a2b, 1);
+            this.swirlRingG.beginPath();
+            this.swirlRingG.arc(640, 585, 58, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * this.swirlProgress) / 100);
+            this.swirlRingG.strokePath();
           }
-        }
-        for (let i = mistParticles.length - 1; i >= 0; i--) {
-          const m = mistParticles[i];
-          m.x += m.vx * dt;
-          m.y += m.vy * dt;
-          m.life -= dt;
-          if (m.life <= 0) mistParticles.splice(i, 1);
-        }
-        for (let i = sparkles.length - 1; i >= 0; i--) {
-          sparkles[i].life -= dt;
-          if (sparkles[i].life <= 0) sparkles.splice(i, 1);
-        }
 
-        if (shakeFrames > 0) shakeFrames -= 1;
-
-        // Timer countdown
-        if (phase < 4) {
-          timeLeft = Math.max(0, timeLeft - dt);
-          const fill = container.querySelector('#labTimerFill');
-          const num = container.querySelector('#labTimerNum');
-          if (fill) fill.style.width = `${Math.round((timeLeft / 75) * 100)}%`;
-          if (num) num.textContent = `${Math.ceil(timeLeft)}s`;
-          if (timeLeft <= 0) {
-            formulaQuality = evaluateFormula();
-            completeShift();
+          // Patience countdown
+          if (this.customerActive && (this.phase === 'brew' || this.phase === 'swirl')) {
+            this.patienceLeft = Math.max(0, this.patienceLeft - dt);
+            const pct = this.patienceLeft / this.patienceMax;
+            this.patienceBar.clear();
+            this.patienceBar.fillStyle(pct > 0.3 ? 0x4a7c59 : 0xa85432, 1);
+            this.patienceBar.fillRoundedRect(-155, 76, 310 * pct, 10, 5);
           }
         }
       }
 
-      function drawBrewScene() {
-        const flask = getFlaskRect();
-        const shakeX = shakeFrames > 0 ? (Math.random() - 0.5) * 8 : 0;
-        const fx = flask.x + shakeX;
-        const fy = flask.y;
-        const fw = flask.w;
-        const fh = flask.h;
-
-        // Background shop scene (assets/game/bg-shop.png)
-        if (gameAssets.bgShop.complete && gameAssets.bgShop.naturalWidth > 0) {
-          ctx.save();
-          ctx.globalAlpha = 0.88;
-          ctx.drawImage(gameAssets.bgShop, 0, 0, W, H);
-          ctx.restore();
-        } else {
-          ctx.fillStyle = '#EAE5D9';
-          ctx.fillRect(0, fy + fh - 10, W, H - (fy + fh - 10));
+      // ===== TABLE SCENE (PHASE 3: SPRAY & WIPE ON TABLE_TOP) =====
+      class TableScene extends Phaser.Scene {
+        constructor() {
+          super({ key: 'TableScene' });
         }
 
-        // Customer avatar at counter corner (assets/game/customers-sheet.png 4x2 grid: 256x286/cell)
-        if (gameAssets.customersSheet.complete && gameAssets.customersSheet.naturalWidth > 0) {
-          const cw = gameAssets.customersSheet.naturalWidth / 4;
-          const ch = gameAssets.customersSheet.naturalHeight / 2;
-          const custCol = (shiftNumber - 1) % 4;
-          const custRow = phase === 4 ? 1 : 0;
-          const custSize = W < 560 ? 74 : 104;
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(16 + custSize * 0.5, 16 + custSize * 0.5, custSize * 0.48, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(246, 244, 238, 0.94)';
-          ctx.fill();
-          ctx.strokeStyle = 'rgba(22, 42, 34, 0.25)';
-          ctx.lineWidth = 2;
-          ctx.stroke();
-          ctx.clip();
-          ctx.drawImage(
-            gameAssets.customersSheet,
-            custCol * cw,
-            custRow * ch,
-            cw,
-            ch,
-            16,
-            16,
-            custSize,
-            custSize
-          );
-          ctx.restore();
+        init(data) {
+          this.dataIn = data;
         }
 
-        // Flask liquid fill clipped inside glass silhouette
-        ctx.save();
-        ctx.beginPath();
-        ctx.roundRect(fx + 6, fy + 18, fw - 12, fh - 24, [10, 10, 28, 28]);
-        ctx.clip();
+        create() {
+          this.cameras.main.fadeIn(280, 22, 42, 34);
+          this.add.image(640, 360, 'table_top').setDisplaySize(1280, 720);
 
-        if (liquidMl > 0) {
-          const fillRatio = Math.min(0.88, liquidMl / 220);
-          const surfaceY = fy + fh - 10 - (fh - 34) * fillRatio;
+          const quality = this.dataIn.quality;
+          const order = this.dataIn.order;
 
-          ctx.fillStyle = computeLiquidColor();
-          ctx.beginPath();
-          ctx.moveTo(fx, fy + fh);
-          for (let i = 0; i < WAVE_N; i++) {
-            const wx = fx + (i / (WAVE_N - 1)) * fw;
-            ctx.lineTo(wx, surfaceY + waveY[i]);
+          // RenderTexture dirt layer across center tabletop
+          this.rtX = 230;
+          this.rtY = 140;
+          this.rtW = 820;
+          this.rtH = 440;
+          this.dirtRt = this.add.renderTexture(this.rtX, this.rtY, this.rtW, this.rtH).setOrigin(0, 0).setDepth(5);
+
+          // Stamp organic stains onto RenderTexture
+          const stainColor =
+            order.stainTheme === 'grease' || order.stainTheme === 'mixed'
+              ? 0xb87624
+              : order.stainTheme === 'mold'
+              ? 0x526444
+              : order.stainTheme === 'dust'
+              ? 0x8e928c
+              : 0xa85432;
+
+          const stampG = this.make.graphics({ add: false });
+          this.stains = [];
+          for (let i = 0; i < 6; i++) {
+            const sx = 140 + (i % 3) * 260 + Phaser.Math.Between(-35, 35);
+            const sy = 120 + Math.floor(i / 3) * 195 + Phaser.Math.Between(-25, 25);
+            this.stains.push({ x: this.rtX + sx, y: this.rtY + sy, sprayed: false });
+            stampG.clear();
+            stampG.fillStyle(stainColor, 0.72);
+            stampG.fillCircle(80, 80, 58);
+            stampG.fillStyle(stainColor, 0.45);
+            stampG.fillCircle(42, 65, 32);
+            stampG.fillCircle(118, 96, 28);
+            this.dirtRt.draw(stampG, sx - 80, sy - 80);
           }
-          ctx.lineTo(fx + fw, fy + fh);
-          ctx.closePath();
-          ctx.fill();
 
-          // Suspended essential oil droplets
-          oilParticles.forEach((p) => {
-            ctx.fillStyle = p.color;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fill();
-          });
-        }
-        ctx.restore();
+          this.tool = 'spray'; // 'spray' | 'cloth'
+          this.cleanPct = 0;
+          this.totalWipeMoves = 0;
+          this.doneFlag = false;
 
-        // Pouring stream
-        if (pouringId) {
-          ctx.strokeStyle = pouringId === 'vinegar' ? '#DFD6BA' : '#9DC2BC';
-          ctx.lineWidth = 6;
-          ctx.lineCap = 'round';
-          ctx.beginPath();
-          ctx.moveTo(fx + fw * 0.5, fy - 24);
-          ctx.lineTo(fx + fw * 0.5, fy + fh * 0.55);
-          ctx.stroke();
-        }
+          // Top cozy HUD
+          const hudBg = this.add.graphics().setDepth(20);
+          hudBg.fillStyle(0xf6f4ee, 0.95);
+          hudBg.lineStyle(2, 0x162a22, 0.9);
+          hudBg.fillRoundedRect(240, 18, 800, 48, 12);
+          hudBg.strokeRoundedRect(240, 18, 800, 48, 12);
 
-        // Glass flask outline + specular highlight + ml ticks
-        ctx.strokeStyle = '#162A22';
-        ctx.lineWidth = 2.4;
-        ctx.beginPath();
-        ctx.roundRect(fx, fy + 16, fw, fh - 16, [8, 8, 30, 30]);
-        ctx.stroke();
+          this.statusTxt = this.add
+            .text(640, 42, 'Bước 1: Bấm vào từng mảng bẩn để XỊT tinh dầu D-Limonene!', {
+              fontFamily: '"Be Vietnam Pro", sans-serif',
+              fontSize: '15px',
+              fontWeight: '700',
+              color: '#162A22'
+            })
+            .setOrigin(0.5)
+            .setDepth(21);
 
-        // Rim
-        ctx.fillStyle = '#F6F4EE';
-        ctx.strokeStyle = '#162A22';
-        ctx.beginPath();
-        ctx.roundRect(fx - 8, fy + 6, fw + 16, 12, 6);
-        ctx.fill();
-        ctx.stroke();
+          // Tool buttons at bottom
+          this.sprayBtn = makeCozyButton(this, 535, 665, 190, 44, 'Chai xịt tinh dầu', 0xa85432, '#F6F4EE', () => {
+            soundEngine.playClick();
+            this.setTool('spray');
+          }).setDepth(22);
 
-        // Glass reflection
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(fx + 14, fy + 34);
-        ctx.lineTo(fx + 14, fy + fh - 32);
-        ctx.stroke();
+          this.clothBtn = makeCozyButton(this, 745, 665, 190, 44, 'Khăn vải linen', 0xf6f4ee, '#162A22', () => {
+            soundEngine.playClick();
+            this.setTool('cloth');
+          }).setDepth(22);
 
-        // ml ticks
-        ctx.fillStyle = 'rgba(22, 42, 34, 0.55)';
-        ctx.font = '600 10px "Be Vietnam Pro", sans-serif';
-        [50, 100, 150, 200].forEach((ml) => {
-          const ty = fy + fh - 10 - (fh - 34) * (ml / 220);
-          ctx.fillRect(fx + fw - 16, ty, 10, 1.5);
-          ctx.fillText(`${ml}`, fx + fw - 38, ty + 3);
-        });
+          // Active cursor prop follower
+          this.cursorProp = this.add.image(640, 360, 'prop_spray').setDisplaySize(86, 100).setDepth(30).setAlpha(0.92);
 
-        // Live pH Meter Column on the right of flask
-        const phX = fx + fw + (W < 560 ? 18 : 34);
-        const phY = fy + 22;
-        const phH = fh - 36;
-        const phW = 14;
-        const phGrad = ctx.createLinearGradient(0, phY, 0, phY + phH);
-        phGrad.addColorStop(0, '#A85432'); // pH 2
-        phGrad.addColorStop(0.35, '#D98A2B'); // pH 4
-        phGrad.addColorStop(0.7, '#4A7C59'); // pH 7
-        phGrad.addColorStop(1, '#2B4C7E'); // pH 9
-        ctx.fillStyle = phGrad;
-        ctx.beginPath();
-        ctx.roundRect(phX, phY, phW, phH, 7);
-        ctx.fill();
+          const wipeRadiusScale =
+            (quality.rank === 'S' ? 1.25 : quality.rank === 'A' ? 0.95 : 0.65) *
+            (saveData.upgrades.wideSpray ? 1.4 : 1.0);
 
-        // Target pH bracket
-        const [tMin, tMax] = currentOrder.targetPh;
-        const yMin = phY + ((tMin - 2) / 7) * phH;
-        const yMax = phY + ((tMax - 2) / 7) * phH;
-        ctx.strokeStyle = '#162A22';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(phX - 3, yMin, phW + 6, yMax - yMin);
+          this.input.on('pointermove', (p) => {
+            this.cursorProp.setPosition(p.x + 18, p.y - 12);
+            if (!p.isDown || this.tool !== 'cloth' || this.doneFlag) return;
+            const lx = p.x - this.rtX;
+            const ly = p.y - this.rtY;
+            if (lx >= -30 && lx <= this.rtW + 30 && ly >= -30 && ly <= this.rtH + 30) {
+              const brush = this.make.image({ key: 'wipe_brush', add: false }).setScale(wipeRadiusScale);
+              this.dirtRt.erase(brush, lx, ly);
+              brush.destroy();
+              soundEngine.playWipe();
+              this.totalWipeMoves += 1;
 
-        // Current pH pointer
-        const ptrY = phY + ((currentPh - 2) / 7) * phH;
-        ctx.fillStyle = '#162A22';
-        ctx.beginPath();
-        ctx.moveTo(phX + phW + 4, ptrY);
-        ctx.lineTo(phX + phW + 13, ptrY - 5);
-        ctx.lineTo(phX + phW + 13, ptrY + 5);
-        ctx.closePath();
-        ctx.fill();
-        ctx.font = '700 11px "Be Vietnam Pro", sans-serif';
-        ctx.fillText(`pH ${currentPh.toFixed(1)}`, phX - 6, phY - 8);
+              this.add.particles(p.x, p.y, 'dust_dot', {
+                speed: { min: 20, max: 60 },
+                scale: { start: 0.35, end: 0 },
+                lifespan: 320,
+                quantity: 2,
+                emitting: false
+              }).explode(2, p.x, p.y);
 
-        // Phase 2 swirl ring
-        if (phase === 2) {
-          const cx = fx + fw * 0.5;
-          const cy = fy + fh * 0.55;
-          ctx.strokeStyle = 'rgba(217, 138, 43, 0.45)';
-          ctx.lineWidth = 4;
-          ctx.setLineDash([8, 6]);
-          ctx.beginPath();
-          ctx.arc(cx, cy, 46, 0, Math.PI * 2);
-          ctx.stroke();
-          ctx.setLineDash([]);
-
-          ctx.strokeStyle = '#D98A2B';
-          ctx.lineWidth = 5;
-          ctx.beginPath();
-          ctx.arc(cx, cy, 46, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * swirlProgress) / 100);
-          ctx.stroke();
-
-          ctx.fillStyle = '#162A22';
-          ctx.font = '700 13px "Be Vietnam Pro", sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText(`Khuấy ${Math.round(swirlProgress)}%`, cx, cy + 5);
-          ctx.textAlign = 'left';
-        }
-
-        // Shelf 5 ingredients (using props-sheet.png 4x2 grid when loaded)
-        const propCellMap = {
-          citrus: [0, 1],
-          cinnamon: [1, 1],
-          mint: [2, 1],
-          vinegar: [2, 0],
-          water: [3, 0]
-        };
-        if (phase === 1) {
-          getShelfCards().forEach(({ ing, x, y, w, h }) => {
-            const active = pouringId === ing.id;
-            ctx.fillStyle = active ? '#E8E3D8' : 'rgba(255, 255, 255, 0.94)';
-            ctx.strokeStyle = active ? '#162A22' : 'rgba(22, 42, 34, 0.18)';
-            ctx.lineWidth = active ? 2 : 1;
-            ctx.beginPath();
-            ctx.roundRect(x, y, w, h, 8);
-            ctx.fill();
-            ctx.stroke();
-
-            const imgSize = W < 560 ? 38 : 46;
-            const cell = propCellMap[ing.id];
-            if (cell && gameAssets.propsSheet.complete && gameAssets.propsSheet.naturalWidth > 0) {
-              const pw = gameAssets.propsSheet.naturalWidth / 4;
-              const ph = gameAssets.propsSheet.naturalHeight / 2;
-              ctx.drawImage(
-                gameAssets.propsSheet,
-                cell[0] * pw,
-                cell[1] * ph,
-                pw,
-                ph,
-                x + (w - imgSize) * 0.5,
-                y + 4,
-                imgSize,
-                imgSize
-              );
-            } else {
-              const im = imgMap.get(ing.id);
-              if (im && im.complete && im.naturalWidth > 0) {
-                ctx.save();
-                ctx.beginPath();
-                ctx.roundRect(x + (w - imgSize) * 0.5, y + 6, imgSize, imgSize, 6);
-                ctx.clip();
-                ctx.drawImage(im, x + (w - imgSize) * 0.5, y + 6, imgSize, imgSize);
-                ctx.restore();
-              } else {
-                ctx.fillStyle = ing.color;
-                ctx.beginPath();
-                ctx.arc(x + w * 0.5, y + 26, 15, 0, Math.PI * 2);
-                ctx.fill();
+              const targetMoves = quality.rank === 'S' ? 32 : quality.rank === 'A' ? 48 : 68;
+              this.cleanPct = Math.min(100, Math.round((this.totalWipeMoves / targetMoves) * 100));
+              this.statusTxt.setText(`Bước 2: Kéo khăn lau sạch mặt bàn (${this.cleanPct}%)`);
+              if (this.cleanPct >= 100) {
+                this.finishCleaning();
               }
             }
-
-            ctx.fillStyle = '#162A22';
-            ctx.font = `600 ${W < 560 ? 10 : 11.5}px "Be Vietnam Pro", sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.fillText(ing.name, x + w * 0.5, y + h - 14);
-            ctx.fillStyle = '#525B54';
-            ctx.font = `500 ${W < 560 ? 8.5 : 9.5}px "Be Vietnam Pro", sans-serif`;
-            ctx.fillText(ing.type === 'liquid' ? 'Giữ để rót' : 'Kéo thả', x + w * 0.5, y + h - 4);
-            ctx.textAlign = 'left';
           });
 
-          // Spoiled hazard floating
-          if (spoiledItem && !(dragging && dragging.spoiled)) {
-            ctx.fillStyle = '#6D6547';
-            ctx.beginPath();
-            ctx.arc(spoiledItem.x, spoiledItem.y, spoiledItem.r, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = '#3F3A26';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            ctx.fillStyle = '#F6F4EE';
-            ctx.font = '700 9.5px "Be Vietnam Pro", sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('Vỏ mốc', spoiledItem.x, spoiledItem.y + 3);
-            ctx.textAlign = 'left';
-          }
+          this.input.on('pointerdown', (p) => {
+            if (p.y > 615 || this.doneFlag) return;
+            if (this.tool === 'spray') {
+              soundEngine.playSpray();
+              this.add.particles(p.x, p.y, 'oil_dot', {
+                speed: { min: 40, max: 130 },
+                scale: { start: 0.45, end: 0 },
+                lifespan: 420,
+                quantity: 16,
+                emitting: false
+              }).explode(16, p.x, p.y);
 
-          // Dragged item
-          if (dragging) {
-            ctx.fillStyle = dragging.spoiled ? '#6D6547' : INGREDIENTS.find((x) => x.id === dragging.id)?.color || '#D98A2B';
-            ctx.beginPath();
-            ctx.arc(dragging.x, dragging.y, 20, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = '#162A22';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-          }
-        }
-      }
-
-      function drawTabletopScene() {
-        const tb = getTableRect();
-        // Bright stone tabletop (assets/game/table-top.png)
-        ctx.save();
-        ctx.beginPath();
-        ctx.roundRect(tb.x, tb.y, tb.w, tb.h, 14);
-        ctx.clip();
-        if (gameAssets.tableTop.complete && gameAssets.tableTop.naturalWidth > 0) {
-          ctx.drawImage(gameAssets.tableTop, tb.x, tb.y, tb.w, tb.h);
-        } else {
-          ctx.fillStyle = '#EAE6DC';
-          ctx.fillRect(tb.x, tb.y, tb.w, tb.h);
-        }
-        ctx.restore();
-        ctx.strokeStyle = 'rgba(22, 42, 34, 0.2)';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.roundRect(tb.x, tb.y, tb.w, tb.h, 14);
-        ctx.stroke();
-
-        // Offscreen dirt mask
-        if (dirtCanvas) {
-          ctx.drawImage(dirtCanvas, tb.x, tb.y);
-        }
-
-        // Spray targets indicators in spray mode
-        if (wipeTool === 'spray') {
-          sprayedStains.forEach((st) => {
-            ctx.strokeStyle = st.sprayed ? '#4A7C59' : '#A85432';
-            ctx.lineWidth = 2;
-            ctx.setLineDash(st.sprayed ? [] : [5, 4]);
-            ctx.beginPath();
-            ctx.arc(st.x, st.y, st.r * 0.72, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.setLineDash([]);
+              this.stains.forEach((st) => {
+                if (!st.sprayed && Phaser.Math.Distance.Between(p.x, p.y, st.x, st.y) < 95) {
+                  st.sprayed = true;
+                }
+              });
+              const doneSprays = this.stains.filter((s) => s.sprayed).length;
+              if (doneSprays >= this.stains.length) {
+                this.setTool('cloth');
+              } else {
+                this.statusTxt.setText(`Đã xịt ${doneSprays}/${this.stains.length} mảng bẩn — Chạm tiếp các vết còn lại!`);
+              }
+            }
           });
         }
 
-        // Golden mist particles
-        mistParticles.forEach((m) => {
-          ctx.fillStyle = `rgba(217, 138, 43, ${Math.max(0, m.life)})`;
-          ctx.beginPath();
-          ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
-          ctx.fill();
-        });
-
-        // Clean sparkles
-        sparkles.forEach((sp) => {
-          ctx.strokeStyle = `rgba(22, 42, 34, ${Math.max(0, sp.life)})`;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(sp.x - sp.r, sp.y);
-          ctx.lineTo(sp.x + sp.r, sp.y);
-          ctx.moveTo(sp.x, sp.y - sp.r);
-          ctx.lineTo(sp.x, sp.y + sp.r);
-          ctx.stroke();
-        });
-      }
-
-      function loop(now) {
-        const dt = Math.min(0.05, (now - prevTime) / 1000);
-        prevTime = now;
-
-        updatePhysics(dt);
-
-        ctx.clearRect(0, 0, W, H);
-        ctx.fillStyle = '#F6F4EE';
-        ctx.fillRect(0, 0, W, H);
-
-        if (phase === 1 || phase === 2) {
-          drawBrewScene();
-        } else {
-          drawTabletopScene();
+        setTool(nextTool) {
+          this.tool = nextTool;
+          this.cursorProp.setTexture(nextTool === 'spray' ? 'prop_spray' : 'prop_cloth');
+          this.cursorProp.setDisplaySize(nextTool === 'spray' ? 86 : 96, nextTool === 'spray' ? 100 : 80);
+          if (nextTool === 'cloth') {
+            this.statusTxt.setText(`Bước 2: Giữ & kéo khăn vải lau sạch các vết bẩn (${this.cleanPct}%)`);
+          }
         }
 
-        rafId = requestAnimationFrame(loop);
+        finishCleaning() {
+          if (this.doneFlag) return;
+          this.doneFlag = true;
+          this.dirtRt.clear();
+          this.statusTxt.setText('Mặt bàn đã sạch bóng tinh tươm!');
+          this.cameras.main.fadeOut(380, 22, 42, 34);
+          this.cameras.main.once('camerafadeoutcomplete', () => {
+            this.scene.start('ShopScene', {
+              mode: 'cleaned',
+              order: this.dataIn.order,
+              customerNum: this.dataIn.customerNum,
+              dayCoins: this.dataIn.dayCoins,
+              quality: this.dataIn.quality
+            });
+          });
+        }
       }
 
-      resizeCanvas();
-      window.addEventListener('resize', resizeCanvas);
-      resetShift(1);
-      rafId = requestAnimationFrame(loop);
-
-      activeCleanup = () => {
-        if (rafId) cancelAnimationFrame(rafId);
-        audio.stopPour();
-        window.removeEventListener('resize', resizeCanvas);
-        window.removeEventListener('pointermove', handlePointerMove);
-        window.removeEventListener('pointerup', handlePointerUp);
-        window.removeEventListener('pointercancel', handlePointerUp);
-      };
+      activeGame = new Phaser.Game({
+        type: Phaser.AUTO,
+        parent: 'phaserMount',
+        width: 1280,
+        height: 720,
+        backgroundColor: '#162A22',
+        scale: {
+          mode: Phaser.Scale.FIT,
+          autoCenter: Phaser.Scale.CENTER_BOTH
+        },
+        scene: [BootScene, ShopScene, TableScene]
+      });
+      activeGame._soundEngine = soundEngine;
     }
   };
 })();

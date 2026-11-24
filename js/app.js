@@ -1620,14 +1620,14 @@
     update();
   }
 
-  // ===== 06. PEEL LAB — CANVAS 2D EXTRACTION GAME =====
+  // ===== 06. PEEL LAB — PHASER 3 COZY 2D GAME =====
   function renderGameHub(view) {
-    view.innerHTML = `<div id="peelLabMount"></div>`;
+    view.innerHTML = `<div id="peelLabMount" class="peel-lab-mount"></div>`;
     const mount = view.querySelector('#peelLabMount');
     if (mount && GAMES && GAMES.mountLab) {
-      GAMES.mountLab(mount, (shiftScore, bestScore) => {
+      GAMES.mountLab(mount, (dayScore, bestScore) => {
         state.clearedGames[1] = Math.max(state.clearedGames[1] || 0, bestScore);
-        addNotification(`PEEL LAB: Đạt ${shiftScore} điểm (Kỷ lục: ${bestScore} điểm)!`);
+        addNotification(`PEEL LAB: Hoàn thành ca (+${dayScore} Xu, Kỷ lục: ${bestScore} Xu)!`);
         saveState();
       });
     }

@@ -1,6 +1,8 @@
 (() => {
   const DATA = window.PEELVERSE_DATA;
+  const GAMES = window.PEELVERSE_GAMES;
   const STORAGE_KEY = 'peelverse_progress_v1';
+  const SESSION_ROUTE_KEY = 'peelverse_session_route_v1';
   const CART_STORAGE_KEY = 'peelverse_cart_v1';
 
   const defaultState = {
@@ -81,12 +83,29 @@
   let cart = loadCart(); // [{ id, qty }]
   let lastOrderSummary = null;
 
-  const initialRouteParam = new URLSearchParams(window.location.search).get('route');
-  const allowedInitialRoutes = new Set(['home', 'about', 'shop', 'my-orders', 'lab', 'ingredients', 'process', 'science', 'creator']);
-  let currentRoute = allowedInitialRoutes.has(initialRouteParam) ? initialRouteParam : 'home';
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialRouteParam = urlParams.get('route');
+  const initialHash = (window.location.hash || '').toLowerCase();
+  const savedRoute = (() => {
+    try {
+      return localStorage.getItem(SESSION_ROUTE_KEY) || '';
+    } catch {
+      return '';
+    }
+  })();
+  const allowedInitialRoutes = new Set(['home', 'about', 'shop', 'my-orders', 'lab', 'ingredients', 'process', 'science', 'game', 'creator']);
+  let currentRoute =
+    initialHash === '#mo-phong'
+      ? 'game'
+      : allowedInitialRoutes.has(initialRouteParam)
+      ? initialRouteParam
+      : allowedInitialRoutes.has(savedRoute)
+      ? savedRoute
+      : 'home';
   let activeLabTab = 'ingredients'; // 'ingredients' | 'process' | 'science'
   let activeIngredientId = null;
   let activeScienceId = null;
+  let activeGameStageId = null;
   let ingredientFilter = 'Tất cả';
   let ingredientSort = 'default';
   let scienceFilter = 'Tất cả';
@@ -687,6 +706,7 @@
   }
 
   function navigate(route, param = null) {
+    if (GAMES && GAMES.cleanup) GAMES.cleanup();
     const resolvedRoute = route === 'lab' ? activeLabTab : route;
     if (resolvedRoute === 'ingredients' || resolvedRoute === 'process' || resolvedRoute === 'science') {
       activeLabTab = resolvedRoute;
@@ -694,7 +714,20 @@
     currentRoute = resolvedRoute;
     activeIngredientId = resolvedRoute === 'ingredient-detail' ? param : null;
     activeScienceId = resolvedRoute === 'science-detail' ? param : null;
-    document.body.classList.remove('in-game-play');
+    activeGameStageId = resolvedRoute === 'game-play' ? param : null;
+    document.body.classList.toggle('in-game-play', resolvedRoute === 'game-play');
+
+    try {
+      localStorage.setItem(SESSION_ROUTE_KEY, resolvedRoute === 'game-play' ? 'game' : resolvedRoute);
+    } catch {
+      // ignore
+    }
+    if (window.history && window.history.replaceState) {
+      const nextHash = resolvedRoute === 'game' || resolvedRoute === 'game-play' ? '#mo-phong' : '';
+      if (window.location.hash !== nextHash) {
+        window.history.replaceState({}, document.title, window.location.pathname + window.location.search + nextHash);
+      }
+    }
 
     const topNavKey =
       resolvedRoute === 'home' || resolvedRoute === 'about'
@@ -707,6 +740,8 @@
           resolvedRoute === 'science' ||
           resolvedRoute === 'science-detail'
         ? 'lab'
+        : resolvedRoute === 'game' || resolvedRoute === 'game-play'
+        ? 'game'
         : '';
 
     document.querySelectorAll('.primary-nav-link, .bottom-nav-item[data-route]').forEach((btn) => {
@@ -744,6 +779,8 @@
     else if (currentRoute === 'process') renderProcess(view);
     else if (currentRoute === 'science') renderScience(view);
     else if (currentRoute === 'science-detail') renderScienceDetail(view, activeScienceId);
+    else if (currentRoute === 'game') renderGameHub(view);
+    else if (currentRoute === 'game-play') renderGamePlay(view, activeGameStageId);
     else if (currentRoute === 'shop') renderShop(view);
     else if (currentRoute === 'my-orders') {
       shopViewTab = 'orders';
@@ -763,7 +800,7 @@
           <span class="eyebrow-tag">PEELVERSE • FROM PEEL TO PURPOSE</span>
           <h1 class="editorial-hero-title">Tận dụng vỏ trái cây cho giải pháp làm sạch hằng ngày.</h1>
           <p class="editorial-hero-desc">
-            PEELVERSE nghiên cứu và thử nghiệm chiết xuất tinh dầu từ vỏ cam, chanh, bưởi sẵn có trong đời sống — hướng tới dung dịch hỗ trợ làm sạch dầu mỡ nhẹ trên bề mặt và giảm mùi hóa chất nồng.
+            PEELVERSE nghiên cứu và thử nghiệm chiết xuất tinh dầu từ vỏ cam sẵn có trong đời sống — hướng tới dung dịch hỗ trợ làm sạch dầu mỡ nhẹ trên bề mặt và giảm mùi hóa chất nồng.
           </p>
           <div class="editorial-hero-actions">
             <button type="button" class="btn btn-primary" data-nav="shop">Khám phá Cửa hàng</button>
@@ -790,7 +827,7 @@
             <span class="eyebrow-tag">KHỞI NGUỒN • SỨ MỆNH • TẦM NHÌN</span>
             <h2 class="serif-heading" style="font-size:clamp(1.7rem,3vw,2.3rem);margin:6px 0 14px;">Giải pháp làm sạch từ những điều quen thuộc.</h2>
             <p>
-              PEELVERSE bắt đầu từ những điều rất quen thuộc trong cuộc sống nội trú. Sau mỗi bữa ăn, vỏ cam, chanh, quýt thường bị bỏ đi khá nhiều, trong khi mặt bàn ăn lại cần một dung dịch hỗ trợ làm sạch dịu nhẹ, giảm mùi hóa chất nồng.
+              PEELVERSE bắt đầu từ những điều rất quen thuộc trong cuộc sống nội trú. Sau mỗi bữa ăn, vỏ cam thường bị bỏ đi khá nhiều, trong khi mặt bàn ăn lại cần một dung dịch hỗ trợ làm sạch dịu nhẹ, giảm mùi hóa chất nồng.
             </p>
             <p class="editorial-quote">
               “Dự án đang được nghiên cứu và thử nghiệm trong đời sống để tận dụng nguồn vỏ trái cây sẵn có một cách thiết thực và tiết kiệm.”
@@ -843,7 +880,7 @@
         <div class="about-story-text">
           <p class="lead">PEELVERSE bắt đầu từ những điều rất quen thuộc trong cuộc sống nội trú.</p>
           <p>
-            Sau mỗi bữa ăn, chúng tôi tự dọn dẹp bàn ăn, và nhận ra rằng những loại rác hữu cơ như vỏ cam, chanh, quýt hay trái cây thường bị bỏ đi khá nhiều. Trong khi đó, bàn ăn sau khi sử dụng lại thường có những vết bẩn nhưng chưa có sẵn dung dịch lau bàn phù hợp để xử lý.
+            Sau mỗi bữa ăn, chúng tôi tự dọn dẹp bàn ăn, và nhận ra rằng những loại rác hữu cơ như vỏ cam hay vỏ trái cây thường bị bỏ đi khá nhiều. Trong khi đó, bàn ăn sau khi sử dụng lại thường có những vết bẩn nhưng chưa có sẵn dung dịch lau bàn phù hợp để xử lý.
           </p>
           <p class="highlight-quote">
             Từ những điều tưởng chừng nhỏ bé ấy, chúng tôi bắt đầu đặt câu hỏi: Liệu những vỏ trái cây thường bị bỏ đi có thể được tận dụng để tạo ra một dung dịch lau bàn?
@@ -885,12 +922,12 @@
         <div class="impact-card">
           <div class="impact-num">20–30%</div>
           <h4 style="margin-bottom:6px;">Trọng lượng bị bỏ đi</h4>
-          <p style="font-size:0.86rem;color:var(--text-muted);">Phần lớn vỏ cam, chanh, quýt sau bữa ăn bị vứt chung với rác sinh hoạt hằng ngày.</p>
+          <p style="font-size:0.86rem;color:var(--text-muted);">Phần lớn vỏ cam sau bữa ăn bị vứt chung với rác sinh hoạt hằng ngày.</p>
         </div>
         <div class="impact-card">
           <div class="impact-num">70–95%</div>
           <h4 style="margin-bottom:6px;">Hàm lượng D-Limonene</h4>
-          <p style="font-size:0.86rem;color:var(--text-muted);">Tinh dầu tự nhiên trong vỏ họ cam quýt chứa Limonene — hợp chất hỗ trợ làm sạch dầu mỡ nhẹ.</p>
+          <p style="font-size:0.86rem;color:var(--text-muted);">Tinh dầu tự nhiên trong vỏ cam chứa Limonene — hợp chất hỗ trợ làm sạch dầu mỡ nhẹ.</p>
         </div>
         <div class="impact-card">
           <div class="impact-num">100%</div>
@@ -1123,7 +1160,7 @@
       {
         term: 'D-Limonene',
         formula: 'C₁₀H₁₆',
-        desc: 'Hợp chất hydrocarbon không phân cực chiếm 70–95% trong tinh dầu vỏ cam, chanh, bưởi. Nhờ tính không phân cực, D-Limonene phá vỡ liên kết và hòa tan nhanh các vết dầu mỡ tự nhiên.'
+        desc: 'Hợp chất hydrocarbon không phân cực chiếm 70–95% trong tinh dầu vỏ cam và vỏ bưởi. Nhờ tính không phân cực, D-Limonene phá vỡ liên kết và hòa tan nhanh các vết dầu mỡ tự nhiên.'
       },
       {
         term: 'Enzyme sinh học',
@@ -1165,38 +1202,11 @@
         answer: 'Enzyme tự nhiên giúp phân giải mảng bám thức ăn và dầu mỡ nhẹ nhàng, giúp chén bát sạch nhanh, ít tốn nước tráng và dịu nhẹ cho da tay.'
       },
       {
-        frontTag: 'Vỏ chanh & Giấm',
+        frontTag: 'Vỏ cam & Giấm',
         icon: 'ph-sparkle',
         accent: '#0284C7',
         question: 'Độ pH lý tưởng của dung dịch lau bàn từ vỏ quả là bao nhiêu?',
         answer: 'Khoảng pH 3.5 – 4.5 (axit dịu nhẹ): đủ để làm sạch cặn khoáng & vết ố nhẹ trên bàn ăn nhưng vẫn êm dịu hơn nhiều so với hóa chất tẩy mạnh.'
-      }
-    ];
-
-    const miniQuiz = [
-      {
-        q: 'Hoạt chất chính trong vỏ cam, bưởi giúp hòa tan vết dầu mỡ là gì?',
-        opts: ['D-Limonene', 'Natri clorua (muối ăn)', 'Tinh bột'],
-        ans: 0,
-        exp: 'Chính xác! D-Limonene (C₁₀H₁₆) là hợp chất không phân cực hòa tan tốt dầu mỡ.'
-      },
-      {
-        q: 'Vùng độ pH của dung dịch làm sạch vỏ quả PEELVERSE sau pha loãng thường nằm ở mức nào?',
-        opts: ['pH 12 – 13 (kiềm rất mạnh)', 'pH 3.5 – 4.5 (axit dịu nhẹ)', 'pH 0 – 1 (axit đặc)'],
-        ans: 1,
-        exp: 'Đúng rồi! pH 3.5 – 4.5 giúp làm sạch vết bẩn nhẹ nhàng và thân thiện hơn với bề mặt bàn thông thường.'
-      },
-      {
-        q: 'Ưu điểm nổi bật của nước lau rửa sinh học từ vỏ trái cây so với hóa chất công nghiệp là gì?',
-        opts: ['Phân hủy sinh học tự nhiên, ít gây khô rát da tay', 'Có mùi clo nồng hơn', 'Không thể hòa tan dầu mỡ'],
-        ans: 0,
-        exp: 'Chuẩn xác! Hợp chất thực vật phân hủy sinh học nhanh và hạn chế tồn dư hóa chất độc hại.'
-      },
-      {
-        q: 'Thao tác cắt nhỏ vỏ cam thành miếng đồng đều 1.5–2 cm nhằm mục đích gì?',
-        opts: ['Trang trí cho đẹp', 'Tăng diện tích tiếp xúc giúp chiết xuất tinh dầu nhanh hơn', 'Làm giảm mùi thơm của vỏ'],
-        ans: 1,
-        exp: 'Tuyệt vời! Diện tích tiếp xúc lớn hơn giúp dung môi thấm sâu và chiết xuất hiệu quả hơn.'
       }
     ];
 
@@ -1213,7 +1223,7 @@
           <span class="hero-badge" style="background:rgba(45,106,79,0.12);color:#1E4D2B;">INTERACTIVE SCIENCE LAB • PEELVERSE</span>
           <h1 class="page-title" style="margin-bottom:8px;">${PVIcon('book-open', 28)} <span>Khoa học đằng sau vỏ trái cây</span></h1>
           <p style="color:var(--text-muted);max-width:640px;font-size:0.94rem;">
-            Khám phá cơ chế hóa học tự nhiên biến vỏ cam, bưởi, chanh, dứa thành giải pháp làm sạch sinh học qua sơ đồ trực quan và thư viện kiến thức.
+            Khám phá cơ chế hóa học tự nhiên biến vỏ cam, bưởi, dứa thành giải pháp làm sạch sinh học qua sơ đồ trực quan và thư viện kiến thức.
           </p>
         </div>
 
@@ -1590,7 +1600,7 @@
     const slider = view.querySelector('#phSlider');
     const readout = view.querySelector('#phReadout');
     const describePh = (val) => {
-      if (val <= 2) return { type: 'Axit mạnh', sample: 'Nước cốt chanh đậm đặc / Axit pin' };
+      if (val <= 2) return { type: 'Axit mạnh', sample: 'Axit đậm đặc / Axit pin' };
       if (val <= 3.5) return { type: 'Axit nhẹ', sample: 'Giấm trắng (~2.5–3.0) — nguyên liệu PEELVERSE' };
       if (val <= 5.5) return { type: 'Axit dịu nhẹ', sample: 'Dung dịch PEELVERSE sau pha loãng (~3.5–4.5)' };
       if (val < 7) return { type: 'Axit rất nhẹ', sample: 'Nước mưa, sữa tươi' };
@@ -1610,7 +1620,125 @@
     update();
   }
 
-  // ===== 06. CREATOR STUDIO ROUTE =====
+  // ===== 06. GAME HUB & PLAY (6 EXTRACTION STAGES) =====
+  function getPlayerRank(clearedCount, totalScore) {
+    if (clearedCount >= 6 || totalScore >= 900) {
+      return { title: 'Bậc thầy PEELVERSE', icon: 'ph-crown', color: '#D97706', bg: '#FEF3C7' };
+    }
+    if (clearedCount >= 3 || totalScore >= 350) {
+      return { title: 'Chuyên gia Chiết xuất', icon: 'ph-flask', color: '#059669', bg: '#D1FAE5' };
+    }
+    return { title: 'Tân binh Tái sinh', icon: 'ph-plant', color: '#2D6A4F', bg: '#E6F4E8' };
+  }
+
+  function renderGameHub(view) {
+    const clearedCount = Object.keys(state.clearedGames).length;
+    const totalScore = Object.values(state.clearedGames).reduce((a, b) => a + b, 0);
+    const rank = getPlayerRank(clearedCount, totalScore);
+
+    view.innerHTML = `
+      <section class="editorial-page-header">
+        <div class="editorial-page-header-left">
+          <span class="eyebrow-tag">MÔ PHỎNG TƯƠNG TÁC • 06 CÔNG ĐOẠN</span>
+          <h1 class="editorial-h1">Mô phỏng chiết xuất</h1>
+          <p class="editorial-sub">Thực hành 6 công đoạn phòng lab biến vỏ cam thành dung dịch làm sạch sinh học.</p>
+        </div>
+        <div class="editorial-page-header-right">
+          <div class="sim-inline-summary">
+            <span><strong>${clearedCount}/6</strong> công đoạn</span>
+            <span class="hairline-sep">|</span>
+            <span><strong>${totalScore}</strong> điểm</span>
+            <span class="hairline-sep">|</span>
+            <span>${rank.title}</span>
+          </div>
+          <button class="btn btn-primary btn-sm" id="startFirstStageBtn">Bắt đầu mô phỏng →</button>
+        </div>
+      </section>
+
+      <section class="game-stages-grid">
+        ${GAMES.stages
+          .map((st) => {
+            const best = state.clearedGames[st.id] || 0;
+            const isCleared = best > 0;
+            const stars = GAMES.getStarsForScore(st, best);
+            const pct = Math.min(100, Math.round((best / (st.maxScore || 200)) * 100));
+            const starsHtml = [1, 2, 3]
+              .map(
+                (i) =>
+                  `<span class="editorial-star ${i <= stars ? 'lit' : ''}" aria-hidden="true">★</span>`
+              )
+              .join('');
+
+            return `
+            <article class="stage-card-v2 stage-editorial ${isCleared ? 'cleared' : ''}">
+              <div class="stage-editorial-media" data-stage="${st.id}" role="button" tabindex="0" aria-label="Mở công đoạn ${st.num}: ${st.title}">
+                <img src="${st.image || 'assets/images/explore-game.jpg'}" alt="Công đoạn ${st.num}: ${st.title}" loading="lazy" onerror="this.onerror=null;this.src='assets/images/explore-game.jpg';" />
+                <span class="stage-media-num">${st.num}</span>
+                <span class="stage-media-status ${isCleared ? 'done' : ''}">
+                  ${isCleared ? 'Hoàn thành' : 'Chưa thực hiện'}
+                </span>
+              </div>
+
+              <div class="stage-card-v2-body">
+                <div class="stage-card-meta-row">
+                  <span class="eyebrow-tag">CÔNG ĐOẠN ${st.num}</span>
+                  <div class="stage-stars-row" aria-label="${stars}/3 sao">${starsHtml}</div>
+                </div>
+                <h3 class="serif-heading" style="font-size:1.35rem;">${st.title}</h3>
+                <p class="stage-desc-v2">${st.desc}</p>
+
+                <div class="stage-score-meter">
+                  <div class="stage-score-labels">
+                    <span>Điểm cao nhất</span>
+                    <strong>${best} / ${st.maxScore}</strong>
+                  </div>
+                  <div class="stage-mini-track">
+                    <div class="stage-mini-fill" style="width:${pct}%;"></div>
+                  </div>
+                </div>
+
+                <button class="btn ${isCleared ? 'btn-secondary' : 'btn-primary'} btn-sm" style="width:100%;margin-top:8px;" data-stage="${st.id}">
+                  ${isCleared ? 'Thực hành lại' : 'Mở công đoạn →'}
+                </button>
+              </div>
+            </article>
+          `;
+          })
+          .join('')}
+      </section>
+    `;
+
+    view.querySelector('#startFirstStageBtn').addEventListener('click', () => {
+      const nextStage = GAMES.stages.find((s) => !state.clearedGames[s.id])?.id || 1;
+      navigate('game-play', nextStage);
+    });
+
+    view.querySelectorAll('[data-stage]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        navigate('game-play', Number(btn.dataset.stage));
+      });
+    });
+  }
+
+  function renderGamePlay(view, stageId) {
+    GAMES.mountStage(
+      stageId,
+      view,
+      (completedId, score) => {
+        const prev = state.clearedGames[completedId] || 0;
+        if (score > prev) {
+          state.clearedGames[completedId] = score;
+        }
+        addNotification(`Hoàn thành Màn ${completedId} với ${score} điểm!`);
+        showToast(`Màn ${completedId} hoàn tất (+${score} điểm)`);
+        triggerEcoConfetti();
+        saveState();
+      },
+      () => navigate('game')
+    );
+  }
+
+  // ===== 07. CREATOR STUDIO ROUTE =====
   function renderCreatorRoute(view) {
     const auth = window.PEELVERSE_AUTH;
     const user = auth && auth.getUser ? auth.getUser() : null;
@@ -1990,6 +2118,7 @@
       { title: ' Khám phá nguyên liệu', desc: `Danh sách ${DATA.ingredients.length} nguyên liệu nghiên cứu và đặc tính`, group: 'Điều hướng', action: () => navigate('ingredients') },
       { title: ' Quy trình thực hiện', desc: '6 bước thu gom, làm sạch, sơ chế, chiết xuất, lọc & đánh giá', group: 'Điều hướng', action: () => navigate('process') },
       { title: ' Kiến thức khoa học', desc: '7 bài học về tinh dầu, limonene, độ pH, chiết xuất, kinh tế tuần hoàn', group: 'Điều hướng', action: () => navigate('science') },
+      { title: ' Mô phỏng chiết xuất', desc: '6 màn chơi tương tác tạo dung dịch lau bàn từ vỏ cam', group: 'Điều hướng', action: () => navigate('game') },
       { title: ' Cửa hàng sinh học', desc: 'Nước lau rửa, nước rửa chén enzyme & xịt khử mùi từ vỏ trái cây', group: 'Điều hướng', action: () => navigate('shop') },
       { title: ' Đăng ký bán hàng', desc: 'Xác minh độ tuổi (18+) & CCCD để mở gian hàng trên PEELVERSE', group: 'Điều hướng', action: () => { window.location.href = './seller-register.html'; } }
     ];
@@ -2029,6 +2158,13 @@
           focusElementWithPulse(`[data-step-card="${p.step}"]`);
         }
       })),
+      ...GAMES.stages.map((g) => ({
+        title: `${g.emoji} Màn ${g.id}: ${g.title}`,
+        desc: g.desc,
+        group: 'Mô phỏng',
+        searchBlob: normalizeVi(`man ${g.id} mo phong mini game tro choi ${g.title} ${g.desc}`),
+        action: () => navigate('game-play', g.id)
+      })),
       ...getAllShopProducts().map((sp) => ({
         title: `${sp.name}`,
         desc: `${formatVND(sp.price)} • ${sp.category}`,
@@ -2059,7 +2195,7 @@
       }
     ];
 
-    const quickChips = ['Vỏ cam', 'Lá bạc hà', 'Limonene', 'Độ pH', 'Nước lau rửa', 'Đăng ký bán hàng'];
+    const quickChips = ['Vỏ cam', 'Lá bạc hà', 'Limonene', 'Độ pH', 'Mô phỏng', 'Nước lau rửa', 'Đăng ký bán hàng'];
     let flatMatches = [];
     let activeIdx = -1;
 

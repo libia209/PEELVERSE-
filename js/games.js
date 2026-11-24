@@ -11,7 +11,7 @@ window.PEELVERSE_GAMES = {
       accentBg: 'linear-gradient(135deg, #FFF1E3 0%, #FDE0C2 100%)',
       glow: 'rgba(234, 88, 12, 0.22)',
       maxScore: 200,
-      scienceTip: 'Vỏ cam, chanh, quýt tươi không nấm mốc chứa hàm lượng tinh dầu D-Limonene cao nhất ở lớp vỏ ngoài (flavedo).',
+      scienceTip: 'Vỏ cam tươi không nấm mốc chứa hàm lượng tinh dầu D-Limonene cao nhất ở lớp vỏ ngoài (flavedo).',
       desc: 'Chọn và thu thập các loại vỏ trái cây phù hợp vào giỏ, phân biệt nguyên liệu nên sử dụng và không nên sử dụng.'
     },
     {
@@ -195,16 +195,16 @@ window.PEELVERSE_GAMES = {
     if (stageId === 6) this.runStage6(board, hud, feedback, finishStage);
   },
 
-  // STAGE 1: Collect good fruit peels, avoid bad/unsuitable items
+  // STAGE 1: Collect good Lab ingredients, avoid bad/unsuitable items
   runStage1(board, hud, feedback, finishStage) {
     const items = [
-      { id: 1, emoji: '🍊', name: 'Vỏ cam tươi', good: true, note: 'Giàu tinh dầu D-Limonene!' },
-      { id: 2, emoji: '🍋', name: 'Vỏ chanh vàng', good: true, note: 'Hương thơm tươi mát, sạch dầu mỡ!' },
+      { id: 1, img: 'assets/images/ing-citrus.jpg', emoji: '🍊', name: 'Vỏ cam tươi', good: true, note: 'Giàu tinh dầu D-Limonene!' },
+      { id: 2, img: 'assets/images/ing-vinegar.jpg', emoji: '🧪', name: 'Giấm trắng sạch', good: true, note: 'Tạo môi trường axit nhẹ hỗ trợ chiết xuất!' },
       { id: 3, emoji: '🧫', name: 'Vỏ cam bị mốc', good: false, note: 'Không dùng vỏ bị nấm mốc vì làm hỏng mẫu thử.' },
-      { id: 4, emoji: '🍊', name: 'Vỏ quýt tươi', good: true, note: 'Rất giàu tinh dầu họ cam quýt!' },
+      { id: 4, img: 'assets/images/la-bac-ha.png', emoji: '🌿', name: 'Lá bạc hà tươi', good: true, note: 'Giàu tinh dầu menthol tạo hương the mát!' },
       { id: 5, emoji: '🥤', name: 'Ống hút nhựa', good: false, note: 'Rác thải nhựa không thể dùng để chiết xuất!' },
-      { id: 6, emoji: '🌿', name: 'Thanh quế khô', good: true, note: 'Tạo hương thơm ấm áp tự nhiên.' },
-      { id: 7, emoji: '🍋', name: 'Vỏ chanh xanh', good: true, note: 'Nguyên liệu tuyệt vời cho PEELVERSE!' },
+      { id: 6, img: 'assets/images/ing-cinnamon.jpg', emoji: '🪵', name: 'Thanh quế khô', good: true, note: 'Tạo hương thơm ấm áp tự nhiên.' },
+      { id: 7, img: 'assets/images/ing-water.jpg', emoji: '💧', name: 'Nước lọc sạch', good: true, note: 'Dung môi pha loãng an toàn!' },
       { id: 8, emoji: '🗑️', name: 'Giấy ăn bẩn', good: false, note: 'Tạp chất không phù hợp với quy trình nghiên cứu.' }
     ].sort(() => Math.random() - 0.5);
 
@@ -227,7 +227,9 @@ window.PEELVERSE_GAMES = {
       <div class="collect-grid">
         ${items.map((item) => `
           <button class="collect-item" data-id="${item.id}">
-            <span class="item-emoji">${item.emoji}</span>
+            ${item.img
+              ? `<img src="${item.img}" alt="${item.name}" class="collect-item-img" />`
+              : `<span class="item-emoji">${item.emoji}</span>`}
             <span class="item-name">${item.name}</span>
           </button>
         `).join('')}
@@ -384,13 +386,14 @@ window.PEELVERSE_GAMES = {
     });
   },
 
-  // STAGE 4: Match ingredients to their scientific roles
+  // STAGE 4: Match the 5 Lab ingredients to their scientific roles
   runStage4(board, hud, feedback, finishStage) {
     const pairs = [
-      { id: 'citrus', left: '🍊 Vỏ cam, chanh, quýt', right: 'Cung cấp tinh dầu tự nhiên & Limonene' },
-      { id: 'vinegar', left: '🧪 Giấm trắng', right: 'Tạo môi trường axit nhẹ, hỗ trợ làm sạch cặn khoáng' },
-      { id: 'water', left: '💧 Nước sạch', right: 'Pha loãng dung dịch và hỗ trợ tiếp xúc' },
-      { id: 'cinnamon', left: '🌿 Quế', right: 'Tạo hương thơm ấm áp có nguồn gốc thực vật' }
+      { id: 'citrus', img: 'assets/images/ing-citrus.jpg', left: 'Vỏ cam', right: 'Cung cấp tinh dầu tự nhiên & Limonene' },
+      { id: 'vinegar', img: 'assets/images/ing-vinegar.jpg', left: 'Giấm trắng', right: 'Tạo môi trường axit nhẹ, hỗ trợ làm sạch cặn khoáng' },
+      { id: 'water', img: 'assets/images/ing-water.jpg', left: 'Nước', right: 'Pha loãng dung dịch và hỗ trợ tiếp xúc' },
+      { id: 'cinnamon', img: 'assets/images/ing-cinnamon.jpg', left: 'Quế', right: 'Tạo hương thơm ấm áp có nguồn gốc thực vật' },
+      { id: 'mint', img: 'assets/images/la-bac-ha.png', left: 'Lá bạc hà', right: 'Tạo hương the mát, cân bằng mùi giấm & khử mùi' }
     ];
     const shuffledRight = [...pairs].sort(() => Math.random() - 0.5);
 
@@ -412,7 +415,7 @@ window.PEELVERSE_GAMES = {
       </p>
       <div class="match-layout">
         <div class="match-col" id="leftCol">
-          ${pairs.map((p) => `<button class="match-card" data-side="left" data-id="${p.id}">${p.left}</button>`).join('')}
+          ${pairs.map((p) => `<button class="match-card" data-side="left" data-id="${p.id}"><img src="${p.img}" alt="${p.left}" class="match-card-thumb" /><span>${p.left}</span></button>`).join('')}
         </div>
         <div class="match-col" id="rightCol">
           ${shuffledRight.map((p) => `<button class="match-card" data-side="right" data-id="${p.id}">${p.right}</button>`).join('')}

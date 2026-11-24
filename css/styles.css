@@ -9435,3 +9435,53 @@ body.seller-register-page .site-footer {
   justify-content: center;
   cursor: pointer;
 }
+
+
+/* =========================================================================
+   5-TAB NAV NOWRAP, 16:9 GAME STAGE MEDIA & GAME INGREDIENT THUMBNAILS
+   ========================================================================= */
+.primary-nav-link {
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.stage-editorial-media {
+  aspect-ratio: 16 / 9 !important;
+}
+
+.stage-editorial-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.collect-item-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(22, 42, 34, 0.12);
+}
+
+.match-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.match-card-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid rgba(22, 42, 34, 0.12);
+}
+
+@media (max-width: 768px) {
+  .bottom-nav-item {
+    font-size: 10.5px;
+    padding: 6px 2px;
+  }
+}

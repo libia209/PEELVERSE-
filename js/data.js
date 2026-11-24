@@ -9,15 +9,15 @@ window.PEELVERSE_DATA = {
   ingredients: [
     {
       id: 'citrus-peel',
-      name: 'Vỏ cam, chanh, quýt',
+      name: 'Vỏ cam',
       emoji: '',
       category: 'Trái cây',
       isCore: true,
       image: 'assets/images/ing-citrus.jpg',
       shortRole: 'Nguồn nguyên liệu thực vật chứa các hợp chất tạo mùi và tinh dầu',
-      description: 'Vỏ cam, chanh, quýt sau bữa ăn chứa nhiều túi tinh dầu tự nhiên ở lớp vỏ ngoài (flavedo). Khi nghiên cứu và chiết xuất đúng cách, chúng có thể được tận dụng cho dung dịch làm sạch bề mặt hằng ngày.',
+      description: 'Vỏ cam sau bữa ăn chứa nhiều túi tinh dầu tự nhiên ở lớp vỏ ngoài (flavedo). Khi nghiên cứu và chiết xuất đúng cách, chúng có thể được tận dụng cho dung dịch làm sạch bề mặt hằng ngày.',
       composition: [
-        'D-Limonene (chiếm tới 70–95% thành phần tinh dầu vỏ cam quýt)',
+        'D-Limonene (chiếm tới 70–95% thành phần tinh dầu vỏ cam)',
         'Các terpene tự nhiên như myrcene, alpha-pinene, linalool',
         'Flavonoid và chất xơ thực vật'
       ],
@@ -99,13 +99,13 @@ window.PEELVERSE_DATA = {
         'Chất tạo màu tự nhiên giúp dung dịch có sắc hổ phách nhẹ'
       ],
       properties: [
-        'Tỏa hương thơm dịu ấm, bền mùi hơn so với hương cam chanh đơn thuần',
+        'Tỏa hương thơm dịu ấm, bền mùi hơn so với hương vỏ cam đơn thuần',
         'Hỗ trợ khử mùi thức ăn bám trên bàn ăn sau bữa ăn',
         'Bổ sung sắc màu tự nhiên bắt mắt cho mẫu thử'
       ],
       researchRole: 'Nguyên liệu bổ trợ hương thơm thực vật, cải thiện trải nghiệm cảm quan của dung dịch lau bàn PEELVERSE.',
       notes: [
-        'Chỉ sử dụng lượng vừa phải (1–2 thanh nhỏ) để không lấn át hương cam chanh.',
+        'Chỉ sử dụng lượng vừa phải (1–2 thanh nhỏ) để không lấn át hương vỏ cam.',
         'Cần lọc kỹ cặn vỏ quế sau khi chiết xuất để tránh làm tắc đầu xịt.'
       ]
     },
@@ -125,10 +125,10 @@ window.PEELVERSE_DATA = {
       ],
       properties: [
         'Tạo tầng hương the mát dễ chịu, giúp cân bằng mùi chua của giấm trắng',
-        'Kết hợp hài hòa với tinh dầu D-Limonene từ vỏ cam, chanh, quýt để hỗ trợ khử mùi trên bề mặt',
+        'Kết hợp hài hòa với tinh dầu D-Limonene từ vỏ cam để hỗ trợ khử mùi trên bề mặt',
         'Nguồn gốc thực vật lành tính, dễ phân hủy sinh học'
       ],
-      researchRole: 'Tạo tầng hương the mát dễ chịu, giúp cân bằng mùi chua của giấm trắng và kết hợp hài hòa với tinh dầu D-Limonene từ vỏ cam, chanh, quýt để hỗ trợ khử mùi trên bề mặt.',
+      researchRole: 'Tạo tầng hương the mát dễ chịu, giúp cân bằng mùi chua của giấm trắng và kết hợp hài hòa với tinh dầu D-Limonene từ vỏ cam để hỗ trợ khử mùi trên bề mặt.',
       notes: [
         'Chọn lá tươi sạch, rửa kỹ và để ráo trước khi ngâm.',
         'Sử dụng tỷ lệ vừa phải để không lấn át hương vỏ quả.',
@@ -144,7 +144,7 @@ window.PEELVERSE_DATA = {
       emoji: '',
       image: 'assets/images/step-1-collect.jpg',
       summary: 'Thu gom vỏ trái cây, phân loại và ghi nhận tình trạng nguyên liệu.',
-      details: 'Sau mỗi bữa ăn tại khu nội trú, vỏ cam, chanh, quýt được thu gom riêng khỏi rác thải sinh hoạt thông thường. Nhóm tiến hành phân loại để loại bỏ những phần bị dập sâu, nấm mốc hoặc lẫn tạp chất.',
+      details: 'Sau mỗi bữa ăn tại khu nội trú, vỏ cam được thu gom riêng khỏi rác thải sinh hoạt thông thường. Nhóm tiến hành phân loại để loại bỏ những phần bị dập sâu, nấm mốc hoặc lẫn tạp chất.',
       tip: 'Ghi chép khối lượng và độ tươi của vỏ giúp theo dõi sự đồng nhất giữa các mẻ thử nghiệm.'
     },
     {
@@ -199,18 +199,18 @@ window.PEELVERSE_DATA = {
       id: 'essential-oils',
       category: 'Hoạt chất & Tinh dầu',
       title: 'Tinh dầu và hợp chất tự nhiên',
-      subtitle: 'Vì sao vỏ cam, chanh có mùi đặc trưng?',
+      subtitle: 'Vì sao vỏ cam có mùi đặc trưng?',
       emoji: '',
       color: '#FCE7D6',
-      summary: 'Khám phá những túi tinh dầu siêu nhỏ nằm ngay dưới bề mặt vỏ các loại quả có múi.',
+      summary: 'Khám phá những túi tinh dầu siêu nhỏ nằm ngay dưới bề mặt vỏ cam.',
       content: [
         'Khi bạn bóp nhẹ một miếng vỏ cam tươi, những tia sương li ti bắn ra mang theo hương thơm nồng nàn — đó chính là tinh dầu tự nhiên thoát ra từ hàng nghìn túi dầu (oil glands) nằm ở lớp vỏ ngoài màu cam/vàng (gọi là lớp flavedo).',
         'Tinh dầu thực chất là hỗn hợp của nhiều hợp chất hữu cơ dễ bay hơi (terpene, aldehyde, ester...). Trong tự nhiên, cây có múi tạo ra tinh dầu để tự bảo vệ trước côn trùng và nấm mốc.',
-        'Nhờ tính chất thơm tự nhiên và khả năng hòa tan chất béo nhẹ, tinh dầu vỏ cam chanh được ứng dụng rất rộng rãi trong các sản phẩm làm sạch thân thiện môi trường.'
+        'Nhờ tính chất thơm tự nhiên và khả năng hòa tan chất béo nhẹ, tinh dầu vỏ cam được ứng dụng rất rộng rãi trong các sản phẩm làm sạch thân thiện môi trường.'
       ],
-      keyTakeaway: 'Hương thơm đặc trưng của vỏ cam chanh đến từ các hợp chất hữu cơ dễ bay hơi chứa trong túi tinh dầu ở lớp vỏ ngoài.',
+      keyTakeaway: 'Hương thơm đặc trưng của vỏ cam đến từ các hợp chất hữu cơ dễ bay hơi chứa trong túi tinh dầu ở lớp vỏ ngoài.',
       quiz: {
-        question: 'Túi tinh dầu của quả cam, chanh tập trung chủ yếu ở bộ phận nào?',
+        question: 'Túi tinh dầu của quả cam tập trung chủ yếu ở bộ phận nào?',
         options: [
           'Lớp vỏ ngoài có màu (flavedo)',
           'Lớp cùi trắng bên trong',
@@ -227,13 +227,13 @@ window.PEELVERSE_DATA = {
       subtitle: 'Một hợp chất phổ biến trong tinh dầu của nhiều loại quả có múi',
       emoji: '',
       color: '#E2EAD1',
-      summary: 'Tìm hiểu về D-Limonene — "người hùng" giúp hòa tan vết dầu mỡ nhẹ trong vỏ cam quýt.',
+      summary: 'Tìm hiểu về D-Limonene — hợp chất giúp hòa tan vết dầu mỡ nhẹ trong vỏ cam.',
       content: [
-        'D-Limonene là một hợp chất hydrocarbon thuộc nhóm monoterpene với công thức phân tử C₁₀H₁₆, chiếm từ 70% đến hơn 90% thành phần tinh dầu trong vỏ cam, quýt và chanh.',
+        'D-Limonene là một hợp chất hydrocarbon thuộc nhóm monoterpene với công thức phân tử C₁₀H₁₆, chiếm từ 70% đến hơn 90% thành phần tinh dầu trong vỏ cam.',
         'Điểm đặc biệt của Limonene là cấu trúc không phân cực. Theo nguyên lý hóa học "chất tương đồng hòa tan nhau" (like dissolves like), Limonene có khả năng tương tác và làm lỏng các vết dầu mỡ, sáp hoặc chất bẩn không phân cực trên mặt bàn.',
         'Bên cạnh đó, Limonene có khả năng phân hủy sinh học tự nhiên, ít gây tồn dư hóa chất độc hại trong nguồn nước.'
       ],
-      keyTakeaway: 'Limonene (C₁₀H₁₆) là thành phần chính trong tinh dầu họ cam quýt, giúp hỗ trợ hòa tan vết dầu mỡ nhẹ nhờ tính không phân cực.',
+      keyTakeaway: 'Limonene (C₁₀H₁₆) là thành phần chính trong tinh dầu vỏ cam, giúp hỗ trợ hòa tan vết dầu mỡ nhẹ nhờ tính không phân cực.',
       quiz: {
         question: 'Vì sao Limonene có khả năng hỗ trợ làm sạch các vết dầu mỡ nhẹ?',
         options: [
@@ -460,7 +460,7 @@ window.PEELVERSE_DATA = {
     },
     {
       id: 'bio-kitchen-degreaser',
-      name: 'Dung Dịch Làm Sạch Dầu Mỡ Bếp Vỏ Bưởi & Chanh (500ml)',
+      name: 'Dung Dịch Làm Sạch Dầu Mỡ Bếp Vỏ Bưởi & Cam (500ml)',
       category: 'Lau bề mặt & Bếp',
       price: 69000,
       rating: 4.8,
@@ -468,10 +468,10 @@ window.PEELVERSE_DATA = {
       createdAt: '2026-10-18T08:00:00Z',
       badge: 'Hỗ trợ tách dầu',
       image: 'assets/images/prod-kitchen-degreaser.jpg',
-      desc: 'Công thức chứa D-Limonene tự nhiên từ vỏ bưởi và vỏ chanh giúp hỗ trợ làm mềm vết dầu mỡ nhẹ trên bếp và giảm mùi hóa chất nồng.',
+      desc: 'Công thức chứa D-Limonene tự nhiên từ vỏ bưởi và vỏ cam giúp hỗ trợ làm mềm vết dầu mỡ nhẹ trên bếp và giảm mùi hóa chất nồng.',
       specs: {
         volume: 'Dung tích: 500ml',
-        peel: 'Vỏ bưởi & chanh tươi',
+        peel: 'Vỏ bưởi & cam tươi',
         benefit: 'Giảm mùi hóa chất nồng'
       }
     },
@@ -519,7 +519,7 @@ window.PEELVERSE_DATA = {
       createdAt: '2026-11-08T08:00:00Z',
       badge: 'Nhỏ gọn tiện lợi',
       image: 'assets/images/prod-room-mist.jpg',
-      desc: 'Tia sương mịn từ tinh dầu vỏ bưởi giúp làm dịu mùi ẩm trong phòng, tủ quần áo và giày dép với hương cam chanh thanh mát.',
+      desc: 'Tia sương mịn từ tinh dầu vỏ bưởi giúp làm dịu mùi ẩm trong phòng, tủ quần áo và giày dép với hương cam bưởi thanh mát.',
       specs: {
         volume: 'Dung tích: 150ml',
         peel: 'Tinh dầu vỏ bưởi tự nhiên',

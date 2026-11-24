@@ -396,81 +396,313 @@
     }
   }
 
-  // ===== SMART EDGE-CONNECTED BFS FLOOD-FILL BACKGROUND REMOVAL =====
-  function sliceAndRemoveBg(scene, rawKey, keys2x4) {
+  // ===== AUTO-VALLEY SLICING + BFS FLOOD-FILL + LARGEST COMPONENT + AUTO-TRIM =====
+  function sliceSpriteSheetClean(scene, rawKey, keys2x4, isPropSheet) {
     const tex = scene.textures.get(rawKey);
     const srcImg = tex.getSourceImage();
-    const cellW = Math.floor(srcImg.width / 4);
-    const cellH = Math.floor(srcImg.height / 2);
+    const W = srcImg.width;
+    const H = srcImg.height;
+
+    const fullC = document.createElement('canvas');
+    fullC.width = W;
+    fullC.height = H;
+    const fullG = fullC.getContext('2d');
+    fullG.drawImage(srcImg, 0, 0);
+    const fullData = fullG.getImageData(0, 0, W, H).data;
+
+    const isEmptyPx = (x, y) => {
+      const i = (y * W + x) * 4;
+      return fullData[i + 3] < 20 || (fullData[i] > 240 && fullData[i + 1] > 240 && fullData[i + 2] > 240);
+    };
+
+    // 1. Horizontal Projection Profile (35%..70% H) to find row gutter
+    const yStart = Math.floor(H * 0.35);
+    const yEnd = Math.floor(H * 0.7);
+    let bestRowY = Math.floor(H * 0.5);
+    let minRowInk = Infinity;
+    let runStart = -1;
+    let bestRunLen = 0;
+    let bestRunMid = bestRowY;
+
+    for (let y = yStart; y <= yEnd; y++) {
+      let ink = 0;
+      for (let x = 0; x < W; x += 2) {
+        if (!isEmptyPx(x, y)) ink += 1;
+      }
+      if (ink === 0) {
+        if (runStart === -1) runStart = y;
+        const len = y - runStart + 1;
+        if (len > bestRunLen) {
+          bestRunLen = len;
+          bestRunMid = Math.floor((runStart + y) / 2);
+        }
+      } else {
+        runStart = -1;
+        if (ink < minRowInk) {
+          minRowInk = ink;
+          bestRowY = y;
+        }
+      }
+    }
+    const splitY = bestRunLen > 0 ? bestRunMid : bestRowY;
+
+    // 2. Vertical Projection Profile around 25%, 50%, 75% W to find 3 column gutters
+    const findColSplit = (centerFrac) => {
+      const cx0 = Math.floor(W * (centerFrac - 0.09));
+      const cx1 = Math.floor(W * (centerFrac + 0.09));
+      let minInk = Infinity;
+      let fallbackX = Math.floor(W * centerFrac);
+      let rStart = -1;
+      let rBestLen = 0;
+      let rBestMid = fallbackX;
+      for (let x = cx0; x <= cx1; x++) {
+        let ink = 0;
+        for (let y = 0; y < H; y += 2) {
+          if (!isEmptyPx(x, y)) ink += 1;
+        }
+        if (ink === 0) {
+          if (rStart === -1) rStart = x;
+          const len = x - rStart + 1;
+          if (len > rBestLen) {
+            rBestLen = len;
+            rBestMid = Math.floor((rStart + x) / 2);
+          }
+        } else {
+          rStart = -1;
+          if (ink < minInk) {
+            minInk = ink;
+            fallbackX = x;
+          }
+        }
+      }
+      return rBestLen > 0 ? rBestMid : fallbackX;
+    };
+
+    const colBounds = [0, findColSplit(0.25), findColSplit(0.5), findColSplit(0.75), W];
+    const rowBounds = [0, splitY, H];
+
+    let flaskCavity = null;
 
     keys2x4.forEach((outKey, idx) => {
       if (scene.textures.exists(outKey)) return;
       const col = idx % 4;
       const row = Math.floor(idx / 4);
+      const sx = colBounds[col];
+      const sy = rowBounds[row];
+      const cw = colBounds[col + 1] - sx;
+      const ch = rowBounds[row + 1] - sy;
 
       const c = document.createElement('canvas');
-      c.width = cellW;
-      c.height = cellH;
+      c.width = cw;
+      c.height = ch;
       const g = c.getContext('2d');
-      g.drawImage(srcImg, col * cellW, row * cellH, cellW, cellH, 0, 0, cellW, cellH);
+      g.drawImage(srcImg, sx, sy, cw, ch, 0, 0, cw, ch);
 
-      const imgData = g.getImageData(0, 0, cellW, cellH);
+      const imgData = g.getImageData(0, 0, cw, ch);
       const data = imgData.data;
-      const visited = new Uint8Array(cellW * cellH);
-      const queue = new Int32Array(cellW * cellH);
+
+      // 2a. Edge-connected BFS Flood-Fill
+      const visited = new Uint8Array(cw * ch);
+      const queue = new Int32Array(cw * ch);
       let head = 0;
       let tail = 0;
 
-      const pushIfWhite = (x, y) => {
-        if (x < 0 || x >= cellW || y < 0 || y >= cellH) return;
-        const p = y * cellW + x;
+      const pushIfBg = (x, y) => {
+        if (x < 0 || x >= cw || y < 0 || y >= ch) return;
+        const p = y * cw + x;
         if (visited[p]) return;
         const i = p * 4;
-        if (data[i] > 236 && data[i + 1] > 236 && data[i + 2] > 236) {
+        if (data[i + 3] < 20 || (data[i] > 236 && data[i + 1] > 236 && data[i + 2] > 236)) {
           visited[p] = 1;
           queue[tail++] = p;
         }
       };
 
-      for (let x = 0; x < cellW; x++) {
-        pushIfWhite(x, 0);
-        pushIfWhite(x, cellH - 1);
+      for (let x = 0; x < cw; x++) {
+        pushIfBg(x, 0);
+        pushIfBg(x, ch - 1);
       }
-      for (let y = 0; y < cellH; y++) {
-        pushIfWhite(0, y);
-        pushIfWhite(cellW - 1, y);
+      for (let y = 0; y < ch; y++) {
+        pushIfBg(0, y);
+        pushIfBg(cw - 1, y);
       }
 
       while (head < tail) {
         const p = queue[head++];
         data[p * 4 + 3] = 0;
-        const x = p % cellW;
-        const y = (p - x) / cellW;
-        pushIfWhite(x + 1, y);
-        pushIfWhite(x - 1, y);
-        pushIfWhite(x, y + 1);
-        pushIfWhite(x, y - 1);
+        const x = p % cw;
+        const y = (p - x) / cw;
+        pushIfBg(x + 1, y);
+        pushIfBg(x - 1, y);
+        pushIfBg(x, y + 1);
+        pushIfBg(x, y - 1);
       }
 
-      for (let y = 1; y < cellH - 1; y++) {
-        for (let x = 1; x < cellW - 1; x++) {
-          const p = y * cellW + x;
+      // 1px edge anti-alias feathering
+      for (let y = 1; y < ch - 1; y++) {
+        for (let x = 1; x < cw - 1; x++) {
+          const p = y * cw + x;
           const i = p * 4;
           if (data[i + 3] === 0) continue;
-          const hasTransparentNeighbor =
+          const touchTrans =
             data[(p - 1) * 4 + 3] === 0 ||
             data[(p + 1) * 4 + 3] === 0 ||
-            data[(p - cellW) * 4 + 3] === 0 ||
-            data[(p + cellW) * 4 + 3] === 0;
-          if (hasTransparentNeighbor && data[i] > 215 && data[i + 1] > 215 && data[i + 2] > 215) {
-            data[i + 3] = Math.round(data[i + 3] * 0.45);
+            data[(p - cw) * 4 + 3] === 0 ||
+            data[(p + cw) * 4 + 3] === 0;
+          if (touchTrans && data[i] > 215 && data[i + 1] > 215 && data[i + 2] > 215) {
+            data[i + 3] = Math.round(data[i + 3] * 0.42);
+          }
+        }
+      }
+
+      // 3. Connected Components Filter (delete stray fragments < 5% of largest component)
+      const compId = new Int32Array(cw * ch);
+      const compSizes = [0];
+      const bfsQ = new Int32Array(cw * ch);
+      let nextComp = 1;
+      let maxCompSize = 0;
+
+      for (let p = 0; p < cw * ch; p++) {
+        if (compId[p] !== 0 || data[p * 4 + 3] <= 20) continue;
+        const cid = nextComp++;
+        let qh = 0;
+        let qt = 0;
+        compId[p] = cid;
+        bfsQ[qt++] = p;
+        while (qh < qt) {
+          const cur = bfsQ[qh++];
+          const cx = cur % cw;
+          const cy = (cur - cx) / cw;
+          const nbrs = [
+            cx > 0 ? cur - 1 : -1,
+            cx < cw - 1 ? cur + 1 : -1,
+            cy > 0 ? cur - cw : -1,
+            cy < ch - 1 ? cur + cw : -1
+          ];
+          for (let k = 0; k < 4; k++) {
+            const np = nbrs[k];
+            if (np >= 0 && compId[np] === 0 && data[np * 4 + 3] > 20) {
+              compId[np] = cid;
+              bfsQ[qt++] = np;
+            }
+          }
+        }
+        compSizes[cid] = qt;
+        if (qt > maxCompSize) maxCompSize = qt;
+      }
+
+      const minKeep = maxCompSize * 0.05;
+      let minX = cw;
+      let minY = ch;
+      let maxX = -1;
+      let maxY = -1;
+
+      for (let y = 0; y < ch; y++) {
+        for (let x = 0; x < cw; x++) {
+          const p = y * cw + x;
+          const cid = compId[p];
+          if (cid === 0 || compSizes[cid] < minKeep) {
+            data[p * 4 + 3] = 0;
+          } else if (data[p * 4 + 3] > 20) {
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
           }
         }
       }
 
       g.putImageData(imgData, 0, 0);
-      scene.textures.addCanvas(outKey, c);
+
+      // 4. Auto-Trim with 2px padding
+      const pad = 2;
+      const tx0 = Math.max(0, minX - pad);
+      const ty0 = Math.max(0, minY - pad);
+      const tw = Math.max(16, Math.min(cw - tx0, maxX - minX + 1 + pad * 2));
+      const th = Math.max(16, Math.min(ch - ty0, maxY - minY + 1 + pad * 2));
+
+      const trimC = document.createElement('canvas');
+      trimC.width = tw;
+      trimC.height = th;
+      const trimG = trimC.getContext('2d');
+      trimG.drawImage(c, tx0, ty0, tw, th, 0, 0, tw, th);
+
+      // Special Step A & B for prop_flask: Realistic Transparent Glass + Exact Inner Cavity Scan
+      if (isPropSheet && outKey === 'prop_flask') {
+        const fData = trimG.getImageData(0, 0, tw, th);
+        const fd = fData.data;
+
+        // Scan inner cavity per row BEFORE lowering glass opacity
+        const innerLeft = new Int16Array(th).fill(-1);
+        const innerRight = new Int16Array(th).fill(-1);
+        let cavTop = Math.floor(th * 0.16);
+        let cavBottom = th - 6;
+
+        for (let y = cavTop; y <= cavBottom; y++) {
+          // Find outer left dark ink wall, then exit ink into bright interior
+          let x = 0;
+          while (x < tw && fd[(y * tw + x) * 4 + 3] < 80) x++;
+          while (x < tw) {
+            const i = (y * tw + x) * 4;
+            const lum = 0.299 * fd[i] + 0.587 * fd[i + 1] + 0.114 * fd[i + 2];
+            if (fd[i + 3] > 140 && lum < 165) break;
+            x++;
+          }
+          while (x < tw) {
+            const i = (y * tw + x) * 4;
+            const lum = 0.299 * fd[i] + 0.587 * fd[i + 1] + 0.114 * fd[i + 2];
+            if (lum >= 165 || fd[i + 3] < 140) break;
+            x++;
+          }
+          const leftIn = x + 3;
+
+          // Find outer right dark ink wall, then exit ink into bright interior
+          let rx = tw - 1;
+          while (rx >= 0 && fd[(y * tw + rx) * 4 + 3] < 80) rx--;
+          while (rx >= 0) {
+            const i = (y * tw + rx) * 4;
+            const lum = 0.299 * fd[i] + 0.587 * fd[i + 1] + 0.114 * fd[i + 2];
+            if (fd[i + 3] > 140 && lum < 165) break;
+            rx--;
+          }
+          while (rx >= 0) {
+            const i = (y * tw + rx) * 4;
+            const lum = 0.299 * fd[i] + 0.587 * fd[i + 1] + 0.114 * fd[i + 2];
+            if (lum >= 165 || fd[i + 3] < 140) break;
+            rx--;
+          }
+          const rightIn = rx - 3;
+
+          if (rightIn > leftIn + 14) {
+            innerLeft[y] = leftIn;
+            innerRight[y] = rightIn;
+          }
+        }
+
+        // Convert bright interior glass pixels to translucent glass (alpha 28..75) while keeping ink & ticks crisp
+        for (let p = 0; p < tw * th; p++) {
+          const i = p * 4;
+          if (fd[i + 3] === 0) continue;
+          const lum = 0.299 * fd[i] + 0.587 * fd[i + 1] + 0.114 * fd[i + 2];
+          if (lum < 155) {
+            fd[i + 3] = 255;
+          } else {
+            const t = Math.min(1, (lum - 155) / 100);
+            fd[i + 3] = Math.round(28 + t * 47);
+          }
+        }
+        trimG.putImageData(fData, 0, 0);
+
+        // Trim top/bottom valid cavity bounds
+        while (cavTop < cavBottom && innerLeft[cavTop] < 0) cavTop++;
+        while (cavBottom > cavTop && innerLeft[cavBottom] < 0) cavBottom--;
+        flaskCavity = { w: tw, h: th, innerLeft, innerRight, topY: cavTop + 6, bottomY: cavBottom - 4 };
+      }
+
+      scene.textures.addCanvas(outKey, trimC);
     });
+
+    return flaskCavity;
   }
 
   // Cozy Parchment / Raised Wood Button (NO #000 black borders)
@@ -608,26 +840,39 @@
           this.load.on('complete', () => loadTxt.destroy());
         }
         create() {
-          sliceAndRemoveBg(this, 'props_raw', [
-            'prop_flask',
-            'prop_spray',
-            'prop_vinegar',
-            'prop_water',
-            'prop_orange',
-            'prop_cinnamon',
-            'prop_mint',
-            'prop_cloth'
-          ]);
-          sliceAndRemoveBg(this, 'customers_raw', [
-            'cust_0_sad',
-            'cust_1_sad',
-            'cust_2_sad',
-            'cust_3_sad',
-            'cust_0_happy',
-            'cust_1_happy',
-            'cust_2_happy',
-            'cust_3_happy'
-          ]);
+          const cavity = sliceSpriteSheetClean(
+            this,
+            'props_raw',
+            [
+              'prop_flask',
+              'prop_spray',
+              'prop_vinegar',
+              'prop_water',
+              'prop_orange',
+              'prop_cinnamon',
+              'prop_mint',
+              'prop_cloth'
+            ],
+            true
+          );
+          if (cavity) {
+            this.registry.set('flaskCavity', cavity);
+          }
+          sliceSpriteSheetClean(
+            this,
+            'customers_raw',
+            [
+              'cust_0_sad',
+              'cust_1_sad',
+              'cust_2_sad',
+              'cust_3_sad',
+              'cust_0_happy',
+              'cust_1_happy',
+              'cust_2_happy',
+              'cust_3_happy'
+            ],
+            false
+          );
 
           // Warm golden sunlit dust particle
           const g1 = this.make.graphics({ x: 0, y: 0, add: false });
@@ -936,15 +1181,17 @@
 
         makeCreamLabel(x, y, text, hintText) {
           const c = this.add.container(x, y).setDepth(15);
-          const w = Math.max(82, text.length * 8.5 + 20);
+          const showInitHint = saveData.day === 1 && this.customerNum === 1;
+          const w = Math.max(92, text.length * 8.5 + 24);
+          const h = showInitHint ? 38 : 26;
           const bg = this.add.graphics();
           bg.fillStyle(0xf8f1e3, 0.94);
           bg.lineStyle(1, 0xc5a880, 0.95);
-          bg.fillRoundedRect(-w / 2, -13, w, 26, 6);
-          bg.strokeRoundedRect(-w / 2, -13, w, 26, 6);
+          bg.fillRoundedRect(-w / 2, -h / 2, w, h, 7);
+          bg.strokeRoundedRect(-w / 2, -h / 2, w, h, 7);
 
           const t = this.add
-            .text(0, 0, text, {
+            .text(0, showInitHint ? -6 : 0, text, {
               fontFamily: '"Be Vietnam Pro", sans-serif',
               fontSize: '12.5px',
               fontWeight: '700',
@@ -952,28 +1199,51 @@
             })
             .setOrigin(0.5);
 
-          const showInitHint = saveData.day === 1 && this.customerNum === 1;
           const hint = this.add
-            .text(0, 20, hintText, {
+            .text(0, 10, hintText, {
               fontFamily: '"Be Vietnam Pro", sans-serif',
-              fontSize: '10.5px',
+              fontSize: '10px',
               fontWeight: '500',
-              color: '#FAF4E6',
-              backgroundColor: 'rgba(38, 25, 16, 0.7)',
-              padding: { x: 5, y: 2 }
+              color: '#7A5C43'
             })
             .setOrigin(0.5)
-            .setAlpha(showInitHint ? 0.92 : 0);
+            .setAlpha(showInitHint ? 1 : 0);
 
           c.add([bg, t, hint]);
           c.hintObj = hint;
+          c.titleObj = t;
+          c.bgObj = bg;
+          c.lblW = w;
+          c.setHoverHint = (hovered) => {
+            if (showInitHint) return;
+            const nextH = hovered ? 38 : 26;
+            bg.clear();
+            bg.fillStyle(0xf8f1e3, 0.94);
+            bg.lineStyle(1, 0xc5a880, 0.95);
+            bg.fillRoundedRect(-w / 2, -nextH / 2, w, nextH, 7);
+            bg.strokeRoundedRect(-w / 2, -nextH / 2, w, nextH, 7);
+            t.setY(hovered ? -6 : 0);
+            hint.setAlpha(hovered ? 1 : 0);
+          };
           return c;
         }
 
         createWorkbenchProps() {
-          // Center Flask (~17% larger, sits naturally on oak counter)
+          // Center Flask (~17% larger) + Exact Inner Cavity Liquid CanvasTexture
           this.add.image(640, 650, 'soft_shadow').setDisplaySize(176, 36).setDepth(10);
-          this.liquidGraphics = this.add.graphics().setDepth(11);
+          this.flaskCavity = this.registry.get('flaskCavity');
+          this.floatingBits = [];
+          this.bubbles = [];
+
+          if (this.flaskCavity) {
+            const liqKey = `flask_liq_${Date.now()}`;
+            this.liquidCanvasTex = this.textures.createCanvas(liqKey, this.flaskCavity.w, this.flaskCavity.h);
+            this.liquidSprite = this.add
+              .image(640, 562, liqKey)
+              .setDisplaySize(192, 214)
+              .setDepth(11);
+          }
+
           this.flaskSprite = this.add.image(640, 562, 'prop_flask').setDisplaySize(192, 214).setDepth(12);
 
           // Refined Brass & Glass pH Pill Tube (aligned right beside flask)
@@ -1021,13 +1291,11 @@
             sp.on('pointerover', () => {
               if (this.phase !== 'brew') return;
               this.tweens.add({ targets: sp, scaleX: sp.scaleX * 1.07, scaleY: sp.scaleY * 1.07, duration: 100 });
-              this.tweens.add({ targets: lbl.hintObj, alpha: 0.95, duration: 120 });
+              lbl.setHoverHint(true);
             });
             sp.on('pointerout', () => {
               sp.setDisplaySize(140, 140);
-              if (!(saveData.day === 1 && this.customerNum === 1)) {
-                this.tweens.add({ targets: lbl.hintObj, alpha: 0, duration: 120 });
-              }
+              lbl.setHoverHint(false);
             });
             sp.on('drag', (_p, dx, dy) => {
               if (this.phase !== 'brew') return;
@@ -1064,12 +1332,10 @@
 
             sp.on('pointerover', () => {
               if (this.phase !== 'brew') return;
-              this.tweens.add({ targets: lbl.hintObj, alpha: 0.95, duration: 120 });
+              lbl.setHoverHint(true);
             });
             sp.on('pointerout', () => {
-              if (!(saveData.day === 1 && this.customerNum === 1)) {
-                this.tweens.add({ targets: lbl.hintObj, alpha: 0, duration: 120 });
-              }
+              lbl.setHoverHint(false);
             });
             sp.on('pointerdown', () => {
               if (this.phase !== 'brew') return;
@@ -1133,9 +1399,20 @@
         addSolid(id, pitch) {
           this.solids[id] = (this.solids[id] || 0) + 1;
           this.liquidMl = Math.min(220, this.liquidMl + 12);
-          this.waveAmp = 9;
+          this.waveAmp = 5.5;
           soundEngine.playPlop(pitch);
           this.recomputePh();
+
+          const bitCol = id === 'orange' ? '#E59228' : id === 'mint' ? '#4A7C59' : '#9B4D2B';
+          for (let i = 0; i < 4; i++) {
+            this.floatingBits.push({
+              xFrac: 0.28 + Math.random() * 0.44,
+              yOffset: Math.random() * 28,
+              r: 3 + Math.random() * 2.5,
+              color: bitCol,
+              bobPhase: Math.random() * Math.PI * 2
+            });
+          }
           this.tweens.add({
             targets: this.flaskSprite,
             scaleX: this.flaskSprite.scaleX * 1.06,
@@ -1158,6 +1435,8 @@
           this.vinegarMl = 0;
           this.waterMl = 0;
           this.solids = { orange: 0, cinnamon: 0, mint: 0 };
+          this.floatingBits = [];
+          this.bubbles = [];
           this.targetPh = 7.0;
           this.swirlActionBtn.setVisible(false);
           this.resetFlaskBtn.setVisible(false);
@@ -1710,44 +1989,140 @@
             this.recomputePh();
 
             this.pourStreamG.clear();
-            this.pourStreamG.lineStyle(6, this.pouringId === 'vinegar' ? 0xdfd6ba : 0x9dc2bc, 0.9);
-            this.pourStreamG.beginPath();
-            this.pourStreamG.moveTo(665, 452);
-            this.pourStreamG.lineTo(645, 610);
-            this.pourStreamG.strokePath();
+            this.pourStreamG.lineStyle(5, this.pouringId === 'vinegar' ? 0xefe7cf : 0xa5d5d2, 0.92);
+            const pourCurve = new Phaser.Curves.QuadraticBezier(
+              new Phaser.Math.Vector2(666, 448),
+              new Phaser.Math.Vector2(648, 492),
+              new Phaser.Math.Vector2(642, 608)
+            );
+            pourCurve.draw(this.pourStreamG, 18);
           }
 
           this.currentPh += (this.targetPh - this.currentPh) * Math.min(1, dt * 8);
           this.phLabelTxt.setText(`pH ${this.currentPh.toFixed(1)}`);
 
-          // Dynamic liquid inside flask
-          this.liquidGraphics.clear();
-          if (this.liquidMl > 0) {
-            const ratio = Math.min(0.84, this.liquidMl / 220);
-            const bottomY = 648;
-            const topY = bottomY - 135 * ratio;
-            const halfW = 42 + (1 - ratio) * 26;
-            const colorHex =
-              this.solids.orange > 0 && this.solids.mint > 0
-                ? 0x7a9a58
-                : this.solids.orange > 0
-                ? 0xd98a2b
-                : this.solids.cinnamon > 0
-                ? 0xa85432
-                : this.solids.mint > 0
-                ? 0x4a7c59
-                : 0xbfd8d2;
+          // Dynamic liquid inside flask clipped strictly to inner cavity
+          if (this.liquidCanvasTex && this.flaskCavity) {
+            const cav = this.flaskCavity;
+            const lctx = this.liquidCanvasTex.getContext();
+            lctx.clearRect(0, 0, cav.w, cav.h);
 
-            this.liquidGraphics.fillStyle(colorHex, 0.82);
-            this.liquidGraphics.beginPath();
-            this.liquidGraphics.moveTo(640 - 72, bottomY);
-            for (let x = -halfW; x <= halfW; x += 6) {
-              const wy = Math.sin(this.wavePhase + x * 0.08) * this.waveAmp;
-              this.liquidGraphics.lineTo(640 + x, topY + wy);
+            if (this.liquidMl > 0) {
+              const ratio = Math.min(0.86, Math.max(0.06, this.liquidMl / 220));
+              const cavSpan = Math.max(10, cav.bottomY - cav.topY);
+              const surfaceBaseY = cav.bottomY - cavSpan * ratio;
+
+              // Smooth color blend across active ingredients
+              let rCol = 165, gCol = 213, bCol = 210; // aqua base
+              if (this.solids.orange > 0 || this.solids.cinnamon > 0 || this.solids.mint > 0) {
+                const wO = this.solids.orange * 1.2;
+                const wM = this.solids.mint * 1.0;
+                const wC = this.solids.cinnamon * 1.0;
+                const wB = 0.35;
+                const wSum = wO + wM + wC + wB;
+                rCol = Math.round((wB * 165 + wO * 224 + wM * 74 + wC * 168) / wSum);
+                gCol = Math.round((wB * 213 + wO * 142 + wM * 138 + wC * 84) / wSum);
+                bCol = Math.round((wB * 210 + wO * 44 + wM * 94 + wC * 50) / wSum);
+              }
+              const fillRgb = `rgba(${rCol}, ${gCol}, ${bCol}, 0.84)`;
+              const meniscusRgb = `rgba(${Math.min(255, rCol + 32)}, ${Math.min(255, gCol + 32)}, ${Math.min(255, bCol + 26)}, 0.72)`;
+
+              lctx.save();
+              lctx.beginPath();
+              let started = false;
+              for (let y = cav.topY; y <= cav.bottomY; y++) {
+                const lx = cav.innerLeft[y];
+                const rx = cav.innerRight[y];
+                if (lx < 0 || rx <= lx) continue;
+                if (!started) {
+                  lctx.moveTo(lx, y);
+                  started = true;
+                } else {
+                  lctx.lineTo(lx, y);
+                }
+              }
+              for (let y = cav.bottomY; y >= cav.topY; y--) {
+                const lx = cav.innerLeft[y];
+                const rx = cav.innerRight[y];
+                if (lx < 0 || rx <= lx) continue;
+                lctx.lineTo(rx, y);
+              }
+              lctx.closePath();
+              lctx.clip();
+
+              // Liquid body with sine-wave top surface
+              lctx.fillStyle = fillRgb;
+              lctx.beginPath();
+              lctx.moveTo(0, cav.bottomY + 2);
+              for (let x = 0; x <= cav.w; x += 4) {
+                const wy = Math.sin(this.wavePhase + x * 0.085) * this.waveAmp;
+                lctx.lineTo(x, surfaceBaseY + wy);
+              }
+              lctx.lineTo(cav.w, cav.bottomY + 2);
+              lctx.closePath();
+              lctx.fill();
+
+              // 3D meniscus ellipse at surface
+              const surfRow = Math.max(cav.topY, Math.min(cav.bottomY, Math.round(surfaceBaseY)));
+              const sL = cav.innerLeft[surfRow];
+              const sR = cav.innerRight[surfRow];
+              if (sL >= 0 && sR > sL + 4) {
+                const cx = (sL + sR) * 0.5;
+                const rx = (sR - sL) * 0.5;
+                lctx.fillStyle = meniscusRgb;
+                lctx.beginPath();
+                lctx.ellipse(cx, surfaceBaseY, rx, 3.2, 0, 0, Math.PI * 2);
+                lctx.fill();
+              }
+
+              // Floating solid ingredient bits
+              for (let i = 0; i < this.floatingBits.length; i++) {
+                const bit = this.floatingBits[i];
+                const by = Math.min(cav.bottomY - 6, surfaceBaseY + 6 + bit.yOffset + Math.sin(this.wavePhase + bit.bobPhase) * 2.2);
+                const rowY = Math.max(cav.topY, Math.min(cav.bottomY, Math.round(by)));
+                const rowL = cav.innerLeft[rowY];
+                const rowR = cav.innerRight[rowY];
+                if (rowL >= 0 && rowR > rowL + 8) {
+                  const bx = rowL + (rowR - rowL) * bit.xFrac;
+                  lctx.fillStyle = bit.color;
+                  lctx.beginPath();
+                  lctx.arc(bx, by, bit.r, 0, Math.PI * 2);
+                  lctx.fill();
+                }
+              }
+
+              // Rising bubbles when pouring or swirling
+              if ((this.pouringId || this.phase === 'swirl') && this.bubbles.length < 14 && Math.random() < 0.25) {
+                this.bubbles.push({
+                  xFrac: 0.22 + Math.random() * 0.56,
+                  y: cav.bottomY - 4,
+                  r: 1.5 + Math.random() * 2,
+                  vy: 28 + Math.random() * 24
+                });
+              }
+              lctx.fillStyle = 'rgba(255, 255, 255, 0.58)';
+              for (let i = this.bubbles.length - 1; i >= 0; i--) {
+                const bub = this.bubbles[i];
+                bub.y -= bub.vy * dt;
+                if (bub.y <= surfaceBaseY + 2) {
+                  this.bubbles.splice(i, 1);
+                  continue;
+                }
+                const bRow = Math.max(cav.topY, Math.min(cav.bottomY, Math.round(bub.y)));
+                const bL = cav.innerLeft[bRow];
+                const bR = cav.innerRight[bRow];
+                if (bL >= 0 && bR > bL + 4) {
+                  const bx = bL + (bR - bL) * bub.xFrac;
+                  lctx.beginPath();
+                  lctx.arc(bx, bub.y, bub.r, 0, Math.PI * 2);
+                  lctx.fill();
+                }
+              }
+
+              lctx.restore();
             }
-            this.liquidGraphics.lineTo(640 + 72, bottomY);
-            this.liquidGraphics.closePath();
-            this.liquidGraphics.fillPath();
+
+            this.liquidCanvasTex.refresh();
           }
 
           // Brass & Glass pH Pill Tube (only drawn when phVisible)

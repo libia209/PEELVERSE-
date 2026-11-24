@@ -9344,3 +9344,94 @@ body.seller-register-page .site-footer {
     padding: 24px 16px 96px;
   }
 }
+
+
+/* =========================================================================
+   D-LIMONENE MECHANISM IMAGE FRAME & FULLSCREEN LIGHTBOX MODAL
+   ========================================================================= */
+.bento-diagram-frame {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(22, 42, 34, 0.1);
+  background: #F6F4EE;
+  cursor: zoom-in;
+  transition: border-color 200ms ease;
+}
+
+.bento-diagram-frame:hover {
+  border-color: rgba(22, 42, 34, 0.25);
+}
+
+.bento-diagram-frame img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.bento-diagram-mobile-hint {
+  display: none;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .bento-diagram-mobile-hint {
+    display: block;
+  }
+}
+
+.pv-lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(16, 24, 20, 0.84);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
+.pv-lightbox-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.pv-lightbox-content {
+  max-width: 1120px;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #F6F4EE;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.pv-lightbox-content img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.pv-lightbox-close {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(22, 42, 34, 0.85);
+  color: #F6F4EE;
+  font-size: 24px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}

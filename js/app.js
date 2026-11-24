@@ -1063,9 +1063,6 @@
 
   // ===== 04. PROCESS VIEW =====
   function renderProcess(view) {
-    const doneCount = state.completedSteps.length;
-    const pct = Math.round((doneCount / DATA.processSteps.length) * 100);
-
     view.innerHTML = `
       ${renderLabTabs('process')}
       <div class="page-hero-header">
@@ -1073,28 +1070,16 @@
           <span class="eyebrow-tag">PHÒNG LAB • QUY TRÌNH CHIẾT XUẤT</span>
           <h1 class="page-title">Quy trình thực hiện 6 bước</h1>
           <p style="color:var(--text-muted);font-size:0.93rem;margin-top:4px;">
-            Theo dõi 6 bước nghiên cứu và tạo mẫu thử PEELVERSE từ thu gom nguyên liệu đến đánh giá hoàn thiện.
+            Tìm hiểu 6 bước nghiên cứu và tạo mẫu thử PEELVERSE từ thu gom nguyên liệu đến đánh giá hoàn thiện.
           </p>
-        </div>
-        <button class="btn btn-orange" data-nav="game"> Thử thực hành qua Mini Game</button>
-      </div>
-
-      <div class="progress-overview" style="padding:18px 24px;margin-bottom:22px;">
-        <div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.9rem;">
-          <span>Tiến độ theo dõi quy trình</span>
-          <span>${doneCount}/${DATA.processSteps.length} bước (${pct}%)</span>
-        </div>
-        <div class="progress-bar-track">
-          <div class="progress-bar-fill" style="width:${pct}%;"></div>
         </div>
       </div>
 
       <section class="process-timeline">
         ${DATA.processSteps
-          .map((s) => {
-            const checked = state.completedSteps.includes(s.step);
-            return `
-            <article class="process-card ${checked ? 'completed' : ''}" data-step-card="${s.step}">
+          .map(
+            (s) => `
+            <article class="process-card" data-step-card="${s.step}">
               ${
                 s.image
                   ? `<div class="process-media">
@@ -1112,37 +1097,17 @@
                 <p><strong>${s.summary}</strong></p>
                 <p>${s.details}</p>
                 <div class="process-detail-list">
-                  <strong> Mẹo nghiên cứu:</strong> ${s.tip}
+                  <strong>Mẹo nghiên cứu:</strong> ${s.tip}
                 </div>
-                <button class="step-check-btn ${checked ? 'checked' : ''}" data-step="${s.step}">
-                  ${checked ? '✓ Đã nắm rõ bước này' : '○ Đánh dấu đã tìm hiểu'}
-                </button>
               </div>
             </article>
-          `;
-          })
+          `
+          )
           .join('')}
       </section>
     `;
 
     bindNavTriggers(view);
-
-    view.querySelectorAll('.step-check-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const step = Number(btn.dataset.step);
-        if (state.completedSteps.includes(step)) {
-          state.completedSteps = state.completedSteps.filter((x) => x !== step);
-        } else {
-          state.completedSteps.push(step);
-          showToast(`Đã hoàn thành Bước ${step}!`);
-          if (state.completedSteps.length === DATA.processSteps.length) {
-            addNotification(' Bạn đã hoàn thành toàn bộ 6 bước quy trình PEELVERSE!');
-          }
-        }
-        saveState();
-        renderProcess(view);
-      });
-    });
   }
 
   // ===== 05. SCIENCE KNOWLEDGE VIEW (INTERACTIVE SCIENCE LAB) =====
@@ -1238,7 +1203,6 @@
     const filteredTopics = DATA.scienceTopics.filter((t) =>
       scienceFilter === 'Tất cả' ? true : t.category === scienceFilter
     );
-    const completedCount = state.completedScience.length;
 
     view.innerHTML = `
       ${renderLabTabs('science')}
@@ -1249,7 +1213,7 @@
           <span class="hero-badge" style="background:rgba(45,106,79,0.12);color:#1E4D2B;">INTERACTIVE SCIENCE LAB • PEELVERSE</span>
           <h1 class="page-title" style="margin-bottom:8px;">${PVIcon('book-open', 28)} <span>Khoa học đằng sau vỏ trái cây</span></h1>
           <p style="color:var(--text-muted);max-width:640px;font-size:0.94rem;">
-            Khám phá cơ chế hóa học tự nhiên biến vỏ cam, bưởi, chanh, dứa thành giải pháp làm sạch sinh học qua sơ đồ trực quan, thẻ lật 3D và kiểm tra nhanh.
+            Khám phá cơ chế hóa học tự nhiên biến vỏ cam, bưởi, chanh, dứa thành giải pháp làm sạch sinh học qua sơ đồ trực quan và thư viện kiến thức.
           </p>
         </div>
 
@@ -1272,7 +1236,7 @@
             <span class="science-hl-icon" style="background:#E4F3FC;color:#0284C7;"><i class="ph-duotone ph-drop pv-duotone" style="font-size:22px;"></i></span>
             <div>
               <strong>pH 3.5 – 4.5</strong>
-              <span>Dịu nhẹ bề mặt &amp; da tay (${completedCount}/${DATA.scienceTopics.length} bài)</span>
+              <span>Dịu nhẹ bề mặt &amp; da tay</span>
             </div>
           </div>
         </div>
@@ -1298,50 +1262,17 @@
         ${
           scienceFilter === 'Tất cả' || scienceFilter === 'Hoạt chất & Tinh dầu' || scienceFilter === 'Cơ chế làm sạch'
             ? `
-        <!-- Bento Visual 1: D-Limonene Oil Breakdown SVG Diagram -->
+        <!-- Bento Visual 1: D-Limonene Oil Breakdown Diagram Image + Lightbox -->
         <article class="bento-card bento-span-2 bento-mechanism">
           <div class="bento-card-head">
             <span class="bento-tag" style="background:#FFF0E3;color:#C25B0A;">SƠ ĐỒ CƠ CHẾ</span>
             <h3>Cơ chế D-Limonene phá vỡ &amp; cuốn trôi phân tử dầu mỡ</h3>
             <p>Theo nguyên lý <strong>"tương đồng hòa tan nhau"</strong>, phân tử D-Limonene không phân cực len vào mảng dầu mỡ, tách chúng khỏi mặt bàn để khăn lau dễ dàng cuốn sạch.</p>
           </div>
-          <div class="bento-svg-box" aria-label="Sơ đồ 3 bước D-Limonene tách dầu mỡ">
-            <svg viewBox="0 0 640 165" fill="none" xmlns="http://www.w3.org/2000/svg" class="science-diagram-svg">
-              <!-- Step 1 -->
-              <rect x="8" y="14" width="186" height="138" rx="18" fill="#FFFDF9" stroke="#EBE3D3" stroke-width="1.5"/>
-              <text x="24" y="38" fill="#EA580C" font-size="11" font-weight="800">1. VẾT DẦU BÁM BÀN</text>
-              <rect x="24" y="114" width="154" height="14" rx="7" fill="#E6D5BC"/>
-              <ellipse cx="101" cy="106" rx="44" ry="18" fill="#D97706" fill-opacity="0.32" stroke="#D97706" stroke-width="2"/>
-              <circle cx="88" cy="104" r="6" fill="#B45309" fill-opacity="0.65"/>
-              <circle cx="110" cy="107" r="7" fill="#B45309" fill-opacity="0.65"/>
-              <circle cx="100" cy="96" r="5" fill="#D97706" fill-opacity="0.8"/>
-
-              <!-- Arrow 1 -->
-              <path d="M202 83H220M220 83L214 77M220 83L214 89" stroke="#70984B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-
-              <!-- Step 2 -->
-              <rect x="228" y="14" width="186" height="138" rx="18" fill="#FFFDF9" stroke="#EBE3D3" stroke-width="1.5"/>
-              <text x="244" y="38" fill="#2D6A4F" font-size="11" font-weight="800">2. LIMONENE BAO BỌC</text>
-              <rect x="244" y="114" width="154" height="14" rx="7" fill="#E6D5BC"/>
-              <circle cx="300" cy="84" r="14" fill="#FDE68A" stroke="#EA580C" stroke-width="2" stroke-dasharray="4 3"/>
-              <circle cx="300" cy="84" r="6" fill="#D97706"/>
-              <circle cx="344" cy="76" r="16" fill="#D8F3DC" stroke="#2D6A4F" stroke-width="2" stroke-dasharray="4 3"/>
-              <circle cx="344" cy="76" r="6.5" fill="#D97706"/>
-              <circle cx="322" cy="58" r="5" fill="#EA580C"/>
-              <circle cx="366" cy="94" r="4.5" fill="#2D6A4F"/>
-
-              <!-- Arrow 2 -->
-              <path d="M422 83H440M440 83L434 77M440 83L434 89" stroke="#70984B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-
-              <!-- Step 3 -->
-              <rect x="448" y="14" width="184" height="138" rx="18" fill="#F2F9F0" stroke="#C6E4BE" stroke-width="1.5"/>
-              <text x="464" y="38" fill="#15803D" font-size="11" font-weight="800">3. BỀ MẶT SẠCH BÓNG</text>
-              <rect x="464" y="114" width="152" height="14" rx="7" fill="#DCEBD4"/>
-              <path d="M510 66L514 78L526 82L514 86L510 98L506 86L494 82L506 78L510 66Z" fill="#F28C28"/>
-              <path d="M562 54L564.5 62L572.5 64.5L564.5 67L562 75L559.5 67L551.5 64.5L559.5 62L562 54Z" fill="#2D6A4F"/>
-              <text x="492" y="108" fill="#15803D" font-size="11" font-weight="700">Thơm cam tự nhiên</text>
-            </svg>
+          <div class="bento-diagram-frame" id="dLimoneneDiagramTrigger" role="button" tabindex="0" aria-label="Phóng to sơ đồ 3 bước cơ chế D-Limonene">
+            <img src="assets/images/co-che-d-limonene.jpg" alt="Sơ đồ 3 bước cơ chế D-Limonene phá vỡ và làm sạch dầu mỡ" loading="lazy" />
           </div>
+          <p class="bento-diagram-mobile-hint">Chạm vào ảnh để phóng to</p>
         </article>`
             : ''
         }
@@ -1470,35 +1401,27 @@
       </div>
       <section class="science-grid">
         ${filteredTopics
-          .map((topic) => {
-            const done = state.completedScience.includes(topic.id);
-            return `
+          .map(
+            (topic) => `
             <article class="science-card" data-topic="${topic.id}">
-              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-                <div class="science-card-icon" style="background:${topic.color};">${topic.emoji}</div>
-                <span class="progress-badge ${done ? 'done' : ''}" style="position:static;">
-                  ${done ? 'Đã hoàn thành ✓' : 'Chưa học'}
-                </span>
-              </div>
               <span class="bento-mini-cat">${topic.category || 'Khoa học'}</span>
               <h3>${topic.title}</h3>
               <p style="font-weight:600;color:var(--green-mid);font-size:0.84rem;flex:0;">${topic.subtitle}</p>
               <p>${topic.summary}</p>
               <div class="science-card-foot">
-                <span>Đọc chi tiết &amp; làm quiz</span>
+                <span>Đọc chi tiết</span>
                 <span>→</span>
               </div>
             </article>
-          `;
-          })
+          `
+          )
           .join('')}
       </section>
 
-      <!-- 3D Flip Flashcards: "Bạn có biết?" -->
+      <!-- Flashcards: "Bạn có biết?" -->
       <section class="flashcards-section">
         <div class="section-head" style="margin-bottom:14px;">
-          <h2 class="inline-icon-heading">${PVIcon('sparkles', 20)} <span>Thẻ lật "Bạn có biết?"</span></h2>
-          <span style="font-size:0.8rem;color:var(--text-muted);">Bấm vào từng thẻ để xoay 3D xem sự thật thú vị</span>
+          <h2 class="inline-icon-heading">${PVIcon('sparkles', 20)} <span>Bạn có biết?</span></h2>
         </div>
         <div class="flashcards-grid">
           ${flashcards
@@ -1512,7 +1435,7 @@
                     <i class="ph-duotone ${fc.icon} pv-duotone" style="font-size:32px;"></i>
                   </div>
                   <h4>${fc.question}</h4>
-                  <span class="flip-hint">Chạm để lật đáp án ↻</span>
+                  <span class="flip-hint">Chạm để xem đáp án ↻</span>
                 </div>
                 <div class="flip-card-back" style="--fc-accent:${fc.accent};">
                   <span class="flip-tag" style="background:rgba(255,255,255,0.22);color:#FFFFFF;">Sự thật khoa học</span>
@@ -1526,38 +1449,43 @@
             .join('')}
         </div>
       </section>
-
-      <!-- Mini Science Quiz (4 Quick Questions) -->
-      <section class="mini-science-quiz">
-        <div class="section-head" style="margin-bottom:12px;">
-          <h2 class="inline-icon-heading">${PVIcon('award', 22)} <span>Kiểm tra nhanh kiến thức (4 câu)</span></h2>
-          <span id="miniQuizScorePill" class="hud-pill">Điểm: 0/4</span>
-        </div>
-        <div class="mini-quiz-list">
-          ${miniQuiz
-            .map(
-              (item, qIdx) => `
-            <div class="mini-quiz-card" data-qidx="${qIdx}">
-              <div class="mini-quiz-q"><strong>Câu ${qIdx + 1}:</strong> ${item.q}</div>
-              <div class="mini-quiz-opts">
-                ${item.opts
-                  .map(
-                    (opt, oIdx) => `
-                  <button type="button" class="quiz-option mini-quiz-opt" data-q="${qIdx}" data-o="${oIdx}">
-                    ${String.fromCharCode(65 + oIdx)}. ${opt}
-                  </button>
-                `
-                  )
-                  .join('')}
-              </div>
-              <div class="mini-quiz-exp" id="miniQuizExp-${qIdx}"></div>
-            </div>
-          `
-            )
-            .join('')}
-        </div>
-      </section>
     `;
+
+    // Lightbox for D-Limonene mechanism diagram
+    const diagramTrigger = view.querySelector('#dLimoneneDiagramTrigger');
+    if (diagramTrigger) {
+      const openLightbox = () => {
+        let lb = document.getElementById('pvDiagramLightbox');
+        if (!lb) {
+          lb = document.createElement('div');
+          lb.id = 'pvDiagramLightbox';
+          lb.className = 'pv-lightbox-overlay';
+          lb.innerHTML = `
+            <button type="button" class="pv-lightbox-close" aria-label="Đóng ảnh phóng to">×</button>
+            <div class="pv-lightbox-content">
+              <img src="assets/images/co-che-d-limonene.jpg" alt="Sơ đồ 3 bước cơ chế D-Limonene phá vỡ và làm sạch dầu mỡ" />
+            </div>
+          `;
+          document.body.appendChild(lb);
+          lb.addEventListener('click', (e) => {
+            if (e.target === lb || e.target.closest('.pv-lightbox-close')) {
+              lb.classList.remove('open');
+            }
+          });
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lb.classList.contains('open')) lb.classList.remove('open');
+          });
+        }
+        lb.classList.add('open');
+      };
+      diagramTrigger.addEventListener('click', openLightbox);
+      diagramTrigger.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openLightbox();
+        }
+      });
+    }
 
     // Topic filters
     view.querySelectorAll('[data-sci-filter]').forEach((btn) => {
@@ -1607,44 +1535,11 @@
         }
       });
     });
-
-    // Mini 4-question quiz
-    const quizCorrectSet = new Set();
-    view.querySelectorAll('.mini-quiz-opt').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const qIdx = Number(btn.dataset.q);
-        const oIdx = Number(btn.dataset.o);
-        const item = miniQuiz[qIdx];
-        const card = view.querySelector(`.mini-quiz-card[data-qidx="${qIdx}"]`);
-        const expEl = view.querySelector(`#miniQuizExp-${qIdx}`);
-        card.querySelectorAll('.mini-quiz-opt').forEach((b) => b.classList.remove('correct', 'wrong'));
-
-        if (oIdx === item.ans) {
-          btn.classList.add('correct');
-          expEl.style.color = '#166534';
-          expEl.textContent = `✓ ${item.exp}`;
-          const wasNew = !quizCorrectSet.has(qIdx);
-          quizCorrectSet.add(qIdx);
-          const pill = view.querySelector('#miniQuizScorePill');
-          if (pill) pill.textContent = `Điểm: ${quizCorrectSet.size}/4`;
-          if (wasNew && quizCorrectSet.size === 4) {
-            triggerEcoConfetti();
-            showToast(' Xuất sắc! Bạn đã trả lời đúng cả 4/4 câu hỏi khoa học nhanh!');
-          }
-        } else {
-          btn.classList.add('wrong');
-          expEl.style.color = '#B91C1C';
-          expEl.textContent = '✕ Chưa chính xác, bạn thử chọn đáp án khác nhé!';
-        }
-      });
-    });
   }
 
   function renderScienceDetail(view, id) {
     const topic = DATA.scienceTopics.find((t) => t.id === id);
     if (!topic) return navigate('science');
-
-    const alreadyDone = state.completedScience.includes(topic.id);
 
     view.innerHTML = `
       ${renderBreadcrumb([
@@ -1655,7 +1550,6 @@
 
       <article class="info-box" style="padding:30px;border-radius:var(--radius-lg);">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-          <div class="science-card-icon" style="background:${topic.color};width:56px;height:56px;font-size:1.8rem;">${topic.emoji}</div>
           <div>
             <h1 style="font-size:1.8rem;">${topic.title}</h1>
             <p style="color:var(--green-mid);font-weight:600;">${topic.subtitle}</p>
@@ -1669,27 +1563,9 @@
         ${topic.hasPhWidget ? renderPhWidgetHtml() : ''}
 
         <div style="margin-top:20px;background:var(--bg-sage-soft);padding:16px 20px;border-radius:14px;border-left:4px solid var(--green-accent);">
-          <strong> Ghi nhớ cốt lõi:</strong> ${topic.keyTakeaway}
+          <strong>Ghi nhớ cốt lõi:</strong> ${topic.keyTakeaway}
         </div>
       </article>
-
-      <section class="quiz-box">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-          <h3> Kiểm tra nhanh kiến thức</h3>
-          ${alreadyDone ? '<span class="detail-tag" style="background:var(--green-dark);color:#FFF;">✓ Đã hoàn thành bài học</span>' : ''}
-        </div>
-        <p style="margin-top:8px;font-weight:700;color:var(--green-dark);">${topic.quiz.question}</p>
-        <div class="quiz-options">
-          ${topic.quiz.options
-            .map(
-              (opt, idx) => `
-            <button class="quiz-option" data-idx="${idx}">${String.fromCharCode(65 + idx)}. ${opt}</button>
-          `
-            )
-            .join('')}
-        </div>
-        <div id="quizFeedback" style="font-weight:600;font-size:0.92rem;min-height:24px;"></div>
-      </section>
     `;
 
     bindNavTriggers(view);
@@ -1697,31 +1573,6 @@
     if (topic.hasPhWidget) {
       bindPhWidget(view);
     }
-
-    view.querySelectorAll('.quiz-option').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const idx = Number(btn.dataset.idx);
-        const fb = view.querySelector('#quizFeedback');
-        view.querySelectorAll('.quiz-option').forEach((b) => b.classList.remove('correct', 'wrong'));
-
-        if (idx === topic.quiz.correctIndex) {
-          btn.classList.add('correct');
-          fb.style.color = '#1E4D20';
-          fb.textContent = `${topic.quiz.explanation}`;
-          if (!state.completedScience.includes(topic.id)) {
-            state.completedScience.push(topic.id);
-            addNotification(`Hoàn thành bài học khoa học: ${topic.title}!`);
-            showToast(`Đã hoàn thành bài học: ${topic.title}`);
-            triggerEcoConfetti();
-            saveState();
-          }
-        } else {
-          btn.classList.add('wrong');
-          fb.style.color = '#8E1B18';
-          fb.textContent = ' Chưa chính xác, bạn hãy thử chọn lại đáp án khác nhé!';
-        }
-      });
-    });
   }
 
   function renderPhWidgetHtml() {

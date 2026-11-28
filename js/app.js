@@ -544,6 +544,40 @@
 
   window.PEELVERSE_TOAST = showToast;
 
+  function pruneStaleShopRefs() {
+    const validIds = new Set(getAllShopProducts().map((p) => p.id));
+    const prevLen = cart.length;
+    cart = cart.filter((entry) => entry && Number(entry.qty) > 0 && validIds.has(entry.id));
+    if (cart.length !== prevLen) {
+      saveCart();
+      updateCartBadges();
+    }
+    try {
+      const bmKey = 'peelverse_bookmarks_v1';
+      const rawBm = localStorage.getItem(bmKey);
+      if (rawBm) {
+        const parsed = JSON.parse(rawBm);
+        if (Array.isArray(parsed)) {
+          const cleanedBm = parsed.filter((b) => {
+            if (!b) return false;
+            const itemId = typeof b === 'string' ? b : b.item_id || b.id;
+            const isProductType = typeof b === 'object' && (b.item_type === 'product' || b.type === 'product');
+            if (isProductType) return validIds.has(itemId);
+            if (typeof itemId === 'string' && (itemId.startsWith('bio-') || itemId.startsWith('sb_'))) {
+              return validIds.has(itemId);
+            }
+            return true;
+          });
+          if (cleanedBm.length !== parsed.length) {
+            localStorage.setItem(bmKey, JSON.stringify(cleanedBm));
+          }
+        }
+      }
+    } catch {
+      // ignore bookmark storage parse error
+    }
+  }
+
   async function refreshCommunityProducts(force = false) {
     if (!window.PEELVERSE_CREATOR) return;
     if (communityLoading && !force) return;
@@ -551,9 +585,11 @@
     try {
       communityProducts = await window.PEELVERSE_CREATOR.fetchActiveCommunityProducts();
       communityLoaded = true;
+      pruneStaleShopRefs();
     } catch (err) {
       console.warn('[PEELVERSE Shop] Community products load skipped:', err);
       communityLoaded = true;
+      pruneStaleShopRefs();
     } finally {
       communityLoading = false;
     }
@@ -767,6 +803,8 @@
     void view.offsetWidth;
     view.classList.add('view-enter');
     applyStaggerAndCountUp(view);
+    bindNavTriggers(view);
+
     if (window.PEELVERSE_MOTION) {
       window.PEELVERSE_MOTION.splitHeroWords(view.querySelector('.editorial-hero-title'));
       window.PEELVERSE_MOTION.initScrollReveal(view);
@@ -1829,6 +1867,26 @@
       ${
         !communityLoaded && communityLoading && window.PEELVERSE_CREATOR
           ? window.PEELVERSE_CREATOR.renderSkeletonCards(3)
+          : allProducts.length === 0
+          ? `
+          <section class="shop-empty-state" aria-label="Cửa hàng đang trống">
+            <div class="shop-empty-icon" aria-hidden="true">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 7h12l-1 13H7L6 7Z"/>
+                <path d="M9 7V6a3 3 0 0 1 6 0v1"/>
+                <path d="M12 11v4"/>
+                <path d="M10 13h4"/>
+              </svg>
+            </div>
+            <h2 class="serif-heading shop-empty-title">Hiện chưa có sản phẩm nào mở bán</h2>
+            <p class="shop-empty-desc">
+              Các sản phẩm làm sạch sinh học mới sẽ sớm được cập nhật từ cộng đồng nghiên cứu và nhà sáng tạo.
+            </p>
+            <div class="shop-empty-actions">
+              <button type="button" class="btn btn-secondary" data-nav="lab">Vào Phòng Lab</button>
+              <a href="./seller-register.html" class="btn btn-primary">Đăng ký bán hàng →</a>
+            </div>
+          </section>`
           : list.length === 0
           ? `<div class="editorial-empty">Không có sản phẩm nào khớp bộ lọc hiện tại.</div>`
           : `
@@ -1885,6 +1943,8 @@
 
       </div>
     `;
+
+    bindNavTriggers(view);
 
     if (window.PEELVERSE_MOTION) {
       window.PEELVERSE_MOTION.initLiquidTabs(view);
@@ -2026,7 +2086,7 @@
       { title: ' Đăng ký bán hàng', desc: 'Xác minh độ tuổi (18+) & CCCD để mở gian hàng trên PEELVERSE', group: 'Điều hướng', action: () => { window.location.href = './seller-register.html'; } }
     ];
 
-    const index = [
+    const baseIndex = [
       ...navEntries.map((n) => ({
         ...n,
         searchBlob: normalizeVi(`${n.title} ${n.desc} ${n.group}`)
@@ -2068,20 +2128,6 @@
         searchBlob: normalizeVi(`peel lab mo phong chiet xuat ${g.title} ${g.desc}`),
         action: () => navigate('game')
       })),
-      ...getAllShopProducts().map((sp) => ({
-        title: `${sp.name}`,
-        desc: `${formatVND(sp.price)} • ${sp.category}`,
-        group: 'Sản phẩm sinh học',
-        searchBlob: normalizeVi(`nuoc lau rua tay rua chen lau san xit khu mui sinh hoc gio hang ${sp.name} ${sp.category} ${sp.desc}`),
-        action: () => {
-          shopViewTab = 'catalog';
-          shopSourceFilter = 'Tất cả';
-          shopCategory = 'Tất cả';
-          shopPriceRange = 'all';
-          navigate('shop');
-          focusElementWithPulse(`[data-product-id="${sp.id}"]`);
-        }
-      })),
       {
         title: `Liên hệ Zalo: ${CONTACT.zalo}`,
         desc: 'Mở hộp thoại liên hệ nhanh hoặc nhắn Zalo hỗ trợ PEELVERSE',
@@ -2097,6 +2143,24 @@
         action: () => openContactModal()
       }
     ];
+
+    function getSearchIndex() {
+      const productEntries = getAllShopProducts().map((sp) => ({
+        title: `${sp.name}`,
+        desc: `${formatVND(sp.price)} • ${sp.category}`,
+        group: 'Sản phẩm sinh học',
+        searchBlob: normalizeVi(`nuoc lau rua tay rua chen lau san xit khu mui sinh hoc gio hang ${sp.name} ${sp.category} ${sp.desc}`),
+        action: () => {
+          shopViewTab = 'catalog';
+          shopSourceFilter = 'Tất cả';
+          shopCategory = 'Tất cả';
+          shopPriceRange = 'all';
+          navigate('shop');
+          focusElementWithPulse(`[data-product-id="${sp.id}"]`);
+        }
+      }));
+      return [...baseIndex, ...productEntries];
+    }
 
     const quickChips = ['Vỏ cam', 'Lá bạc hà', 'Limonene', 'Độ pH', 'Mô phỏng', 'Nước lau rửa', 'Đăng ký bán hàng'];
     let flatMatches = [];
@@ -2189,7 +2253,7 @@
               ${
                 recents.length > 0
                   ? `<button type="button" class="psearch__action" id="clearRecentSearchBtn">Xóa tất cả</button>`
-                  : `<span class="psearch__head-label">${index.length} mục</span>`
+                  : `<span class="psearch__head-label">${getSearchIndex().length} mục</span>`
               }
             </div>
             <ul class="psearch__list">
@@ -2273,7 +2337,7 @@
         return;
       }
 
-      flatMatches = index.filter((item) => item.searchBlob.includes(normQ)).slice(0, 10);
+      flatMatches = getSearchIndex().filter((item) => item.searchBlob.includes(normQ)).slice(0, 10);
 
       dropdown.innerHTML = `
         <div class="psearch__panel">

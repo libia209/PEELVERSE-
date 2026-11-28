@@ -166,7 +166,7 @@
     if (prefersReducedMotion()) return;
     const layer = document.getElementById('confettiLayer');
     if (!layer) return;
-    const colors = ['#F28C28', '#70984B', '#FFB74D', '#4B6A3A', '#DCE7C4'];
+    const colors = ['#F2B66D', '#78B982', '#FFF0DC', '#4C9862', '#E3F1DF'];
     const cx = window.innerWidth * 0.5;
     const cy = Math.min(window.innerHeight * 0.35, 280);
     for (let i = 0; i < 24; i += 1) {
@@ -345,7 +345,7 @@
       body.innerHTML = `
         <div class="cart-scroll-region">
           <div style="text-align:center;padding:42px 16px;color:var(--text-muted);">
-            <div style="margin-bottom:12px;color:#162A22;">${PVIcon('shopping-bag', 42)}</div>
+            <div style="margin-bottom:12px;color:#5C9B68;">${PVIcon('shopping-bag', 42)}</div>
             <h4 style="margin-bottom:6px;">Giỏ hàng đang trống</h4>
             <p style="font-size:0.86rem;margin-bottom:18px;">Khám phá các dòng nước lau rửa, nước rửa chén enzyme và xịt khử mùi lành tính chiết xuất từ vỏ trái cây của PEELVERSE.</p>
             <button class="btn btn-primary" id="goShopFromEmpty">Xem sản phẩm làm sạch sinh học →</button>
@@ -1224,7 +1224,7 @@
       <!-- Magazine-Style Science Hero Banner -->
       <section class="science-lab-hero">
         <div class="science-hero-content">
-          <span class="hero-badge" style="background:rgba(45,106,79,0.12);color:#1E4D2B;">INTERACTIVE SCIENCE LAB • PEELVERSE</span>
+          <span class="hero-badge" style="background:#FFF0DC;color:#28613D;">INTERACTIVE SCIENCE LAB • PEELVERSE</span>
           <h1 class="page-title" style="margin-bottom:8px;">${PVIcon('book-open', 28)} <span>Khoa học đằng sau vỏ trái cây</span></h1>
           <p style="color:var(--text-muted);max-width:640px;font-size:0.94rem;">
             Khám phá cơ chế hóa học tự nhiên biến vỏ cam, bưởi, dứa thành giải pháp làm sạch sinh học qua sơ đồ trực quan và thư viện kiến thức.
@@ -2203,7 +2203,7 @@
                   <span class="psearch__divider" aria-hidden="true"></span>
                   <div class="psearch__row-body" data-chip="${r}">
                     <div class="psearch__tile" aria-hidden="true">
-                      <div class="psearch__tile-art" style="background:#EAE6DC;display:grid;place-items:center;color:#162A22;font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;">
+                      <div class="psearch__tile-art" style="background:#E3F1DF;display:grid;place-items:center;color:#28613D;font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;">
                         ${String(r).trim().charAt(0).toUpperCase()}
                       </div>
                     </div>
@@ -2294,7 +2294,7 @@
                   <span class="psearch__divider" aria-hidden="true"></span>
                   <div class="psearch__row-body">
                     <div class="psearch__tile" aria-hidden="true">
-                      <div class="psearch__tile-art" style="background:#162A22;display:grid;place-items:center;color:#F6F4EE;font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;">
+                      <div class="psearch__tile-art" style="background:#78B982;display:grid;place-items:center;color:#FFFFFF;font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;">
                         ${badgeChar}
                       </div>
                     </div>

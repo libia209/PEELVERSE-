@@ -6144,31 +6144,31 @@ html, body {
    LUXURY BOTANICAL APOTHECARY & MODERN EDITORIAL DESIGN SYSTEM OVERRIDE
    ========================================================================= */
 :root {
-  --bg-canvas: #F6F4EE;
-  --bg-sidebar: #EFECE4;
-  --bg-stone: #EFECE4;
-  --bg-card: #FFFFFF;
-  --bg-sage: #E6EAE2;
-  --bg-sage-soft: #EFECE4;
-  --bg-peach: #F2E8E1;
-  --bg-peach-soft: #F7F2EC;
+  --bg-canvas: #FFFFFF;
+  --bg-sidebar: #F7FAF4;
+  --bg-stone: #F1F7EE;
+  --bg-card: #F5F9F3;
+  --bg-sage: #EAF4E8;
+  --bg-sage-soft: #F1F7EE;
+  --bg-peach: #FFF0DC;
+  --bg-peach-soft: #FFF0DC;
 
-  --green-dark: #162A22;
-  --green-mid: #2C463B;
-  --green-accent: #162A22;
-  --orange-primary: #A85432;
-  --orange-deep: #8C4225;
+  --green-dark: #28613D;
+  --green-mid: #355C40;
+  --green-accent: #78B982;
+  --orange-primary: #F2B66D;
+  --orange-deep: #D99B4E;
 
-  --text-main: #181816;
-  --text-muted: #5E5C55;
-  --text-light: #8A867C;
+  --text-main: #28613D;
+  --text-muted: #354D3B;
+  --text-light: #5C9B68;
 
-  --border-soft: rgba(22, 42, 34, 0.12);
-  --surface-border: rgba(22, 42, 34, 0.12);
-  --shadow-sm: 0 2px 8px rgba(22, 42, 34, 0.04);
-  --shadow-md: 0 10px 26px rgba(22, 42, 34, 0.06);
+  --border-soft: #DFEBDD;
+  --surface-border: #DFEBDD;
+  --shadow-sm: 0 2px 8px rgba(40, 97, 61, 0.05);
+  --shadow-md: 0 10px 26px rgba(40, 97, 61, 0.08);
   --shadow-card: none;
-  --shadow-card-hover: 0 12px 28px rgba(22, 42, 34, 0.07);
+  --shadow-card-hover: 0 12px 28px rgba(40, 97, 61, 0.09);
 
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -7843,13 +7843,13 @@ h4 {
 :root {
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --pv-bg: #F6F4EE;
-  --pv-surface: #FFFFFF;
-  --pv-strip: #EAE6DC;
-  --pv-primary: #162A22;
-  --pv-primary-hover: #213B30;
-  --pv-accent: #A85432;
-  --pv-ink: #181816;
+  --pv-bg: #FFFFFF;
+  --pv-surface: #F5F9F3;
+  --pv-strip: #EAF4E8;
+  --pv-primary: #78B982;
+  --pv-primary-hover: #4C9862;
+  --pv-accent: #F2B66D;
+  --pv-ink: #28613D;
 }
 
 /* 1. Ultra-fine Botanical Paper Grain Overlay */
@@ -9843,4 +9843,337 @@ body.seller-register-page .site-footer {
     padding: 5px 8px;
     font-size: 10.5px;
   }
+}
+
+
+/* =========================================================================
+   PEELVERSE COLOR SYSTEM OVERRIDE (PDF SPECIFICATION)
+   ========================================================================= */
+
+/* 1. Toàn bộ website & Typography */
+html,
+body {
+  background-color: #FFFFFF !important;
+  color: #28613D !important;
+}
+
+h1, h2, h3, h4,
+.serif-heading,
+.editorial-h1,
+.editorial-hero-title,
+.brand-wordmark {
+  color: #28613D;
+}
+
+/* 2. Navbar (Thanh điều hướng) */
+.luxury-header {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-bottom: 1px solid #DFEBDD !important;
+}
+
+.brand-lockup,
+.primary-nav-link,
+.primary-nav-link:hover,
+.primary-nav-link.active,
+.bottom-nav-item,
+.bottom-nav-item.active {
+  color: #28613D !important;
+}
+
+.primary-nav-link::after {
+  background: #28613D !important;
+}
+
+.bottom-nav {
+  background: rgba(255, 255, 255, 0.97) !important;
+  border-top: 1px solid #DFEBDD !important;
+}
+
+/* 3. Hero / Intro section */
+.editorial-hero {
+  background: #F7FAF4;
+  color: #28613D;
+  border: 1px solid #DFEBDD;
+  border-radius: 16px;
+  padding: clamp(22px, 3.8vw, 44px);
+}
+
+.editorial-hero-desc {
+  color: #28613D;
+}
+
+/* 4. About Project */
+.editorial-story-section,
+.about-story-card,
+.mission-vision-grid,
+.mission-vision-grid > * {
+  background-color: #FFFFFF;
+  color: #28613D;
+}
+
+/* 5. Knowledge section */
+.glossary-section,
+.flashcards-section,
+.waste-impact-grid > *,
+.science-grid .science-card {
+  background-color: #F1F7EE !important;
+  color: #28613D !important;
+  border-color: #DFEBDD !important;
+}
+
+/* 6. Product section & 7. Product cards */
+.shop-hero,
+.editorial-page-header {
+  background-color: #FFFFFF !important;
+  color: #28613D !important;
+}
+
+.lookbook-item,
+.product-card {
+  background: #F5F9F3 !important;
+  color: #354D3B !important;
+  border: 1px solid #DFEBDD !important;
+  border-radius: 12px !important;
+  padding: 14px;
+}
+
+.lookbook-title,
+.lookbook-price,
+.lookbook-ing,
+.lookbook-meta,
+.product-card h3,
+.product-card p {
+  color: #354D3B !important;
+}
+
+.lookbook-media {
+  background: #FFFFFF !important;
+  border: 1px solid #DFEBDD;
+}
+
+/* 8. Research / Lab section */
+.science-lab-hero,
+.bento-card,
+.ingredient-card,
+.process-card {
+  background-color: #EAF4E8 !important;
+  color: #28613D !important;
+  border: 1px solid #DFEBDD !important;
+}
+
+.lab-subnav {
+  border-bottom-color: #DFEBDD;
+}
+
+.lab-subnav-btn,
+.lab-subnav-btn.active {
+  color: #28613D;
+}
+
+.lab-subnav-btn::after {
+  background: #78B982;
+}
+
+/* 9. Game section */
+.peel-lab-mount,
+.game-lab-hero,
+.game-hero-dashboard,
+.stage-editorial {
+  background-color: #F7FAF4 !important;
+  color: #28613D !important;
+  border: 1px solid #DFEBDD !important;
+}
+
+.peel-lab-mount {
+  border-radius: 18px;
+  padding: clamp(10px, 2vw, 18px);
+}
+
+.peel-lab-frame {
+  border-color: #DFEBDD !important;
+}
+
+.peel-lab-fs-btn {
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: #28613D !important;
+  border-color: #DFEBDD !important;
+}
+
+/* 10. Survey / Form / Modal sections */
+.seller-invite-strip,
+.next-step-card,
+.creator-form-card,
+.contact-modal,
+.quickview-modal,
+.auth-gate,
+.auth-gate-card,
+.pksi {
+  background-color: #FFFFFF !important;
+  color: #28613D !important;
+}
+
+.seller-invite-strip,
+.next-step-card,
+.creator-form-card,
+.contact-modal,
+.quickview-modal,
+.auth-gate-card {
+  border: 1px solid #DFEBDD !important;
+}
+
+/* 11. Footer */
+.site-footer {
+  background: #E5F0E3 !important;
+  color: #355C40 !important;
+  border-top: 1px solid #DFEBDD !important;
+}
+
+.site-footer .brand-wordmark,
+.site-footer .footer-eyebrow,
+.site-footer .footer-tagline,
+.site-footer .contact-link-pill,
+.site-footer .copy-btn {
+  color: #355C40 !important;
+}
+
+.site-footer .contact-chip-group {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid #DFEBDD;
+}
+
+/* 12. Buttons (Chính & Phụ) */
+.btn-primary,
+.pksi__submit,
+.lookbook-add-btn:hover:not(:disabled),
+.lookbook-add-btn.in-cart,
+.stage-media-status.done,
+.core-badge {
+  background: #78B982 !important;
+  color: #FFFFFF !important;
+  border-color: #78B982 !important;
+}
+
+.btn-primary:hover,
+.pksi__submit:hover {
+  background: #4C9862 !important;
+  border-color: #4C9862 !important;
+  color: #FFFFFF !important;
+}
+
+.btn-secondary,
+.filter-pill,
+.lookbook-add-btn {
+  background: #E3F1DF !important;
+  color: #397A50 !important;
+  border: 1px solid #DFEBDD !important;
+}
+
+.btn-secondary:hover,
+.filter-pill:hover {
+  background: #4C9862 !important;
+  border-color: #4C9862 !important;
+  color: #FFFFFF !important;
+}
+
+.filter-pill.active {
+  background: #78B982 !important;
+  border-color: #78B982 !important;
+  color: #FFFFFF !important;
+}
+
+/* 13. Viền card */
+.explore-card,
+.badge-card,
+.info-box,
+.progress-overview,
+.order-card,
+.contact-modal-card,
+.editorial-figure-frame {
+  border-color: #DFEBDD !important;
+}
+
+/* 14. Input background & border */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea,
+select,
+.pksi__input,
+.psearch__input,
+.header-search-trigger,
+.search-bar-panel input,
+.auth-input-wrap input,
+.form-field input,
+.form-field textarea,
+.creator-select {
+  background-color: #F7FAF4 !important;
+  border-color: #C9DEC8 !important;
+  color: #28613D !important;
+}
+
+.search-bar-panel {
+  background: #FFFFFF !important;
+  border-top-color: #DFEBDD !important;
+}
+
+/* 15. Icon */
+.header-icon-btn,
+.header-search-trigger svg,
+.contact-modal-icon,
+.next-step-monogram,
+.brand-monogram,
+.pv-icon,
+.bottom-nav-item svg {
+  color: #5C9B68 !important;
+}
+
+.header-icon-btn {
+  background: #F7FAF4 !important;
+  border-color: #DFEBDD !important;
+}
+
+.header-icon-btn:hover {
+  background: #E3F1DF !important;
+  border-color: #78B982 !important;
+}
+
+/* 16. Highlight / Badge */
+.eyebrow-tag,
+.hero-badge,
+.explore-media-badge,
+.progress-badge,
+.botanical-tag,
+.lookbook-tag,
+.menu-pct-tag,
+.lookbook-rating-pill {
+  background: #FFF0DC !important;
+  color: #28613D !important;
+  border: 1px solid rgba(242, 182, 109, 0.45);
+  padding: 3px 9px;
+  border-radius: 4px;
+}
+
+/* 17. Màu nhấn cam (#F2B66D) */
+.btn-orange,
+.btn-accent,
+.cart-count-badge,
+.bottom-cart-badge {
+  background: #F2B66D !important;
+  border-color: #F2B66D !important;
+  color: #FFFFFF !important;
+}
+
+.btn-orange:hover,
+.btn-accent:hover {
+  background: #E09F50 !important;
+  border-color: #E09F50 !important;
+}
+
+.editorial-quote {
+  border-left-color: #F2B66D !important;
+}
+
+.editorial-star.lit,
+.editorial-text-link:hover,
+.lookbook-title:hover {
+  color: #F2B66D !important;
+  border-color: #F2B66D !important;
 }
